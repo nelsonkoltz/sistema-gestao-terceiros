@@ -1,0 +1,87 @@
+/* Container principal */
+.form-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Título */
+.form-container h1 {
+    color: #002A51;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+/* Campos */
+.form-group,
+.col-md-6 {
+    text-align: left;
+}
+
+label {
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: #FFB902;
+    outline: none;
+}
+
+/* Botão */
+.btn-primary {
+    width: 100%;
+    background-color: #002A51;
+    color: #fff;
+    font-size: 1rem;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* Alertas */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.alert-danger {
+    background-color: #fdecea;
+    color: #842029;
+}
+
+.alert-success {
+    background-color: #e9f9ec;
+    color: #0f5132;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,140 @@
+/* Layout Geral */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #F3F4F6, #FFFFFF);
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Card container da tela */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+/* Título */
+h1 {
+    font-size: 2rem;
+    color: #002A51;           /* Azul */
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #FFB902;   /* Amarelo */
+    padding-bottom: 10px;
+}
+
+/* Grid do formulário */
+.employee-form .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 colunas */
+    grid-gap: 20px;
+}
+
+.employee-form .col-md-6,
+.employee-form .col-md-8,
+.employee-form .col-md-4,
+.employee-form .col-md-12 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels e inputs */
+.employee-form label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.08);
+    background: #fff;
+}
+
+.form-control:focus {
+    border-color: #002A51;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0,42,81,.35);
+}
+
+/* Help text */
+.help-text {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: .85rem;
+    color: #666;
+}
+
+/* Checkbox alinhado */
+.form-check-input { cursor: pointer; }
+.form-check-label { margin-left: 4px; cursor: pointer; }
+
+/* Botões */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background-color .25s ease, color .25s ease, transform .15s ease;
+    text-decoration: none;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background: #002A51;
+    color: #fff;
+    border: none;
+}
+.btn-primary:hover {
+    background: #FFB902;
+    color: #002A51;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #5a6268;
+    color: #fff;
+    border: none;
+}
+.btn-secondary:hover {
+    background: #FFB902;
+    color: #002A51;
+    transform: translateY(-1px);
+}
+
+/* Alertas */
+.alert {
+    padding: 14px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    font-size: .95rem;
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger  { background: #f8d7da; color: #721c24; }
+
+/* Responsividade 1366x768 */
+@media (max-width: 1366px) and (max-height: 768px) {
+    .container { padding: 20px; margin: 10px auto; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    h1 { font-size: 1.8rem; margin-bottom: 15px; padding-bottom: 8px; }
+    .form-control { padding: 10px; font-size: .95rem; }
+    .employee-form .row { grid-template-columns: 1fr 1fr; grid-gap: 15px; }
+    .btn { padding: 10px 16px; font-size: .95rem; }
+    .alert { padding: 10px; font-size: .9rem; }
+    .d-flex { flex-direction: column; align-items: center; gap: 10px; }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .employee-form .row { grid-template-columns: 1fr; } /* 1 coluna */
+    h1 { font-size: 1.6rem; }
+}

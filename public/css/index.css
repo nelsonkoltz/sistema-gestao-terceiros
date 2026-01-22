@@ -1,0 +1,307 @@
+/* ===========================================================
+   ESTILO PADRÃO DE LISTAGEM
+   (Usuários, Empresas, Funcionários, Serviços)
+   =========================================================== */
+
+/* Corpo */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal */
+.container h1 {
+    color: #002A51;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* ===============================
+   BARRA DE PESQUISA E BOTÕES
+   =============================== */
+.d-flex.justify-content-between {
+    gap: 15px;
+}
+
+/* Barra de pesquisa */
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 25px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 5px 10px;
+    flex-grow: 1;
+    width: 100%;
+    transition: box-shadow 0.3s ease;
+}
+.search-container:hover {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Campo de pesquisa ampliado */
+.search-input {
+    flex-grow: 1;
+    min-width: 550px; /* 🔹 Campo de pesquisa maior */
+    border: 1px solid #ddd;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 25px;
+    outline: none;
+    transition: all 0.3s;
+}
+.search-input:focus {
+    border-color: #FFB902;
+    background-color: #f8f9fa;
+}
+
+/* Botão "Pesquisar" */
+.search-btn {
+    background-color: #002A51;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+.search-btn:hover {
+    background-color: #FFB902;
+    color: #002A51;
+    transform: scale(1.03);
+}
+
+/* Botão "Limpar" */
+.clear-btn {
+    background-color: #002A51;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+.clear-btn:hover {
+    background-color: #FFB902;
+    color: #002A51;
+    transform: scale(1.03);
+}
+
+/* ===============================
+   BOTÃO PRINCIPAL (+ NOVO CADASTRO)
+   =============================== */
+.btn-novo,
+.btn-novo-funcionario {
+    background-color: #002A51;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+.btn-novo:hover,
+.btn-novo-funcionario:hover {
+    background-color: #FFB902;
+    color: #002A51;
+    transform: scale(1.03);
+}
+
+/* ===============================
+   TABELA DE DADOS
+   =============================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    background-color: #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.95rem;
+}
+thead th {
+    background-color: #002A51;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+tbody tr:hover {
+    background-color: #f2f5f7;
+}
+
+/* ===============================
+   BOTÕES DENTRO DA TABELA
+   =============================== */
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin: 2px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Botão azul - Detalhes */
+.btn-info {
+    background-color: #0275d8;
+    color: #fff;
+}
+.btn-info:hover {
+    background-color: #025aa5;
+}
+
+/* Botão amarelo - Editar */
+.btn-warning {
+    background-color: #FFB902;
+    color: #002A51;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+/* Botão vermelho - Excluir */
+.btn-danger {
+    background-color: #d9534f;
+    color: #fff;
+}
+.btn-danger:hover {
+    background-color: #c9302c;
+}
+
+/* ===============================
+   ALERTAS
+   =============================== */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.alert-success {
+    background-color: #e9f9ec;
+    color: #0f5132;
+}
+.alert-danger {
+    background-color: #fdecea;
+    color: #842029;
+}
+
+/* ===============================
+   PAGINAÇÃO PERSONALIZADA
+   =============================== */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 25px;
+}
+.custom-pagination a,
+.custom-pagination span {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.custom-pagination a {
+    background-color: #002A51;
+    color: white;
+}
+.custom-pagination a:hover {
+    background-color: #FFB902;
+    color: #002A51;
+    transform: scale(1.05);
+}
+.custom-pagination .active {
+    background-color: #FFB902;
+    color: #002A51;
+}
+.custom-pagination .disabled {
+    background-color: #ccc;
+    color: #666;
+}
+
+/* ===============================
+   STATUS BADGES (Ativo/Inativo)
+   =============================== */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+.status-ativo {
+    background: #e7f7e7;
+    color: #016101;
+    border-color: #cceacc;
+}
+.status-inativo {
+    background: #eee;
+    color: #666;
+    border-color: #ddd;
+}
+
+/* ===============================
+   RESPONSIVIDADE
+   =============================== */
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    .search-input {
+        min-width: auto;
+        width: 100%;
+    }
+    .btn-novo,
+    .btn-novo-funcionario {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    table th, table td {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}

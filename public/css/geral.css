@@ -1,0 +1,36 @@
+/* Configurações Globais */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilo para o conteúdo principal */
+.content {
+    margin-left: 250px;
+    /* Espaço para o menu lateral */
+    padding: 20px;
+    /* Espaçamento do conteúdo */
+}
+
+/* Ajustes para telas de 1366x768 */
+@media (max-width: 1366px) and (max-height: 768px) {
+
+    /* Estilo do menu lateral */
+    .content {
+        margin-left: 220px;
+        /* Ajusta o espaço do conteúdo conforme a nova largura da sidebar */
+        padding: 15px;
+        /* Reduz o espaçamento interno para melhor ajuste */
+    }
+}
+
+/* Estilo para telas médias */
+@media (min-width: 768px) and (max-width: 1366px) {
+    .content {
+        margin-left: 220px;
+        /* Redefine o espaço lateral médio */
+        padding: 18px;
+        /* Pequeno ajuste no padding para melhor exibição */
+    }
+}

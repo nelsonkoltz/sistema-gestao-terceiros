@@ -1,0 +1,72 @@
+/* ===============================
+   BOAS-VINDAS - TERCEIROSCR
+   =============================== */
+
+/* Container central */
+.welcome-container {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(
+        135deg,
+        #f5f7fa 0%,
+        #ffffff 100%
+    );
+}
+
+/* Bloco principal */
+.welcome-box {
+    background-color: #ffffff;
+    padding: 45px 55px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+}
+
+/* Título */
+.welcome-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #002A51;
+    margin-bottom: 10px;
+}
+
+/* Subtítulo */
+.welcome-subtitle {
+    font-size: 1.05rem;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+/* Nome do usuário */
+.welcome-user {
+    display: inline-block;
+    background-color: #002A51;
+    color: #ffffff;
+    padding: 8px 26px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+/* Texto informativo */
+.welcome-text {
+    font-size: 0.95rem;
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* Responsivo */
+@media (max-width: 576px) {
+    .welcome-box {
+        padding: 35px 30px;
+    }
+
+    .welcome-title {
+        font-size: 1.7rem;
+    }
+}

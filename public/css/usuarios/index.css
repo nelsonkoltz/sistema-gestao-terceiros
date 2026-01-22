@@ -1,0 +1,175 @@
+/* ==========================
+   ESTILO GERAL DA LISTAGEM
+========================== */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f6f8fa;
+    margin: 0;
+    color: #333;
+}
+
+/* Container Principal */
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+/* Título da Página */
+.container h1 {
+    color: #002A51;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ==========================
+   BOTÃO NOVO CADASTRO
+========================== */
+.text-end {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.text-end .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.text-end .btn.btn-primary {
+    background-color: #002A51;
+    color: #fff;
+}
+
+.text-end .btn.btn-primary:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* ==========================
+   TABELA DE DADOS
+========================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+thead {
+    background-color: #002A51;
+    color: #fff;
+    font-weight: 600;
+}
+
+thead th {
+    text-align: center;
+    padding: 12px 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+tbody td {
+    text-align: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+tbody tr:hover {
+    background-color: #f2f5f7;
+    transition: background-color 0.3s;
+}
+
+/* ==========================
+   BOTÕES DE AÇÃO
+========================== */
+table .btn {
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    margin: 0 2px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-warning {
+    background-color: #FFB902;
+    color: #002A51;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* ==========================
+   ALERTAS
+========================== */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: #e9f9ec;
+    color: #0f5132;
+}
+
+.alert-danger {
+    background-color: #fdecea;
+    color: #842029;
+}
+
+.alert-info {
+    background-color: #e7f3fe;
+    color: #084298;
+}
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    thead th, tbody td {
+        padding: 8px;
+    }
+
+    .text-end {
+        text-align: center;
+    }
+}

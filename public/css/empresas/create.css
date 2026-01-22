@@ -1,0 +1,194 @@
+/* Layout Geral */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #F3F4F6, #FFFFFF);
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Título */
+h1 {
+    font-size: 2rem;
+    color: #002A51;
+    /* Azul para o texto */
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #FFB902;
+    /* Amarelo para a borda */
+    padding-bottom: 10px;
+}
+
+/* Formulário */
+.company-form .form-group {
+    margin-bottom: 25px;
+}
+
+/* Formulário de Cadastro em Grid */
+.company-form .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.company-form .col-md-6 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Inputs e Labels */
+.company-form label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus {
+    border-color: #002A51;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 42, 81, 0.5);
+}
+
+/* Botões */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.btn-primary {
+    background: #002A51;
+    /* Azul escuro */
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #FFB902;
+    /* Amarelo */
+    color: #002A51;
+}
+
+.btn-secondary {
+    background: #5a6268;
+    /* Cinza escuro */
+    color: #fff;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #FFB902;
+    /* Amarelo */
+    color: #002A51;
+}
+
+/* Alertas */
+.alert {
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsividade */
+@media (max-width: 1366px) and (max-height: 768px) {
+
+    /* Reduzir o padding para adequar-se a uma tela menor */
+    .container {
+        padding: 20px;
+        margin: 10px auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Ajustar o título para ocupar menos espaço vertical */
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+    }
+
+    /* Diminuir os campos de formulário */
+    .form-control {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    /* Ajustar espaçamento entre os elementos */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    /* Grid simplificado em telas menores */
+    .company-form .row {
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 15px;
+    }
+
+    /* Botões menores */
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+
+    /* Alertas mais compactos */
+    .alert {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    /* Para alinhamento entre botões de "Voltar" e "Cadastrar Empresa" */
+    .d-flex {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .company-form .row {
+        grid-template-columns: 1fr;
+        /* Uma coluna em telas menores */
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        /* Ajuste do tamanho do título em telas muito pequenas */
+    }
+}

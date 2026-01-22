@@ -1,0 +1,485 @@
+/* ==========================
+   ESTILO GERAL DAS LISTAGENS
+   (Empresas, Funcionários, Usuários, Serviços)
+========================== */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* ==========================
+   BARRA DE PESQUISA E AÇÕES
+========================== */
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Campo de busca */
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 5px 10px;
+    flex-grow: 1;
+    max-width: 600px;
+}
+
+.search-input {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 25px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    border-color: #FFB902;
+    background-color: #f8f9fa;
+}
+
+/* Botão de pesquisa */
+.search-btn {
+    background-color: #002A51;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.search-btn:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* Botão limpar */
+.clear-btn {
+    background-color: #002A51;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.clear-btn:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* Botão principal "Novo Cadastro" */
+.btn-novo {
+    background-color: #016101;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 25px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-novo:hover {
+    background-color: #015601;
+    transform: scale(1.03);
+}
+
+/* ==========================
+   TABELAS
+========================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+th {
+    background-color: #002A51;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+th:last-child, td:last-child {
+    text-align: center;
+}
+
+tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* ==========================
+   BOTÕES DE AÇÃO NA TABELA
+========================== */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    margin: 2px;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-info {
+    background-color: #0275d8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #025aa5;
+    transform: scale(1.03);
+}
+
+.btn-warning {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    transform: scale(1.03);
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
+    transform: scale(1.03);
+}
+
+/* ==========================
+   ALERTAS E MENSAGENS
+========================== */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: #e9f9ec;
+    color: #0f5132;
+}
+
+.alert-danger {
+    background-color: #fdecea;
+    color: #842029;
+}
+
+/* ==========================
+   TABELA VAZIA
+========================== */
+tr.empty-table td {
+    text-align: center;
+    background-color: #f9f9f9;
+    color: #777;
+    font-weight: 500;
+    padding: 20px;
+}
+
+/* ==========================
+   PAGINAÇÃO PERSONALIZADA
+========================== */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.custom-pagination a,
+.custom-pagination span {/* ==========================
+   ESTILO GERAL DA LISTAGEM
+========================== */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f6f8fa;
+    margin: 0;
+    color: #333;
+}
+
+/* Container Principal */
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+/* Título da Página */
+.container h1 {
+    color: #002A51;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ==========================
+   BOTÃO NOVO CADASTRO
+========================== */
+.text-end {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.text-end .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.text-end .btn.btn-primary {
+    background-color: #002A51;
+    color: #fff;
+}
+
+.text-end .btn.btn-primary:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* ==========================
+   TABELA DE DADOS
+========================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+thead {
+    background-color: #002A51;
+    color: #fff;
+    font-weight: 600;
+}
+
+thead th {
+    text-align: center;
+    padding: 12px 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+tbody td {
+    text-align: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+tbody tr:hover {
+    background-color: #f2f5f7;
+    transition: background-color 0.3s;
+}
+
+/* ==========================
+   BOTÕES DE AÇÃO
+========================== */
+table .btn {
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    margin: 0 2px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-warning {
+    background-color: #FFB902;
+    color: #002A51;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* ==========================
+   ALERTAS
+========================== */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: #e9f9ec;
+    color: #0f5132;
+}
+
+.alert-danger {
+    background-color: #fdecea;
+    color: #842029;
+}
+
+.alert-info {
+    background-color: #e7f3fe;
+    color: #084298;
+}
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    thead th, tbody td {
+        padding: 8px;
+    }
+
+    .text-end {
+        text-align: center;
+    }
+}
+
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.custom-pagination a {
+    background-color: #002A51;
+    color: white;
+}
+
+.custom-pagination a:hover {
+    background-color: #FFB902;
+    color: #002A51;
+    transform: scale(1.05);
+}
+
+.custom-pagination .active {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+.custom-pagination .disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+@media (max-width: 1024px) {
+    .container {
+        padding: 20px;
+    }
+
+    table th, table td {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .btn {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .btn-novo {
+        width: 100%;
+        text-align: center;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    table th, table td {
+        font-size: 0.85rem;
+    }
+}

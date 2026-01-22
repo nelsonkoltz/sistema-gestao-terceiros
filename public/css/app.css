@@ -1,0 +1,231 @@
+/* Estilo do Menu Lateral */
+.sidebar {
+    height: 100vh;
+    /* Ocupa a altura toda da tela */
+    width: 250px;
+    /* Largura fixa do menu lateral */
+    position: fixed;
+    /* Fixa o menu na tela */
+    top: 0;
+    left: 0;
+    background-color: #002A51;
+    /* Cor de fundo */
+    padding-top: 20px;
+    overflow-y: auto;
+    /* Permite o scroll se o conteúdo exceder a altura */
+}
+
+/* Logo do menu */
+.sidebar .sidebar-logo img {
+    width: 80%;
+    /* Aumenta o tamanho da logo */
+    max-width: 150px;
+    /* Largura máxima da logo */
+    display: block;
+    margin: 0 auto;
+    /* Centraliza a logo */
+    padding: 0;
+}
+
+/* Nome de Usuário */
+.user-info {
+    display: flex;
+    justify-content: center;
+    /* Centraliza o nome de usuário */
+    padding: 10px;
+    /* Diminui o espaçamento ao redor */
+    background-color: #003B73;
+    /* Cor de fundo diferente para a seção de usuário */
+    margin: 0 20px;
+    /* Espaço entre as bordas e o menu */
+    border-radius: 8px;
+    /* Bordas arredondadas */
+}
+
+.user-name {
+    font-size: 0.9rem;
+    /* Reduzido para ficar menor */
+    color: white;
+    font-weight: 500;
+}
+
+/* Estilo do título no menu */
+.sidebar .navbar-brand {
+    font-size: 1.5rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Estilo do menu */
+.sidebar ul {
+    list-style-type: none;
+    /* Remove os pontos das listas */
+    padding: 0;
+    /* Remove padding */
+}
+
+.sidebar ul li a {
+    color: white;
+    /* Cor do texto */
+    text-decoration: none;
+    /* Remove underline */
+    font-size: 1.1rem;
+    /* Tamanho da fonte */
+    padding: 12px 20px;
+    /* Espaçamento ao redor do texto */
+    display: flex;
+    /* Flexbox para o ícone e texto ficarem na mesma linha */
+    align-items: center;
+    /* Alinha verticalmente o ícone com o texto */
+    margin: 10px 0;
+    /* Espaçamento entre os itens */
+    border-radius: 5px;
+    /* Cantos arredondados */
+    transition: background-color 0.3s, color 0.3s;
+    /* Transição suave ao passar o mouse */
+}
+
+.sidebar ul li a i {
+    color: inherit;
+    /* Herda a cor do texto */
+    margin-right: 10px;
+    /* Adiciona um espaço entre o ícone e o texto */
+    transition: color 0.3s ease;
+    /* Efeito suave para a transição da cor */
+}
+
+/* Estilo do item do menu ao passar o mouse */
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #ffb902;
+    /* Cor de fundo ao passar o mouse ou quando ativo */
+    color: #002A51;
+    /* Cor do texto */
+}
+
+.sidebar ul li a:hover i,
+.sidebar ul li a.active i {
+    color: #002A51;
+    /* Cor do ícone quando o link é hover ou ativo */
+}
+
+/* Estilo do botão de logout */
+.logout-btn {
+    background-color: #FF4E4E;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    /* Adiciona um espaço acima do botão de logout */
+}
+
+.logout-btn:hover {
+    background-color: #FFB902;
+    color: #002A51;
+}
+
+/* Ajustes para tela de 1366x768 */
+@media (max-width: 1366px) and (max-height: 768px) {
+    .sidebar {
+        width: 220px;
+        /* Ajusta a largura para manter mais espaço no conteúdo */
+        padding-top: 15px;
+        /* Reduz o padding superior */
+    }
+
+    .sidebar .sidebar-logo img {
+        max-width: 120px;
+        /* Ajuste do tamanho máximo da logo */
+        width: 70%;
+        /* Proporcional à nova largura */
+    }
+
+    .sidebar ul li a {
+        padding: 10px 15px;
+        /* Reduz o espaçamento interno */
+        font-size: 1rem;
+        /* Tamanho ligeiramente menor da fonte */
+    }
+
+    .sidebar ul li a i {
+        margin-right: 8px;
+        /* Ajusta o espaço entre o ícone e o texto */
+    }
+
+    .logout-btn {
+        padding: 10px 15px;
+        /* Reduz o padding no botão de logout */
+        font-size: 0.9rem;
+        /* Ajusta o tamanho do texto no botão */
+        margin-top: 15px;
+        /* Reduz espaço acima do botão */
+    }
+
+    .user-info {
+        padding: 8px;
+        /* Reduz padding na área de informações do usuário */
+        margin: 0 10px;
+        /* Ajusta a margem */
+    }
+
+    .user-name {
+        font-size: 0.85rem;
+        /* Menor para acomodar melhor o espaço */
+    }
+}
+
+/* Ajustes gerais para telas médias */
+@media (min-width: 768px) and (max-width: 1366px) {
+    .content {
+        margin-left: 220px;
+        /* Ajusta a margem do conteúdo considerando a sidebar menor */
+    }
+}
+
+
+
+/* Estilo para responsividade (para telas pequenas) */
+@media (max-width: 767px) {
+
+    /* Redefine o estilo do menu para telas menores */
+    .sidebar {
+        position: relative;
+        /* O menu vai se mover dentro da página */
+        height: auto;
+        /* A altura do menu se ajusta */
+        width: 100%;
+        /* A largura será a tela inteira */
+    }
+
+    .content {
+        margin-left: 0;
+        /* Sem margem à esquerda no conteúdo */
+    }
+
+    /* Estilo dos itens do menu (se quiser ajustar para telas pequenas) */
+    .sidebar ul li a {
+        padding: 10px;
+        /* Ajuste o espaçamento interno */
+        font-size: 1rem;
+        /* Ajuste o tamanho da fonte */
+    }
+
+    /* Nome de usuário na versão mobile */
+    .user-info {
+        padding: 5px 10px;
+        /* Reduz ainda mais o espaçamento */
+        margin: 0 10px;
+    }
+
+    .user-name {
+        font-size: 0.8rem;
+        /* Ajuste do tamanho do nome do usuário */
+    }
+}
