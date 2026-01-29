@@ -1,136 +1,149 @@
 @extends('layouts.app')
 
-<head>
-    <link rel="stylesheet" href="{{ asset('css/empresas/edit.css') }}">
-</head>
+@section('title', 'Editar Empresa')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/empresas/edit.css') }}?v={{ time() }}">
+@endpush
 
 @section('content')
-<div class="container">
-    <h1>Editar Empresa</h1>
+    <div class="form-container">
 
-    <div class="card mt-4">
-        <div class="card-body">
+        {{-- HEADER --}}
+        <header class="form-header">
+            <h1 class="form-title">Editar Empresa</h1>
+            <p class="form-subtitle">
+                Atualize os dados da empresa e gerencie seus documentos.
+            </p>
+        </header>
 
-            <!-- ===================== -->
-            <!-- Formulário principal -->
-            <!-- ===================== -->
-            <form action="{{ route('empresas.update', $empresa->id) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <!-- Dados da Empresa -->
-                <div class="details-section">
-                    <div class="form-grid">
-                        {{-- Campos da empresa --}}
-                        <div class="form-group">
-                            <label for="nome"><strong>Nome da Empresa</strong></label>
-                            <input type="text" id="nome" name="nome" class="form-control"
-                                   value="{{ old('nome', $empresa->nome) }}" required>
-                            @error('nome') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cnpj"><strong>CNPJ/CPF</strong></label>
-                            <input type="text" id="cnpj" name="cnpj" class="form-control"
-                                   value="{{ old('cnpj', $empresa->cnpj) }}" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email"><strong>Email</strong></label>
-                            <input type="email" id="email" name="email" class="form-control"
-                                   value="{{ old('email', $empresa->email) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="telefone"><strong>Telefone</strong></label>
-                            <input type="tel" id="telefone" name="telefone" class="form-control"
-                                   value="{{ old('telefone', $empresa->telefone) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_rua"><strong>Rua</strong></label>
-                            <input type="text" id="endereco_rua" name="endereco_rua" class="form-control"
-                                   value="{{ old('endereco_rua', $empresa->endereco_rua) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_numero"><strong>Número</strong></label>
-                            <input type="text" id="endereco_numero" name="endereco_numero" class="form-control"
-                                   value="{{ old('endereco_numero', $empresa->endereco_numero) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_bairro"><strong>Bairro</strong></label>
-                            <input type="text" id="endereco_bairro" name="endereco_bairro" class="form-control"
-                                   value="{{ old('endereco_bairro', $empresa->endereco_bairro) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_cidade"><strong>Cidade</strong></label>
-                            <input type="text" id="endereco_cidade" name="endereco_cidade" class="form-control"
-                                   value="{{ old('endereco_cidade', $empresa->endereco_cidade) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_estado"><strong>Estado</strong></label>
-                            <input type="text" id="endereco_estado" name="endereco_estado" class="form-control"
-                                   value="{{ old('endereco_estado', $empresa->endereco_estado) }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="endereco_cep"><strong>CEP</strong></label>
-                            <input type="text" id="endereco_cep" name="endereco_cep" class="form-control"
-                                   value="{{ old('endereco_cep', $empresa->endereco_cep) }}" required>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload de novos documentos -->
-                <div class="form-group mt-4">
-                    <label for="documentos"><strong>Adicionar novos documentos (PDF/JPG/PNG)</strong></label>
-                    <input type="file" id="documentos" name="documentos[]" class="form-control"
-                           accept=".pdf,.jpg,.jpeg,.png" multiple>
-                </div>
-
-                <!-- Botões principais -->
-                <div class="form-group text-center mt-4">
-                    <a href="{{ route('empresas.index') }}" class="btn btn-secondary">Voltar</a>
-                    <button type="submit" class="btn btn-primary">Atualizar</button>
-                </div>
-            </form> <!-- ✅ Fecha o form principal AQUI -->
-
-            <!-- =========================== -->
-            <!-- Documentos Existentes -->
-            <!-- =========================== -->
-            <div class="form-group mt-5">
-                <h5>Documentos Existentes:</h5>
-                <ul class="list-group">
-                    @forelse ($empresa->documentos as $documento)
-                        <li class="list-group-item d-flex justify-content-between align-items-center file-item">
-                            <span>
-                                <a href="{{ asset('storage/' . $documento->caminho_arquivo) }}" target="_blank">
-                                    {{ basename($documento->nome_arquivo) }}
-                                </a>
-                            </span>
-
-                            <!-- Formulário independente de exclusão -->
-                            <form action="{{ route('empresas.deleteDocumento', ['empresa' => $empresa->id, 'documento' => $documento->id]) }}"
-                                  method="POST" class="d-inline"
-                                  onsubmit="return confirm('Deseja realmente remover este documento?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" title="Excluir">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </li>
-                    @empty
-                        <li class="list-group-item text-muted">Nenhum documento enviado.</li>
-                    @endforelse
+        {{-- ERROS --}}
+        @if ($errors->any())
+            <div class="alert-error">
+                <ul>
+                    @foreach ($errors->all() as $erro)
+                        <li>{{ $erro }}</li>
+                    @endforeach
                 </ul>
             </div>
+        @endif
 
+        {{-- FORM --}}
+        <form action="{{ route('empresas.update', $empresa->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+
+            {{-- GRID --}}
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Nome / Razão Social</label>
+                    <input type="text" name="nome" class="form-control" value="{{ old('nome', $empresa->nome) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>CPF / CNPJ</label>
+                    <input type="text" class="form-control" value="{{ $empresa->cnpj }}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" name="email" class="form-control" value="{{ old('email', $empresa->email) }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" name="telefone" class="form-control"
+                        value="{{ old('telefone', $empresa->telefone) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Rua</label>
+                    <input type="text" name="endereco_rua" class="form-control"
+                        value="{{ old('endereco_rua', $empresa->endereco_rua) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Número</label>
+                    <input type="text" name="endereco_numero" class="form-control"
+                        value="{{ old('endereco_numero', $empresa->endereco_numero) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Bairro</label>
+                    <input type="text" name="endereco_bairro" class="form-control"
+                        value="{{ old('endereco_bairro', $empresa->endereco_bairro) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Cidade</label>
+                    <input type="text" name="endereco_cidade" class="form-control"
+                        value="{{ old('endereco_cidade', $empresa->endereco_cidade) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Estado</label>
+                    <input type="text" name="endereco_estado" class="form-control"
+                        value="{{ old('endereco_estado', $empresa->endereco_estado) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>CEP</label>
+                    <input type="text" name="endereco_cep" class="form-control"
+                        value="{{ old('endereco_cep', $empresa->endereco_cep) }}" required>
+                </div>
+
+                {{-- NOVOS DOCUMENTOS --}}
+                <div class="form-group full">
+                    <label>Adicionar novos documentos</label>
+                    <input type="file" name="documentos[]" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png">
+                    <small>PDF, JPG ou PNG • até 20MB por arquivo</small>
+                </div>
+
+            </div>
+
+            {{-- AÇÕES --}}
+            <div class="form-actions">
+                <a href="{{ route('empresas.index') }}" class="btn btn-cancelar">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Voltar
+                </a>
+
+                <button type="submit" class="btn btn-salvar">
+                    <i class="fa-solid fa-check"></i>
+                    Atualizar
+                </button>
+            </div>
+
+        </form>
+
+        {{-- DOCUMENTOS EXISTENTES --}}
+        <div class="documents-box">
+            <h3 class="documents-title">Documentos Existentes</h3>
+
+            <ul class="file-list">
+                @forelse ($empresa->documentos as $documento)
+                    <li class="file-item">
+                        <a href="{{ asset('storage/' . $documento->caminho_arquivo) }}" target="_blank" class="file-name">
+                            {{ $documento->nome_arquivo }}
+                        </a>
+
+                        <form action="{{ route('empresas.deleteDocumento', [$empresa->id, $documento->id]) }}" method="POST"
+                            onsubmit="return confirm('Deseja realmente remover este documento?')">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="file-remove" title="Excluir">
+                                ✕
+                            </button>
+                        </form>
+                    </li>
+                @empty
+                    <li class="file-item muted">Nenhum documento cadastrado.</li>
+                @endforelse
+            </ul>
         </div>
+
     </div>
-</div>
 @endsection

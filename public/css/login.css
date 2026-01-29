@@ -1,64 +1,114 @@
-/* Estilo Geral */
+/* =========================================================
+   LOGIN – TERCEIROSCR
+   Clean • Profissional • Responsivo
+   ========================================================= */
+
+/* ===============================
+   BASE
+   =============================== */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh;
+    min-height: 100vh;
+
     background: linear-gradient(135deg, #002A51, #FFB902);
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     color: #333;
 }
 
-/* Container do Formulário */
+/* ===============================
+   CONTAINER
+   =============================== */
 .container {
-    background-color: #fff;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    padding: 32px 40px;
+    border-radius: 12px;
+
     width: 100%;
     max-width: 400px;
+
     text-align: center;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
 }
 
-/* Título do Formulário */
+/* ===============================
+   TÍTULO
+   =============================== */
 .container h2 {
-    margin-bottom: 20px;
+    margin-bottom: 6px;
     color: #002A51;
     font-weight: 700;
+    font-size: 1.6rem;
 }
 
-/* Inputs e Botão */
+/* ===============================
+   FORM
+   =============================== */
+.form-group {
+    margin-bottom: 18px;
+}
+
 .form-group label {
+    display: block;
+    margin-bottom: 6px;
+
     color: #555;
     font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
+    font-size: 0.95rem;
     text-align: left;
 }
 
 .form-control {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
+    padding: 11px 12px;
+
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 6px;
+
     font-size: 1rem;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #333;
+
+    background-color: #fff;
+
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Focus elegante */
+.form-control:focus {
+    outline: none;
+    border-color: #002A51;
+    box-shadow: 0 0 0 2px rgba(0, 42, 81, 0.15);
+}
+
+/* ===============================
+   BOTÃO
+   =============================== */
 .btn-primary {
-    background-color: #002A51;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
     width: 100%;
+    padding: 12px 20px;
+
+    background-color: #002A51;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
 }
 
 .btn-primary:hover {
@@ -66,54 +116,90 @@ body {
     color: #002A51;
 }
 
-/* Alertas de Erro */
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* ===============================
+   ALERTAS
+   =============================== */
 .alert {
-    color: #ff4d4d;
-    background-color: #ffe6e6;
-    padding: 10px;
-    border: 1px solid #ffcccc;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    border-radius: 6px;
+
+    font-size: 0.9rem;
+    line-height: 1.4;
+
     text-align: left;
 }
 
-/* Responsividade para 1366x768 */
+/* Erro */
+.alert-danger {
+    background-color: #ffecec;
+    border: 1px solid #ffbcbc;
+    color: #c0392b;
+}
+
+/* Info */
+.alert-info {
+    background-color: #eef5ff;
+    border: 1px solid #cfdfff;
+    color: #1f3c88;
+}
+
+/* ===============================
+   CHECKBOX
+   =============================== */
+.form-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.form-remember input {
+    cursor: pointer;
+}
+
+/* ===============================
+   RESPONSIVIDADE
+   =============================== */
+
+/* 1366x768 */
 @media (max-width: 1366px) and (max-height: 768px) {
     .container {
-        padding: 25px 35px;
-        /* Ajuste no padding interno para melhor visualização */
+        padding: 26px 34px;
         max-width: 360px;
-        /* Reduz ligeiramente a largura máxima */
     }
 
-    h2 {
+    .container h2 {
         font-size: 1.4rem;
-        /* Reduz tamanho da fonte para ajustar o espaço */
+    }
+
+    .form-control {
+        padding: 9px 10px;
+        font-size: 0.95rem;
     }
 
     .btn-primary {
         padding: 10px 18px;
-        /* Diminui o padding dos botões */
-        font-size: 0.9rem;
-        /* Tamanho do texto do botão ajustado */
-    }
-
-    .form-control {
-        padding: 8px;
-        /* Ajusta o espaço interno dos inputs */
-        font-size: 0.9rem;
-        /* Menor tamanho de fonte nos campos */
+        font-size: 0.95rem;
     }
 }
 
-/* Responsividade para telas pequenas */
+/* Mobile */
 @media (max-width: 480px) {
     .container {
-        padding: 20px;
+        padding: 22px;
     }
 
-    h2 {
-        font-size: 1.2rem;
-        /* Menor título para telas muito pequenas */
+    .container h2 {
+        font-size: 1.3rem;
     }
 }

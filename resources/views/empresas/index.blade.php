@@ -1,47 +1,66 @@
 @extends('layouts.app')
+@section('title', 'Empresas')
 
-<head>
-    <link href="{{ asset('css/index.css') }}" rel="stylesheet">
-</head>
+@push('styles')
+    <link href="{{ asset('css/empresas/index.css') }}" rel="stylesheet">
+@endpush
 
 @section('content')
-    <div class="container">
+<div class="container">
 
-        <!-- Barra de pesquisa e botão Nova Empresa -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Formulário de pesquisa -->
-            <form method="GET" action="{{ route('empresas.index') }}"
-                class="d-flex flex-grow-1 align-items-center search-container">
-                <input type="text" name="search" class="form-control search-input" value="{{ request('search') }}"
-                    placeholder="Pesquisar por Nome ou CNPJ">
-                <button type="submit" class="btn search-btn">Pesquisar</button>
-                <a href="{{ route('empresas.index') }}" class="btn clear-btn">Limpar</a>
+    <!-- Barra de pesquisa e botão Nova Empresa -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div class="NovaEmpresa">
-                    <!-- Botão para nova empresa -->
-                    <a href="{{ route('empresas.create') }}" class="btn btn-novo">+ Nova Empresa</a>
-                </div>
-            </form>
+        <form method="GET"
+              action="{{ route('empresas.index') }}"
+              class="d-flex flex-grow-1 align-items-center search-container">
+
+            <input type="text"
+                   name="search"
+                   class="search-input"
+                   value="{{ request('search') }}"
+                   placeholder="Pesquisar por nome, CPF ou CNPJ">
+
+            <!-- Pesquisar -->
+            <button type="submit" class="search-btn" title="Pesquisar">
+                <i class="bi bi-search"></i>
+            </button>
+
+            <!-- Limpar -->
+            <a href="{{ route('empresas.index') }}" class="clear-btn" title="Limpar pesquisa">
+                <i class="bi bi-x-circle"></i>
+            </a>
+
+            <!-- Nova Empresa -->
+            <a href="{{ route('empresas.create') }}" class="btn-novo" title="Nova empresa">
+                <i class="bi bi-plus-circle"></i>
+                Nova Empresa
+            </a>
+        </form>
+    </div>
+
+    <!-- Mensagem de sucesso -->
+    @if (session('success'))
+        <div class="alert">
+            <i class="bi bi-check-circle"></i>
+            {{ session('success') }}
         </div>
+    @endif
 
-        <!-- Mensagem de sucesso -->
-        @if (session('success'))
-            <div class="alert alert-success mt-3">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- Tabela -->
+    <!-- Tabela -->
+    <div class="table-wrapper">
         <table>
+
             <thead>
                 <tr>
                     <th>Nome</th>
-                    <th>CNPJ</th>
+                    <th>CPF / CNPJ</th>
                     <th>Telefone</th>
-                    <th>Email</th>
+                    <th>E-mail</th>
                     <th>Ações</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse ($empresas as $empresa)
                     <tr>
@@ -49,50 +68,53 @@
                         <td>{{ $empresa->cnpj }}</td>
                         <td>{{ $empresa->telefone }}</td>
                         <td>{{ $empresa->email }}</td>
+
+                        <!-- AÇÕES -->
                         <td>
-                            <a href="{{ route('empresas.show', $empresa->id) }}" class="btn btn-info">Detalhes</a>
-                            <a href="{{ route('empresas.edit', $empresa->id) }}" class="btn btn-warning">Editar</a>
-                            <form action="{{ route('empresas.destroy', $empresa->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Tem certeza que deseja excluir esta empresa?')">
-                                    Excluir
-                                </button>
-                            </form>
+                            <div class="actions">
+
+                                <a href="{{ route('empresas.show', $empresa->id) }}"
+                                   class="btn btn-view"
+                                   title="Detalhes">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a href="{{ route('empresas.edit', $empresa->id) }}"
+                                   class="btn btn-edit"
+                                   title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <form action="{{ route('empresas.destroy', $empresa->id) }}"
+                                      method="POST">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                            class="btn btn-delete"
+                                            title="Excluir"
+                                            onclick="return confirm('Essa ação não poderá ser desfeita. Deseja continuar?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr class="empty-table">
+                    <tr>
                         <td colspan="5">Nenhuma empresa cadastrada.</td>
                     </tr>
                 @endforelse
             </tbody>
+
         </table>
-
-        <!-- Paginação -->
-        @if ($empresas->hasPages())
-            <div class="custom-pagination">
-                @if ($empresas->onFirstPage())
-                    <span class="disabled">&laquo;</span>
-                @else
-                    <a href="{{ $empresas->previousPageUrl() }}">&laquo;</a>
-                @endif
-
-                @for ($page = 1; $page <= $empresas->lastPage(); $page++)
-                    @if ($page == $empresas->currentPage())
-                        <span class="active">{{ $page }}</span>
-                    @else
-                        <a href="{{ $empresas->url($page) }}">{{ $page }}</a>
-                    @endif
-                @endfor
-
-                @if ($empresas->hasMorePages())
-                    <a href="{{ $empresas->nextPageUrl() }}">&raquo;</a>
-                @else
-                    <span class="disabled">&raquo;</span>
-                @endif
-            </div>
-        @endif
     </div>
+
+    <!-- Paginação -->
+    <div class="custom-pagination">
+        {{ $empresas->links() }}
+    </div>
+
+</div>
 @endsection

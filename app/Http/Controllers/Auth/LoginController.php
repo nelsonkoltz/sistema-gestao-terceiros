@@ -10,57 +10,57 @@ use App\Models\Usuario;
 
 class LoginController extends Controller
 {
-    /**
-     * Exibe o formulário de login.
-     */
     public function showLoginForm()
     {
+        if (Auth::check()) {
+            return redirect()->route('home');
+        }
+
         return view('auth.login');
     }
 
-    /**
-     * Realiza o login do usuário.
-     */
     public function login(Request $request)
     {
-        // Validação dos campos
-        $credentials = $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ]);
+        $request->validate(
+            [
+                'username' => 'required|string',
+                'password' => 'required|string',
+            ],
+            [
+                'username.required' => 'Informe o usuário.',
+                'password.required' => 'Informe a senha.',
+            ]
+        );
 
-        // Busca o usuário na tabela 'usuarios'
-        $user = Usuario::where('username', $credentials['username'])->first();
+        $user = Usuario::where('username', $request->username)->first();
 
-        // Verifica se usuário existe e a senha confere com o hash bcrypt
-        if ($user && Hash::check($credentials['password'], $user->password)) {
-
-            // Realiza o login
-            Auth::login($user, $request->boolean('remember'));
-
-            // Regenera a sessão (segurança)
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('home'));
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return back()
+                ->withErrors(['username' => 'As credenciais fornecidas são inválidas.'])
+                ->onlyInput('username');
         }
 
-        // Caso falhe, retorna com erro
-        return back()
-            ->withErrors(['username' => 'As credenciais fornecidas são inválidas.'])
-            ->onlyInput('username');
+        if (isset($user->ativo) && ! $user->ativo) {
+            return back()
+                ->withErrors(['username' => 'Usuário inativo. Procure o administrador.'])
+                ->onlyInput('username');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('home'));
     }
 
-    /**
-     * Faz logout do usuário autenticado.
-     */
     public function logout(Request $request)
     {
         Auth::logout();
 
-        // Invalida a sessão e o token CSRF
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('status', 'Sessão encerrada com sucesso.');
+        return redirect()
+            ->route('login')
+            ->with('status', 'Sessão encerrada com sucesso.');
     }
 }

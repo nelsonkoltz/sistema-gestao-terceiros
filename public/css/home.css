@@ -1,72 +1,78 @@
-/* ===============================
-   BOAS-VINDAS - TERCEIROSCR
-   =============================== */
+/* =========================================================
+   HOME – TERCEIROSCR
+   Profissional • Clean • Corporativo
+   ========================================================= */
 
-/* Container central */
-.welcome-container {
+/* ===============================
+   WRAPPER
+   =============================== */
+.home-wrapper {
     min-height: calc(100vh - 80px);
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(
-        135deg,
-        #f5f7fa 0%,
-        #ffffff 100%
-    );
+    padding: 20px;
 }
 
-/* Bloco principal */
-.welcome-box {
+/* ===============================
+   CARD
+   =============================== */
+.home-card {
     background-color: #ffffff;
-    padding: 45px 55px;
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-    text-align: center;
+    padding: 40px 46px;
     max-width: 520px;
     width: 100%;
+
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+
+    text-align: center;
 }
 
-/* Título */
-.welcome-title {
-    font-size: 2.1rem;
+/* ===============================
+   TÍTULOS
+   =============================== */
+.home-title {
+    font-size: 1.9rem;
     font-weight: 700;
     color: #002A51;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
-/* Subtítulo */
-.welcome-subtitle {
+.home-subtitle {
     font-size: 1.05rem;
     color: #6c757d;
-    margin-bottom: 30px;
+    margin-bottom: 22px;
 }
 
-/* Nome do usuário */
-.welcome-user {
-    display: inline-block;
-    background-color: #002A51;
-    color: #ffffff;
-    padding: 8px 26px;
-    border-radius: 25px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 25px;
-}
-
-/* Texto informativo */
-.welcome-text {
-    font-size: 0.95rem;
-    color: #6c757d;
+/* ===============================
+   TEXTO
+   =============================== */
+.home-text {
+    font-size: 1rem;
+    color: #444;
     line-height: 1.6;
 }
 
-/* Responsivo */
-@media (max-width: 576px) {
-    .welcome-box {
-        padding: 35px 30px;
+/* ===============================
+   RESPONSIVIDADE
+   =============================== */
+@media (max-width: 768px) {
+    .home-card {
+        padding: 30px;
     }
 
-    .welcome-title {
-        font-size: 1.7rem;
+    .home-title {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-title {
+        font-size: 1.4rem;
+    }
+
+    .home-text {
+        font-size: 0.95rem;
     }
 }

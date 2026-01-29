@@ -1,25 +1,42 @@
 @extends('layouts.app')
 
+@section('title', 'Início')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/home.css') }}">
+@endpush
+
 @section('content')
-<div class="container d-flex justify-content-center align-items-center"
-     style="min-height: calc(100vh - 80px);">
+@php
+    $hora = now()->format('H');
 
-    <div class="container welcome-container">
-    <div class="welcome-box">
-        <h1 class="welcome-title">Bem-vindo ao TerceirosCR</h1>
-        <p class="welcome-subtitle">Sistema de Gestão de Terceiros</p>
+    if ($hora >= 5 && $hora < 12) {
+        $saudacao = 'Bom dia';
+    } elseif ($hora >= 12 && $hora < 18) {
+        $saudacao = 'Boa tarde';
+    } else {
+        $saudacao = 'Boa noite';
+    }
+@endphp
 
-        <div class="welcome-user">
-            {{ auth()->user()->name }}
-        </div>
+<div class="home-wrapper">
 
-        <p class="welcome-text">
-            Utilize o menu lateral para acessar os módulos disponíveis
-            de acordo com o seu perfil.
+    <div class="home-card">
+
+        <h1 class="home-title">
+            {{ $saudacao }}, {{ auth()->user()->name }}
+        </h1>
+
+        <p class="home-subtitle">
+            Bem-vindo ao <strong>TerceirosCR</strong>
         </p>
-    </div>
-</div>
 
+        <p class="home-text">
+            Utilize o menu lateral para acessar os módulos disponíveis
+            de acordo com o seu perfil de acesso.
+        </p>
+
+    </div>
 
 </div>
 @endsection

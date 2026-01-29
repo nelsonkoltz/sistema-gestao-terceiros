@@ -1,199 +1,205 @@
-/* Layout Geral */
+/* ===========================================================
+   TERCEIROSCR – EDITAR EMPRESA
+   PADRÃO CORPORATIVO (IGUAL AO CREATE / SERVIÇO)
+   =========================================================== */
+
+:root {
+    --primary: #0b2a4a;
+    --primary-hover: #143f6b;
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --text: #2b2b2b;
+    --muted: #6c757d;
+    --danger-bg: #fdecea;
+    --danger-text: #842029;
+    --danger-border: #f5c2c7;
+    --radius: 14px;
+    --transition: 0.25s ease;
+}
+
+/* BASE */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    color: #333;
-    margin: 0;
-    padding: 0;
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
 }
 
-.container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 30px;
-    background: #fff;
+/* CONTAINER */
+.form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 32px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+/* HEADER */
+.form-header {
+    margin-bottom: 28px;
+}
+
+.form-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.form-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* ALERTA */
+.alert-error {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+    padding: 14px 18px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 28px;
+    font-size: 0.85rem;
 }
 
-/* Título */
-h1 {
-    font-size: 2rem;
-    color: #002A51;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-    border-bottom: 2px solid #FFB902;
-    padding-bottom: 10px;
-}
-
-/* Formulário */
-.details-section {
-    margin-bottom: 30px;
-}
-
+/* GRID */
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    /* Melhor distribuição da largura */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.form-group.full {
+    grid-column: span 3;
 }
 
-.form-group label {
-    font-weight: bold;
-    color: #002A51;
+/* FORM */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
 }
 
 .form-control {
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(11, 42, 74, 0.08);
+    outline: none;
+}
+
+/* AÇÕES */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 36px;
+}
+
+/* BOTÕES */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 26px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-salvar {
+    background: linear-gradient(135deg, #0b2a4a, #143f6b);
+    color: #fff;
+}
+
+.btn-cancelar {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: #fff;
+}
+
+/* DOCUMENTOS */
+.documents-box {
+    margin-top: 48px;
+}
+
+.documents-title {
     font-size: 1rem;
-    padding: 10px;
-    width: 100%;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--primary);
 }
 
-/* Responsividade */
-@media (max-width: 1366px) and (max-height: 768px) {
-    .container {
-        margin: 20px;
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-
-    .form-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
-    }
-
-    .form-control {
-        font-size: 0.9rem;
-        padding: 8px;
-    }
-
-    /* Ajustar os botões dentro do formulário */
-    .btn {
-        font-size: 0.95rem;
-        padding: 8px 16px;
-    }
-
-    .btn-danger {
-        font-size: 0.85rem;
-        padding: 5px 12px;
-    }
-
-    .file-item {
-        gap: 8px;
-    }
-
-    .list-group {
-        margin-top: 10px;
-    }
+.file-list {
+    list-style: none;
+    padding: 0;
 }
 
-/* Responsividade Geral */
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+
+.file-name {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+/* RESPONSIVO */
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
     }
 
-    .container {
-        margin: 20px;
-        padding: 15px;
+    .form-group.full {
+        grid-column: span 1;
     }
 
-    h1 {
-        font-size: 1.2rem;
-    }
-
-    .form-control {
-        font-size: 0.85rem;
-        padding: 7px;
+    .form-actions {
+        flex-direction: column-reverse;
     }
 
     .btn {
         width: 100%;
-        font-size: 1rem;
-        padding: 12px;
+        justify-content: center;
     }
-
-    .file-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-}
-
-/* Botões */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    text-decoration: none;
-    text-align: center;
-    margin-top: 15px;
-}
-
-.btn-primary {
-    background: #002A51;
-    color: #fff;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #FFB902;
-    color: #002A51;
-}
-
-.btn-secondary {
-    background: #5a6268;
-    color: #fff;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background: #FFB902;
-    color: #002A51;
-}
-
-.btn-danger {
-    background: #db3333;
-    color: white;
-    width: auto;
-    /* Ajuste no tamanho */
-    font-size: 0.9rem;
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
-    margin-left: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-danger:hover {
-    background: #FFB902;
-    color: #002A51;
-}
-
-/* Estilo para os arquivos e os botões de retirar */
-.file-item {
-    display: flex;
-    align-items: center;
-    /* Alinha o conteúdo verticalmente */
-    gap: 10px;
-    /* Adiciona um espaço entre o arquivo e o botão */
-}
-
-/* Ajusta a listagem de documentos */
-.list-group {
-    margin-top: 10px;
 }
