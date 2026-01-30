@@ -1,139 +1,323 @@
-/* Layout Geral */
+/* ===========================================================
+   TERCEIROSCR • FORMULÁRIO EDITAR
+   PADRÃO EMPRESA / FUNCIONÁRIO / SERVIÇO
+   =========================================================== */
+
+:root {
+    --primary: #002a51;
+    --primary-hover: #0b3d6e;
+    --accent: #ffb902;
+
+    --danger: #dc3545;
+    --success: #28a745;
+
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+
+    --text: #1f2937;
+    --muted: #6b7280;
+
+    --radius: 12px;
+    --transition: 0.25s ease;
+}
+
+/* ===============================
+   BASE
+   =============================== */
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    color: #333;
-    margin: 0;
-    padding: 0;
+    background: var(--bg);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
 }
 
-.container {
-    max-width: 1000px;
+/* ===============================
+   CONTAINER
+   =============================== */
+
+.form-container {
+    max-width: 1100px;
     margin: 30px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    background: var(--surface);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
-/* Título */
-h1 {
-    font-size: 2rem;
-    color: #002A51;
+/* ===============================
+   HEADER
+   =============================== */
+
+.form-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+}
+
+.form-title {
+    font-size: 1.6rem;
     font-weight: 700;
-    margin-bottom: 20px;
-    text-align: center;
-    border-bottom: 2px solid #FFB902;
-    padding-bottom: 10px;
+    color: var(--primary);
+    margin: 0;
 }
 
-/* Seção de detalhes */
-.details-section { margin-bottom: 30px; }
+.form-subtitle {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
 
-/* Grid do formulário */
+/* ===============================
+   ALERTA ERRO
+   =============================== */
+
+.alert-error {
+    background: #fdecec;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+    padding: 16px 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.alert-error ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+/* ===============================
+   GRID
+   =============================== */
+
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
 }
 
-.form-group { margin-bottom: 15px; }
+/* ===============================
+   FORM GROUP
+   =============================== */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
 
 .form-group label {
-    font-weight: 700;
-    color: #002A51;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
 }
 
-/* Inputs */
+/* ===============================
+   INPUTS
+   =============================== */
+
 .form-control {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
     background: #fff;
-}
-.form-control:focus {
-    border-color: #002A51;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0,42,81,.35);
+    transition: var(--transition);
 }
 
-/* Lista de arquivos */
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(0, 42, 81, 0.15);
+}
+
+.form-control[readonly] {
+    background: #f9fafb;
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+/* ===============================
+   CHECKBOX
+   =============================== */
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.checkbox-wrapper input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* ===============================
+   FILE UPLOAD
+   =============================== */
+
+.form-group small {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.file-preview {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.file-preview li {
+    background: #f8fafc;
+    border: 1px dashed var(--border);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+/* ===============================
+   AÇÕES
+   =============================== */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 32px;
+}
+
+/* ===============================
+   BOTÕES
+   =============================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn i {
+    font-size: 0.9rem;
+}
+
+/* Cancelar */
+.btn-cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-cancelar:hover {
+    background: #d1d5db;
+}
+
+/* Salvar */
+.btn-salvar {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn-salvar:hover {
+    background: var(--primary-hover);
+}
+
+/* ===============================
+   DOCUMENTOS EXISTENTES
+   =============================== */
+
+.documents-box {
+    margin-top: 45px;
+}
+
+.documents-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .file-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 10px;
 }
-.list-group { margin-top: 10px; }
 
-/* Botões */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 700;
-    transition: background-color .25s ease, color .25s ease, transform .15s ease;
+.file-item.muted {
+    color: var(--muted);
+    justify-content: center;
+}
+
+.file-name {
+    font-size: 0.9rem;
+    color: var(--primary);
     text-decoration: none;
-    text-align: center;
-    margin-top: 15px;
 }
 
-.btn-primary {
-    background: #002A51;
-    color: #fff;
-    border: none;
-}
-.btn-primary:hover {
-    background: #FFB902;
-    color: #002A51;
-    transform: translateY(-1px);
+.file-name:hover {
+    text-decoration: underline;
 }
 
-.btn-secondary {
-    background: #5a6268;
-    color: #fff;
+/* Botão remover */
+.file-remove {
+    background: transparent;
     border: none;
-}
-.btn-secondary:hover {
-    background: #FFB902;
-    color: #002A51;
-    transform: translateY(-1px);
-}
-
-.btn-danger {
-    background: #db3333;
-    color: #fff;
-    border: none;
-    width: auto;
-    font-size: .9rem;
-    padding: 5px 10px;
+    color: var(--danger);
+    font-size: 1.2rem;
     cursor: pointer;
-}
-.btn-danger:hover {
-    background: #FFB902;
-    color: #002A51;
+    line-height: 1;
 }
 
-/* Responsividade 1366x768 */
-@media (max-width: 1366px) and (max-height: 768px) {
-    .container { margin: 20px; padding: 20px; }
-    h1 { font-size: 1.6rem; }
-    .form-grid { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 15px; }
-    .form-control { font-size: .95rem; padding: 8px 10px; }
-    .btn { font-size: .95rem; padding: 8px 16px; }
-    .btn-danger { font-size: .85rem; }
-    .file-item { gap: 8px; }
-    .list-group { margin-top: 10px; }
+.file-remove:hover {
+    transform: scale(1.1);
 }
 
-/* Mobile */
+/* ===============================
+   RESPONSIVO
+   =============================== */
+
 @media (max-width: 768px) {
-    .form-grid { grid-template-columns: 1fr; gap: 10px; }
-    .container { margin: 20px; padding: 15px; }
-    h1 { font-size: 1.3rem; }
-    .form-control { font-size: .9rem; padding: 8px 10px; }
-    .btn { width: 100%; font-size: 1rem; padding: 12px; }
-    .file-item { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .form-container {
+        padding: 22px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .btn {
+        justify-content: center;
+        width: 100%;
+    }
 }
