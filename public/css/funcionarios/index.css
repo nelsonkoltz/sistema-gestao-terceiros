@@ -1,292 +1,363 @@
-/* ==========================
-   ESTILO GERAL DA LISTAGEM
-========================== */
+/* ===========================================================
+   TERCEIROSCR – FUNCIONÁRIOS
+   LAYOUT CORPORATIVO ELEGANTE
+   (MESMO DESIGN DO INDEX DE SERVIÇOS)
+   =========================================================== */
+
+/* ===============================
+   VARIÁVEIS DE DESIGN
+   =============================== */
+:root {
+    --primary: #0b2a4a;
+    --primary-hover: #143f6b;
+    --accent: #f2b705;
+
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+
+    --text: #2b2b2b;
+    --muted: #6c757d;
+
+    --radius: 14px;
+    --transition: 0.25s ease;
+}
+
+/* ===============================
+   RESET / BASE
+   =============================== */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f6f8fa;
+    font-family: 'Inter', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
     margin: 0;
-    color: #333;
+    padding: 0;
 }
 
-/* Container Principal */
+/* ===============================
+   CONTAINER PRINCIPAL
+   =============================== */
 .container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    max-width: 1200px;
-    margin: 30px auto;
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 32px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
 }
 
-/* ==========================
-   BARRA DE PESQUISA E BOTÕES
-========================== */
-.d-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+/* ===============================
+   BARRA SUPERIOR
+   =============================== */
+.d-flex.justify-content-between {
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-/* Container visual de pesquisa */
+/* ===============================
+   PESQUISA
+   =============================== */
 .search-container {
     display: flex;
     align-items: center;
-    background-color: #ffffff;
-    border-radius: 25px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 5px 10px;
-    max-width: 700px;
-    width: 100%;
-    transition: box-shadow 0.3s ease;
-}
-.search-container:hover {
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 8px;
+    transition: var(--transition);
 }
 
-/* Campo de pesquisa */
+.search-container:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(11, 42, 74, 0.08);
+}
+
 .search-input {
-    flex-grow: 1;
-    border: 1px solid #ddd;
-    padding: 10px;
-    font-size: 1rem;
-    border-radius: 25px;
-    outline: none;
-    transition: all 0.3s;
-}
-.search-input:focus {
-    border-color: #002A51;
-    background-color: #f8f9fa;
-}
-
-/* Botão Pesquisar */
-.search-btn {
-    background-color: #002A51;
-    color: white;
+    flex: 1;
     border: none;
-    padding: 10px 15px;
-    border-radius: 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-left: 10px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-.search-btn:hover {
-    background-color: #FFB902;
-    color: #002A51;
-    transform: scale(1.03);
+    outline: none;
+    background: transparent;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: var(--text);
 }
 
-/* Botão Limpar */
+/* Botões de busca */
+.search-btn,
 .clear-btn {
-    background-color: #002A51;
-    color: #fff;
-    border: 1px solid #ddd;
-    padding: 10px 20px;
-    text-decoration: none;
-    font-size: 1rem;
-    border-radius: 25px;
-    margin-left: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
+
+.search-btn:hover,
 .clear-btn:hover {
-    background-color: #FFB902;
-    color: #002A51;
+    background: var(--bg);
+    color: var(--primary);
 }
 
-/* Botão Novo Funcionário */
-.btn-novo-funcionario {
-    background-color: #002A51;
+.search-btn i,
+.clear-btn i {
+    font-size: 1.1rem;
+}
+
+/* ===============================
+   BOTÃO PRINCIPAL
+   =============================== */
+.btn-novo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary);
     color: #fff;
-    padding: 10px 16px;
-    font-weight: bold;
-    border-radius: 25px;
-    margin-left: 10px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
     text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-.btn-novo-funcionario:hover {
-    background-color: #FFB902;
-    color: #002A51;
-    transform: scale(1.03);
+    transition: var(--transition);
 }
 
-/* ==========================
-   TABELA DE DADOS
-========================== */
+.btn-novo i {
+    font-size: 1.1rem;
+}
+
+.btn-novo:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ===============================
+   ALERTAS
+   =============================== */
+.alert {
+    margin-top: 16px;
+    background: #e9f9f0;
+    color: #0f5132;
+    border: 1px solid #cceedd;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ===============================
+   TABELA
+   =============================== */
+.table-wrapper {
+    margin-top: 25px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
 }
+
 thead {
-    background-color: #002A51;
-    color: #fff;
-    font-weight: 600;
+    background: #f8fafc;
 }
+
 thead th {
+    padding: 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
     text-align: center;
-    padding: 12px 10px;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 1px solid var(--border);
 }
+
 tbody td {
-    text-align: center;
-    padding: 10px 8px;
-    border-bottom: 1px solid #eee;
-    color: #333;
-}
-tbody tr:hover {
-    background-color: #f2f5f7;
-    transition: background-color 0.3s;
-}
-
-/* ==========================
-   BOTÕES DE AÇÃO
-========================== */
-table .btn {
-    border: none;
-    border-radius: 5px;
-    padding: 6px 10px;
+    padding: 14px;
     font-size: 0.9rem;
-    margin: 0 2px;
-    transition: 0.3s;
-    text-decoration: none;
-}
-.btn-info {
-    background-color: #17a2b8;
-    color: white;
-}
-.btn-info:hover {
-    background-color: #138496;
-}
-.btn-warning {
-    background-color: #FFB902;
-    color: #002A51;
-}
-.btn-warning:hover {
-    background-color: #e0a800;
-}
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-/* ==========================
-   STATUS ATIVO/INATIVO
-========================== */
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid transparent;
-}
-.status-ativo {
-    background: #e7f7e7;
-    color: #016101;
-    border-color: #cceacc;
-}
-.status-inativo {
-    background: #eee;
-    color: #666;
-    border-color: #ddd;
-}
-
-/* ==========================
-   ALERTAS
-========================== */
-.alert {
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 20px;
     text-align: center;
-}
-.alert-success {
-    background-color: #e9f9ec;
-    color: #0f5132;
-}
-.alert-danger {
-    background-color: #fdecea;
-    color: #842029;
-}
-.alert-info {
-    background-color: #e7f3fe;
-    color: #084298;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
 }
 
-/* ==========================
+tbody tr {
+    transition: var(--transition);
+}
+
+tbody tr:hover {
+    background: #f9fbfd;
+}
+
+/* ===============================
+   STATUS (ATIVO / INATIVO)
+   =============================== */
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    min-width: 120px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status i {
+    font-size: 0.85rem;
+}
+
+/* 🟢 ATIVO */
+.status-finalizado {
+    background: #e6f4ea;
+    color: #1e7e34;
+    border: 1px solid #badbcc;
+}
+
+/* 🔴 INATIVO */
+.status-cancelado {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+/* ===============================
+   AÇÕES (ÍCONES)
+   =============================== */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Base */
+.actions .btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.actions .btn i {
+    font-size: 1rem;
+}
+
+/* 👁 VISUALIZAR */
+.btn-view {
+    color: #084298;
+    border-color: #b6d4fe;
+    background: #e7f1ff;
+}
+
+.btn-view:hover {
+    background: #084298;
+    color: #ffffff;
+    border-color: #084298;
+}
+
+/* ✏ EDITAR */
+.btn-edit {
+    color: #856404;
+    border-color: #ffe69c;
+    background: #fff3cd;
+}
+
+.btn-edit:hover {
+    background: #856404;
+    color: #ffffff;
+    border-color: #856404;
+}
+
+/* 🗑 EXCLUIR */
+.btn-delete {
+    color: #842029;
+    border-color: #f5c2c7;
+    background: #f8d7da;
+}
+
+.btn-delete:hover {
+    background: #842029;
+    color: #ffffff;
+    border-color: #842029;
+}
+
+/* ===============================
    PAGINAÇÃO
-========================== */
+   =============================== */
 .custom-pagination {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-.custom-pagination a,
-.custom-pagination .disabled,
-.custom-pagination .active {
-    padding: 8px 12px;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-.custom-pagination a {
-    background-color: #002A51;
-}
-.custom-pagination a:hover {
-    background-color: #FFB902;
-    color: #002A51;
-    transform: scale(1.1);
-}
-.custom-pagination .active {
-    background-color: #FFB902;
-    color: #002A51;
-}
-.custom-pagination .disabled {
-    background-color: #d1d1d1;
-    color: #aaa;
-    cursor: not-allowed;
+    gap: 6px;
+    margin-top: 30px;
 }
 
-/* ==========================
+.custom-pagination a,
+.custom-pagination span {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+.custom-pagination a:hover {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.custom-pagination .active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+.custom-pagination .disabled {
+    opacity: 0.4;
+}
+
+/* ===============================
    RESPONSIVIDADE
-========================== */
+   =============================== */
 @media (max-width: 768px) {
+
     .container {
-        padding: 20px;
-        margin: 15px;
+        margin: 20px;
+        padding: 24px;
     }
-    .d-flex {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .search-container {
-        max-width: 100%;
-    }
-    .search-input,
-    .search-btn,
-    .clear-btn,
-    .btn-novo-funcionario {
+
+    .btn-novo {
         width: 100%;
-        margin-top: 10px;
+        justify-content: center;
     }
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-    thead th, tbody td {
-        padding: 8px;
+
+    .actions {
+        flex-direction: column;
     }
 }
