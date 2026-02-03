@@ -129,7 +129,7 @@
                             {{ $documento->nome_arquivo }}
                         </a>
 
-                        <form action="{{ route('empresas.deleteDocumento', [$empresa->id, $documento->id]) }}" method="POST"
+                        <form action="{{ route('empresas.documentos.destroy', [$empresa->id, $documento->id]) }}" method="POST"
                             onsubmit="return confirm('Deseja realmente remover este documento?')">
                             @csrf
                             @method('DELETE')
