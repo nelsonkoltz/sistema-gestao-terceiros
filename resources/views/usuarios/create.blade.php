@@ -1,63 +1,120 @@
 @extends('layouts.app')
 
-<head>
-    <link href="{{ asset('css/usuarios/create.css') }}" rel="stylesheet">
-</head>
+@section('title', 'Cadastrar Usuário')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/usuarios/create.css') }}?v={{ time() }}">
+@endpush
 
 @section('content')
-<div class="container form-container">
-    <h1 class="text-center">Cadastrar Novo Usuário</h1>
+<div class="form-container">
 
+    {{-- HEADER --}}
+    <header class="form-header">
+        <h1 class="form-title">Cadastrar Usuário</h1>
+        <p class="form-subtitle">
+            Preencha os dados abaixo para registrar um novo usuário.
+        </p>
+    </header>
+
+    {{-- ERROS --}}
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+        <div class="alert-error">
+            <ul>
+                @foreach ($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
+    {{-- FORM --}}
     <form action="{{ route('usuarios.store') }}" method="POST">
         @csrf
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="name">Nome Completo</label>
-                <input type="text" name="name" class="form-control" required>
+
+        <div class="form-grid">
+
+            {{-- NOME --}}
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       value="{{ old('name') }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="setor">Setor</label>
-                <input type="text" name="setor" class="form-control" required>
+            {{-- SETOR --}}
+            <div class="form-group">
+                <label>Setor</label>
+                <input type="text"
+                       name="setor"
+                       class="form-control"
+                       value="{{ old('setor') }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="username">Usuário</label>
-                <input type="text" name="username" class="form-control" required>
+            {{-- USUÁRIO --}}
+            <div class="form-group">
+                <label>Usuário</label>
+                <input type="text"
+                       name="username"
+                       class="form-control"
+                       value="{{ old('username') }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="email">E-mail (opcional)</label>
-                <input type="email" name="email" class="form-control">
+            {{-- E-MAIL --}}
+            <div class="form-group">
+                <label>E-mail (opcional)</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       value="{{ old('email') }}">
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="password">Senha</label>
-                <input type="password" name="password" class="form-control" required>
+            {{-- SENHA --}}
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="password_confirmation">Confirmar Senha</label>
-                <input type="password" name="password_confirmation" class="form-control" required>
+            {{-- CONFIRMAR SENHA --}}
+            <div class="form-group">
+                <label>Confirmar Senha</label>
+                <input type="password"
+                       name="password_confirmation"
+                       class="form-control"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="permissao">Permissão</label>
+            {{-- PERMISSÃO --}}
+            <div class="form-group full">
+                <label>Permissão</label>
                 <select name="permissao" class="form-control" required>
-                    <option value="Usuário">Usuário</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Consulta">Consulta</option>
+                    <option value="">Selecione</option>
+                    <option value="Usuário" {{ old('permissao') == 'Usuário' ? 'selected' : '' }}>Usuário</option>
+                    <option value="Administrador" {{ old('permissao') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                    <option value="Consulta" {{ old('permissao') == 'Consulta' ? 'selected' : '' }}>Consulta</option>
                 </select>
             </div>
+
         </div>
 
-        <button type="submit" class="btn-primary">Salvar</button>
+        {{-- AÇÕES --}}
+        <div class="form-actions">
+            <a href="{{ route('usuarios.index') }}" class="btn btn-cancelar">
+                Voltar
+            </a>
+
+            <button type="submit" class="btn btn-salvar">
+                Salvar
+            </button>
+        </div>
+
     </form>
 </div>
 @endsection

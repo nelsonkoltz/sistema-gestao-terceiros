@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $usuarios = Usuario::orderByDesc('id')->get();
+        $usuarios = Usuario::query()
+            ->when($request->search, function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%")
+                      ->orWhere('username', 'like', "%{$request->search}%")
+                      ->orWhere('setor', 'like', "%{$request->search}%");
+            })
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('usuarios.index', compact('usuarios'));
     }
 
@@ -23,23 +32,26 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'setor' => 'required|string|max:255',
-            'username' => 'required|string|max:100|unique:usuarios,username',
-            'password' => 'required|min:6|confirmed',
+            'name'      => 'required|string|max:255',
+            'setor'     => 'required|string|max:255',
+            'username'  => 'required|string|max:100|unique:usuarios,username',
+            'email'     => 'nullable|email|max:255',
+            'password'  => 'required|min:6|confirmed',
             'permissao' => 'required|in:Administrador,Usuário,Consulta',
         ]);
 
         Usuario::create([
-            'name' => $request->name,
-            'setor' => $request->setor,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name'      => $request->name,
+            'setor'     => $request->setor,
+            'username'  => $request->username,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
             'permissao' => $request->permissao,
         ]);
 
-        return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuário cadastrado com sucesso!');
     }
 
     public function show(Usuario $usuario)
@@ -55,34 +67,45 @@ class UsuarioController extends Controller
     public function update(Request $request, Usuario $usuario)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'setor' => 'required|string|max:255',
-            'username' => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
+            'name'      => 'required|string|max:255',
+            'setor'     => 'required|string|max:255',
+            'username'  => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
+            'email'     => 'nullable|email|max:255',
+            'password'  => 'nullable|min:6|confirmed',
             'permissao' => 'required|in:Administrador,Usuário,Consulta',
         ]);
 
         $usuario->update([
-            'name' => $request->name,
-            'setor' => $request->setor,
-            'username' => $request->username,
-            'email' => $request->email,
+            'name'      => $request->name,
+            'setor'     => $request->setor,
+            'username'  => $request->username,
+            'email'     => $request->email,
             'permissao' => $request->permissao,
         ]);
 
         if ($request->filled('password')) {
-            $usuario->update(['password' => Hash::make($request->password)]);
+            $usuario->update([
+                'password' => Hash::make($request->password)
+            ]);
         }
 
-        return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuário atualizado com sucesso!');
     }
 
     public function destroy(Usuario $usuario)
     {
         if (Auth::id() === $usuario->id) {
-            return redirect()->route('usuarios.index')->with('error', 'Você não pode excluir seu próprio usuário.');
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'Você não pode excluir seu próprio usuário.');
         }
 
         $usuario->delete();
-        return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
+
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuário excluído com sucesso!');
     }
 }

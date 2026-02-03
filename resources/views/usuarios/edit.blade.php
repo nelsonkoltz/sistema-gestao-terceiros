@@ -1,53 +1,126 @@
 @extends('layouts.app')
 
-<head>
-    <link href="{{ asset('css/usuarios/edit.css') }}" rel="stylesheet">
-</head>
+@section('title', 'Editar Usuário')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/usuarios/edit.css') }}?v={{ time() }}">
+@endpush
 
 @section('content')
-<div class="container form-container">
-    <h1 class="text-center">Editar Usuário</h1>
+<div class="form-container">
 
+    {{-- HEADER --}}
+    <header class="form-header">
+        <h1 class="form-title">Editar Usuário</h1>
+        <p class="form-subtitle">
+            Atualize os dados do usuário e suas permissões de acesso.
+        </p>
+    </header>
+
+    {{-- ERROS --}}
+    @if ($errors->any())
+        <div class="alert-error">
+            <ul>
+                @foreach ($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- FORM --}}
     <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST">
-        @csrf @method('PUT')
+        @csrf
+        @method('PUT')
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Nome Completo</label>
-                <input type="text" name="name" class="form-control" value="{{ $usuario->name }}" required>
+        <div class="form-grid">
+
+            {{-- NOME --}}
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       value="{{ old('name', $usuario->name) }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
+            {{-- SETOR --}}
+            <div class="form-group">
                 <label>Setor</label>
-                <input type="text" name="setor" class="form-control" value="{{ $usuario->setor }}" required>
+                <input type="text"
+                       name="setor"
+                       class="form-control"
+                       value="{{ old('setor', $usuario->setor) }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
+            {{-- USUÁRIO --}}
+            <div class="form-group">
                 <label>Usuário</label>
-                <input type="text" name="username" class="form-control" value="{{ $usuario->username }}" required>
+                <input type="text"
+                       name="username"
+                       class="form-control"
+                       value="{{ old('username', $usuario->username) }}"
+                       required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" value="{{ $usuario->email }}">
+            {{-- EMAIL --}}
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       value="{{ old('email', $usuario->email) }}">
             </div>
 
-            <div class="col-md-6 mb-3">
+            {{-- NOVA SENHA --}}
+            <div class="form-group">
                 <label>Nova Senha (opcional)</label>
-                <input type="password" name="password" class="form-control">
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Deixe em branco para manter a atual">
             </div>
 
-            <div class="col-md-6 mb-3">
+            {{-- CONFIRMAR SENHA --}}
+            <div class="form-group">
+                <label>Confirmar Nova Senha</label>
+                <input type="password"
+                       name="password_confirmation"
+                       class="form-control"
+                       placeholder="Confirme a nova senha">
+            </div>
+
+            {{-- PERMISSÃO --}}
+            <div class="form-group full">
                 <label>Permissão</label>
-                <select name="permissao" class="form-control">
-                    <option value="Usuário" {{ $usuario->permissao == 'Usuário' ? 'selected' : '' }}>Usuário</option>
-                    <option value="Administrador" {{ $usuario->permissao == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                    <option value="Consulta" {{ $usuario->permissao == 'Consulta' ? 'selected' : '' }}>Consulta</option>
+                <select name="permissao" class="form-control" required>
+                    <option value="Usuário" {{ old('permissao', $usuario->permissao) == 'Usuário' ? 'selected' : '' }}>
+                        Usuário
+                    </option>
+                    <option value="Administrador" {{ old('permissao', $usuario->permissao) == 'Administrador' ? 'selected' : '' }}>
+                        Administrador
+                    </option>
+                    <option value="Consulta" {{ old('permissao', $usuario->permissao) == 'Consulta' ? 'selected' : '' }}>
+                        Consulta
+                    </option>
                 </select>
             </div>
+
         </div>
 
-        <button type="submit" class="btn-primary">Atualizar</button>
+        {{-- AÇÕES --}}
+        <div class="form-actions">
+            <a href="{{ route('usuarios.index') }}" class="btn btn-cancelar">
+                Voltar
+            </a>
+
+            <button type="submit" class="btn btn-salvar">
+                Atualizar
+            </button>
+        </div>
+
     </form>
 </div>
 @endsection

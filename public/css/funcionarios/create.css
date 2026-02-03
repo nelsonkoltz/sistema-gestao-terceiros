@@ -1,140 +1,162 @@
-/* Layout Geral */
+/* ===========================================================
+   TERCEIROSCR – CADASTRAR FUNCIONÁRIO
+   PADRÃO CORPORATIVO (IGUAL EMPRESA)
+   =========================================================== */
+
+:root {
+    --primary: #002A51;
+    --primary-hover: #143f6b;
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --text: #2b2b2b;
+    --muted: #6c757d;
+    --danger-bg: #fdecea;
+    --danger-text: #842029;
+    --danger-border: #f5c2c7;
+    --radius: 14px;
+    --transition: 0.25s ease;
+}
+
+/* BASE */
+* { box-sizing: border-box; }
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #F3F4F6, #FFFFFF);
-    color: #333;
-    margin: 0;
-    padding: 0;
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
 }
 
-/* Card container da tela */
-.container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+/* CONTAINER */
+.form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 32px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
 }
 
-/* Título */
-h1 {
-    font-size: 2rem;
-    color: #002A51;           /* Azul */
+/* HEADER */
+.form-header {
+    margin-bottom: 28px;
+}
+
+.form-title {
+    font-size: 1.4rem;
     font-weight: 700;
-    margin-bottom: 20px;
-    text-align: center;
-    border-bottom: 2px solid #FFB902;   /* Amarelo */
-    padding-bottom: 10px;
+    color: var(--primary);
 }
 
-/* Grid do formulário */
-.employee-form .row {
+.form-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* ALERTA */
+.alert-error {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+}
+
+/* GRID */
+.form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 colunas */
-    grid-gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
-.employee-form .col-md-6,
-.employee-form .col-md-8,
-.employee-form .col-md-4,
-.employee-form .col-md-12 {
+.form-group.full {
+    grid-column: span 3;
+}
+
+/* FORM */
+.form-group {
     display: flex;
     flex-direction: column;
 }
 
-/* Labels e inputs */
-.employee-form label {
-    font-weight: 600;
-    margin-bottom: 8px;
+label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
 }
 
 .form-control {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,.08);
-    background: #fff;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
 .form-control:focus {
-    border-color: #002A51;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(0, 42, 81, 0.08);
     outline: none;
-    box-shadow: 0 0 5px rgba(0,42,81,.35);
 }
 
-/* Help text */
-.help-text {
-    display: inline-block;
-    margin-top: 6px;
-    font-size: .85rem;
-    color: #666;
+/* DOCUMENTOS */
+.file-list {
+    list-style: none;
+    margin-top: 12px;
+    padding: 0;
 }
 
-/* Checkbox alinhado */
-.form-check-input { cursor: pointer; }
-.form-check-label { margin-left: 4px; cursor: pointer; }
+/* AÇÕES */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 36px;
+}
 
-/* Botões */
+/* BOTÕES */
 .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 700;
-    transition: background-color .25s ease, color .25s ease, transform .15s ease;
+    padding: 12px 26px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
     text-decoration: none;
-    text-align: center;
-    margin-top: 10px;
+    transition: all 0.25s ease;
 }
 
-.btn-primary {
-    background: #002A51;
+.btn-salvar {
+    background: linear-gradient(135deg, #002A51, #143f6b);
     color: #fff;
-    border: none;
-}
-.btn-primary:hover {
-    background: #FFB902;
-    color: #002A51;
-    transform: translateY(-1px);
 }
 
-.btn-secondary {
-    background: #5a6268;
+.btn-cancelar {
+    background: linear-gradient(135deg, #6c757d, #495057);
     color: #fff;
-    border: none;
-}
-.btn-secondary:hover {
-    background: #FFB902;
-    color: #002A51;
-    transform: translateY(-1px);
 }
 
-/* Alertas */
-.alert {
-    padding: 14px;
-    border-radius: 6px;
-    margin-bottom: 18px;
-    font-size: .95rem;
-}
-.alert-success { background: #d4edda; color: #155724; }
-.alert-danger  { background: #f8d7da; color: #721c24; }
-
-/* Responsividade 1366x768 */
-@media (max-width: 1366px) and (max-height: 768px) {
-    .container { padding: 20px; margin: 10px auto; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    h1 { font-size: 1.8rem; margin-bottom: 15px; padding-bottom: 8px; }
-    .form-control { padding: 10px; font-size: .95rem; }
-    .employee-form .row { grid-template-columns: 1fr 1fr; grid-gap: 15px; }
-    .btn { padding: 10px 16px; font-size: .95rem; }
-    .alert { padding: 10px; font-size: .9rem; }
-    .d-flex { flex-direction: column; align-items: center; gap: 10px; }
-}
-
-/* Mobile */
+/* RESPONSIVO */
 @media (max-width: 768px) {
-    .employee-form .row { grid-template-columns: 1fr; } /* 1 coluna */
-    h1 { font-size: 1.6rem; }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full {
+        grid-column: span 1;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
 }

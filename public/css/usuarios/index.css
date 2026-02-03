@@ -1,175 +1,369 @@
-/* ==========================
-   ESTILO GERAL DA LISTAGEM
-========================== */
+/* ===========================================================
+   TERCEIROSCR – USUÁRIOS
+   PADRÃO CORPORATIVO (IGUAL FUNCIONÁRIOS)
+   =========================================================== */
+
+:root {
+    --primary: #0b2a4a;
+    --primary-hover: #143f6b;
+    --accent: #f2b705;
+
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+
+    --text: #2b2b2b;
+    --muted: #6c757d;
+
+    --radius: 14px;
+    --transition: 0.25s ease;
+}
+
+/* ===============================
+   BASE
+   =============================== */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f6f8fa;
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
     margin: 0;
-    color: #333;
 }
 
-/* Container Principal */
+/* ===============================
+   CONTAINER
+   =============================== */
 .container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    max-width: 1200px;
-    margin: 30px auto;
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 32px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
 }
 
-/* Título da Página */
-.container h1 {
-    color: #002A51;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 30px;
+/* ===============================
+   BARRA DE PESQUISA
+   =============================== */
+.search-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 8px;
+    gap: 4px;
+    transition: var(--transition);
 }
 
-/* ==========================
-   BOTÃO NOVO CADASTRO
-========================== */
-.text-end {
-    text-align: right;
-    margin-bottom: 20px;
+.search-container:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(11, 42, 74, 0.08);
 }
 
-.text-end .btn {
-    padding: 10px 20px;
+.search-input {
+    flex: 1;
     border: none;
-    border-radius: 6px;
-    font-weight: 600;
+    outline: none;
+    background: transparent;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+/* Botões da busca */
+.search-btn,
+.clear-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
+    transition: var(--transition);
 }
 
-.text-end .btn.btn-primary {
-    background-color: #002A51;
+.search-btn:hover,
+.clear-btn:hover {
+    background: var(--bg);
+    color: var(--primary);
+}
+
+.search-btn i,
+.clear-btn i {
+    font-size: 1.1rem;
+}
+
+/* ===============================
+   BOTÃO NOVO
+   =============================== */
+.btn-novo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary);
     color: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    text-decoration: none;
+    transition: var(--transition);
 }
 
-.text-end .btn.btn-primary:hover {
-    background-color: #FFB902;
-    color: #002A51;
+.btn-novo i {
+    font-size: 1.1rem;
 }
 
-/* ==========================
-   TABELA DE DADOS
-========================== */
+.btn-novo:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ===============================
+   ALERTAS
+   =============================== */
+.alert {
+    margin-top: 16px;
+    background: #e9f9f0;
+    color: #0f5132;
+    border: 1px solid #cceedd;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.alert-error {
+    margin-top: 16px;
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ===============================
+   TABELA
+   =============================== */
+.table-wrapper {
+    margin-top: 25px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    background: #ffffff;
 }
 
 thead {
-    background-color: #002A51;
-    color: #fff;
-    font-weight: 600;
+    background: #f8fafc;
 }
 
 thead th {
+    padding: 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
     text-align: center;
-    padding: 12px 10px;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 1px solid var(--border);
 }
 
 tbody td {
+    padding: 14px;
+    font-size: 0.9rem;
     text-align: center;
-    padding: 10px 8px;
-    border-bottom: 1px solid #eee;
-    color: #333;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+tbody tr {
+    transition: var(--transition);
 }
 
 tbody tr:hover {
-    background-color: #f2f5f7;
-    transition: background-color 0.3s;
+    background: #f9fbfd;
 }
 
-/* ==========================
-   BOTÕES DE AÇÃO
-========================== */
-table .btn {
-    border: none;
-    border-radius: 5px;
-    padding: 6px 10px;
-    font-size: 0.9rem;
-    margin: 0 2px;
-    transition: 0.3s;
-    text-decoration: none;
-}
-
-.btn-info {
-    background-color: #17a2b8;
-    color: white;
-}
-.btn-info:hover {
-    background-color: #138496;
-}
-
-.btn-warning {
-    background-color: #FFB902;
-    color: #002A51;
-}
-.btn-warning:hover {
-    background-color: #e0a800;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-/* ==========================
-   ALERTAS
-========================== */
-.alert {
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 20px;
+.empty {
     text-align: center;
+    color: var(--muted);
+    padding: 20px;
 }
 
-.alert-success {
-    background-color: #e9f9ec;
-    color: #0f5132;
+/* ===============================
+   STATUS PERMISSÃO
+   =============================== */
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    min-width: 110px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.alert-danger {
-    background-color: #fdecea;
-    color: #842029;
-}
-
-.alert-info {
-    background-color: #e7f3fe;
+/* ADMIN */
+.status-administrador,
+.status-admin {
+    background: #e7f1ff;
     color: #084298;
+    border: 1px solid #b6d4fe;
 }
 
-/* ==========================
+/* USUÁRIO */
+.status-usuário,
+.status-usuario {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffe69c;
+}
+
+/* CONSULTA */
+.status-consulta {
+    background: #e6f4ea;
+    color: #1e7e34;
+    border: 1px solid #badbcc;
+}
+
+/* ===============================
+   AÇÕES
+   =============================== */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.actions .btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.actions .btn i {
+    font-size: 1rem;
+}
+
+/* VISUALIZAR */
+.btn-view {
+    background: #e7f1ff;
+    color: #084298;
+    border-color: #b6d4fe;
+}
+
+.btn-view:hover {
+    background: #084298;
+    color: #ffffff;
+}
+
+/* EDITAR */
+.btn-edit {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffe69c;
+}
+
+.btn-edit:hover {
+    background: #856404;
+    color: #ffffff;
+}
+
+/* EXCLUIR */
+.btn-delete {
+    background: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
+}
+
+.btn-delete:hover {
+    background: #842029;
+    color: #ffffff;
+}
+
+/* ===============================
+   PAGINAÇÃO
+   =============================== */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 30px;
+}
+
+.custom-pagination a,
+.custom-pagination span {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+.custom-pagination a:hover {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.custom-pagination .active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+.custom-pagination .disabled {
+    opacity: 0.4;
+}
+
+/* ===============================
    RESPONSIVIDADE
-========================== */
+   =============================== */
 @media (max-width: 768px) {
+
     .container {
-        padding: 20px;
-        margin: 15px;
+        margin: 20px;
+        padding: 24px;
     }
 
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
+    .btn-novo {
+        width: 100%;
+        justify-content: center;
     }
 
-    thead th, tbody td {
-        padding: 8px;
-    }
-
-    .text-end {
-        text-align: center;
+    .actions {
+        flex-direction: column;
     }
 }

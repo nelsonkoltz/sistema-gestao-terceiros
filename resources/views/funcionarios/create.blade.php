@@ -1,142 +1,180 @@
 @extends('layouts.app')
-@section('title', 'Cadastrar Novo Funcionário')
 
-<head>
-    {{-- CSS personalizado (salve em public/css/funcionarios/create.css) --}}
-    <link href="{{ asset('css/funcionarios/create.css') }}" rel="stylesheet">
-</head>
+@section('title', 'Cadastrar Funcionário')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/funcionarios/create.css') }}?v={{ time() }}">
+@endpush
 
 @section('content')
-<div class="container form-container">
-    <h1 class="text-center mb-4">Cadastrar Novo Funcionário</h1>
+<div class="form-container">
 
-    {{-- Mensagem de sucesso --}}
-    @if (session('success'))
-        <div class="alert alert-success text-center">
-            {{ session('success') }}
-        </div>
-    @endif
+    {{-- HEADER --}}
+    <header class="form-header">
+        <h1 class="form-title">Cadastrar Funcionário</h1>
+        <p class="form-subtitle">
+            Preencha os dados abaixo para registrar um novo funcionário.
+        </p>
+    </header>
 
-    {{-- Exibição de erros --}}
+    {{-- ERROS --}}
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+        <div class="alert-error">
+            <ul>
+                @foreach ($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
 
-    {{-- Formulário --}}
-    <form action="{{ route('funcionarios.store') }}" method="POST" enctype="multipart/form-data" class="employee-form">
+    {{-- FORM --}}
+    <form action="{{ route('funcionarios.store') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="funcionario-form">
         @csrf
 
-        <div class="row">
-            {{-- Nome --}}
-            <div class="col-md-6 mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" name="nome" id="nome" class="form-control"
-                       value="{{ old('nome') }}" placeholder="Digite o nome completo" required>
+        <div class="form-grid">
+
+            {{-- NOME --}}
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text"
+                       name="nome"
+                       class="form-control"
+                       value="{{ old('nome') }}"
+                       required>
             </div>
 
             {{-- CPF --}}
-            <div class="col-md-6 mb-3">
-                <label for="cpf" class="form-label">CPF</label>
-                <input type="text" name="cpf" id="cpf" class="form-control"
-                       value="{{ old('cpf') }}" placeholder="999.999.999-99" required>
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text"
+                       name="cpf"
+                       id="cpf"
+                       class="form-control"
+                       value="{{ old('cpf') }}"
+                       required>
             </div>
 
-            {{-- Empresa (autocomplete) --}}
-            <div class="col-md-8 mb-3">
-                <label for="empresa_nome" class="form-label">Empresa (digite e selecione)</label>
-                <input type="text" id="empresa_nome" name="empresa_nome" class="form-control"
-                       list="lista-empresas" autocomplete="off"
-                       value="{{ old('empresa_nome') }}" placeholder="Ex: Costa Rica Malhas" required>
+            {{-- EMPRESA (APENAS UI) --}}
+            <div class="form-group full">
+                <label>Empresa</label>
+
+                <input type="text"
+                       id="empresa_nome"
+                       class="form-control"
+                       list="lista-empresas"
+                       autocomplete="off"
+                       placeholder="Digite para buscar a empresa">
+
                 <datalist id="lista-empresas"></datalist>
-                <input type="hidden" name="empresa_id" id="empresa_id" value="{{ old('empresa_id') }}">
-                <small class="help-text text-muted">
-                    Comece a digitar para buscar a empresa. Ao selecionar, o vínculo é feito automaticamente.
-                </small>
-                @error('empresa_nome')
-                    <small class="text-danger d-block mt-1">{{ $message }}</small>
-                @enderror
+
+                {{-- CAMPO QUE REALMENTE IMPORTA --}}
+                <input type="hidden"
+                       name="empresa_id"
+                       id="empresa_id"
+                       value="{{ old('empresa_id') }}">
+
+                <small>Digite e selecione uma empresa válida da lista.</small>
             </div>
 
-            {{-- Status --}}
-            <div class="col-md-4 mb-3">
-                <label class="form-label d-block">Status</label>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="ativo" name="ativo"
-                           {{ old('ativo', true) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="ativo">Ativo</label>
-                </div>
+            {{-- STATUS --}}
+            <div class="form-group">
+                <label>Status</label>
+                <select name="ativo" class="form-control">
+                    <option value="1" {{ old('ativo', 1) == 1 ? 'selected' : '' }}>Ativo</option>
+                    <option value="0" {{ old('ativo') == 0 ? 'selected' : '' }}>Inativo</option>
+                </select>
             </div>
 
-            {{-- Documentos --}}
-            <div class="col-md-12 mb-3">
-                <label for="documentos" class="form-label">Documentos (PDF/JPG/PNG) — opcional</label>
-                <input type="file" name="documentos[]" id="documentos" class="form-control"
-                       multiple accept=".pdf,.jpg,.jpeg,.png">
-                <small class="form-text text-muted">
-                    Formatos permitidos: <strong>PDF, JPG, JPEG, PNG</strong> (máx. 5MB por arquivo).
-                </small>
+            {{-- DOCUMENTOS --}}
+            <div class="form-group full">
+                <label>Documentos</label>
+
+                <input type="file"
+                       name="documentos[]"
+                       class="form-control"
+                       accept=".pdf,.jpg,.jpeg,.png"
+                       multiple>
+
+                <small>PDF, JPG ou PNG • até 5MB por arquivo</small>
+
+                <ul id="lista-documentos" class="file-list"></ul>
             </div>
+
         </div>
 
-        {{-- Botões --}}
-        <div class="d-flex justify-content-between mt-4">
-            <a href="{{ route('funcionarios.index') }}" class="btn btn-secondary">Voltar</a>
-            <button type="submit" class="btn btn-primary">Cadastrar Funcionário</button>
+        {{-- AÇÕES --}}
+        <div class="form-actions">
+            <a href="{{ route('funcionarios.index') }}" class="btn btn-cancelar">
+                Voltar
+            </a>
+
+            <button type="submit" class="btn btn-salvar">
+                Salvar
+            </button>
         </div>
     </form>
 </div>
 
-{{-- Scripts: Máscara CPF e Autocomplete de Empresas --}}
+{{-- SCRIPTS --}}
 <script src="https://cdn.jsdelivr.net/npm/inputmask/dist/inputmask.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Máscara CPF
-    const imCPF = new Inputmask('999.999.999-99');
-    imCPF.mask(document.getElementById('cpf'));
 
-    // Autocomplete de empresas
-    const input = document.getElementById('empresa_nome');
-    const hidden = document.getElementById('empresa_id');
+    /* =========================
+       MÁSCARA CPF
+    ========================= */
+    new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
+
+    /* =========================
+       AUTOCOMPLETE EMPRESAS
+    ========================= */
+    const inputEmpresa = document.getElementById('empresa_nome');
+    const hiddenEmpresa = document.getElementById('empresa_id');
     const datalist = document.getElementById('lista-empresas');
     let cache = [];
 
-async function buscarEmpresas(q) {
-    const url = "{{ url('empresas/search') }}?q=" + encodeURIComponent(q);
-    console.log("Buscando:", url);
-    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    if (!res.ok) return [];
-    return await res.json();
-}
+    async function buscarEmpresas(q) {
+        const res = await fetch("{{ url('empresas/search') }}?q=" + encodeURIComponent(q));
+        return res.ok ? await res.json() : [];
+    }
 
-
-    input.addEventListener('input', async (e) => {
-        const q = e.target.value.trim();
-        hidden.value = '';
+    inputEmpresa.addEventListener('input', async () => {
+        const q = inputEmpresa.value.trim();
+        hiddenEmpresa.value = '';
         datalist.innerHTML = '';
+
         if (q.length < 2) return;
+
         cache = await buscarEmpresas(q);
-        datalist.innerHTML = cache.map(c => `<option data-id="${c.id}" value="${c.nome}"></option>`).join('');
+        datalist.innerHTML = cache
+            .map(e => `<option value="${e.nome}"></option>`)
+            .join('');
     });
 
-    input.addEventListener('change', () => {
-        const val = input.value.trim().toLowerCase();
-        const found = cache.find(c => c.nome.toLowerCase() === val);
-        hidden.value = found ? found.id : '';
+    inputEmpresa.addEventListener('change', () => {
+        const val = inputEmpresa.value.toLowerCase();
+        const found = cache.find(e => e.nome.toLowerCase() === val);
+        hiddenEmpresa.value = found ? found.id : '';
     });
 
-    // Feedback visual ao enviar formulário
-    const form = document.querySelector('form');
-    form.addEventListener('submit', () => {
-        const btn = form.querySelector('button[type="submit"]');
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
+    /* =========================
+       BLOQUEIO DE SUBMIT INVÁLIDO
+    ========================= */
+    document.getElementById('funcionario-form')
+        .addEventListener('submit', function (e) {
+
+        if (!hiddenEmpresa.value) {
+            e.preventDefault();
+            alert('Selecione uma empresa válida da lista.');
+            inputEmpresa.focus();
+        }
     });
+
 });
 </script>
 @endsection
