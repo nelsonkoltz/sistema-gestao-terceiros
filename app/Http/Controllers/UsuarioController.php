@@ -13,9 +13,11 @@ class UsuarioController extends Controller
     {
         $usuarios = Usuario::query()
             ->when($request->search, function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%")
-                      ->orWhere('username', 'like', "%{$request->search}%")
-                      ->orWhere('setor', 'like', "%{$request->search}%");
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('username', 'like', '%' . $request->search . '%')
+                      ->orWhere('setor', 'like', '%' . $request->search . '%');
+                });
             })
             ->orderByDesc('id')
             ->paginate(10)
@@ -75,19 +77,19 @@ class UsuarioController extends Controller
             'permissao' => 'required|in:Administrador,Usuário,Consulta',
         ]);
 
-        $usuario->update([
-            'name'      => $request->name,
-            'setor'     => $request->setor,
-            'username'  => $request->username,
-            'email'     => $request->email,
-            'permissao' => $request->permissao,
+        $data = $request->only([
+            'name',
+            'setor',
+            'username',
+            'email',
+            'permissao',
         ]);
 
         if ($request->filled('password')) {
-            $usuario->update([
-                'password' => Hash::make($request->password)
-            ]);
+            $data['password'] = Hash::make($request->password);
         }
+
+        $usuario->update($data);
 
         return redirect()
             ->route('usuarios.index')
