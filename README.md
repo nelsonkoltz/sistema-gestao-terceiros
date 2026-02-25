@@ -83,6 +83,7 @@ O objetivo é centralizar informações e reduzir falhas operacionais no process
 
 ---
 
-## 👨‍💻 Desenvolvedor
+## 📌 Autor
 
-Arinelson Koltz  
+Desenvolvido por **Arinelson Koltz**  
+🔗 LinkedIn: [www.linkedin.com/in/arinelsonkoltz](https://www.linkedin.com/in/arinelsonkoltz)
