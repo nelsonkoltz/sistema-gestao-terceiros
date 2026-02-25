@@ -1,64 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Sistema de Gestão de Terceiros (TerceiroCR)
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web corporativo desenvolvido para gerenciar empresas terceirizadas, funcionários vinculados e solicitações de serviço dentro de um ambiente empresarial.
 
-## About Laravel
+O sistema é utilizado em ambiente real na empresa onde atuo.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📌 Sobre o Projeto
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+O TerceiroCR foi desenvolvido para organizar e controlar o cadastro de empresas terceirizadas e seus funcionários, garantindo controle documental, gestão de serviços e regras de permissão por perfil de usuário.
 
-## Learning Laravel
+O objetivo é centralizar informações e reduzir falhas operacionais no processo de gestão de terceiros.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🛠 Tecnologias Utilizadas
 
-## Laravel Sponsors
+### Backend
+- PHP
+- Laravel
+- MySQL
+- Arquitetura REST
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Frontend
+- Blade
+- Bootstrap
+- CSS
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## 🚀 Principais Funcionalidades
 
-## Contributing
+- Cadastro e gerenciamento de empresas
+- Cadastro de funcionários vinculados às empresas
+- Upload e controle de documentos
+- Controle de solicitações de serviço
+- Sistema de permissões (Administrador, Usuário e Consulta)
+- Regra automática de inativação de funcionários após 6 meses sem atualização documental
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🔐 Regras de Negócio Implementadas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Funcionários tornam-se inativos automaticamente se a documentação não for atualizada dentro do prazo.
+- Apenas usuários responsáveis podem editar determinados registros.
+- Controle de acesso baseado em níveis de permissão.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🏗 Arquitetura do Projeto
 
-## License
+- Padrão MVC (Laravel)
+- Validações com Form Requests
+- Middleware para controle de acesso
+- Relacionamentos One-to-Many no banco de dados
+- Gerenciamento de arquivos via Storage
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## ▶ Como Executar o Projeto
+
+1. Clonar o repositório
+2. Executar `composer install`
+3. Configurar o arquivo `.env`
+4. Executar `php artisan migrate`
+5. Executar `php artisan serve`
+
+---
+
+## 📷 Prints do Sistema
+
+(Adicionar aqui imagens das principais telas)
+
+---
+
+## 📈 Melhorias Futuras
+
+- Versão em API
+- Integração com React
+- Containerização com Docker
+- Expansão de testes automatizados
+
+---
+
+## 👨‍💻 Desenvolvedor
+
+Arinelson Koltz  
+Desenvolvedor Full Stack Júnior
