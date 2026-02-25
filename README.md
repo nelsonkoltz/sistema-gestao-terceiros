@@ -86,4 +86,3 @@ O objetivo é centralizar informações e reduzir falhas operacionais no process
 ## 👨‍💻 Desenvolvedor
 
 Arinelson Koltz  
-Desenvolvedor Full Stack Júnior
