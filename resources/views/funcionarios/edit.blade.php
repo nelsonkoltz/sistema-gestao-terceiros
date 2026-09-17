@@ -3,7 +3,7 @@
 @section('title', 'Editar Funcionário')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/funcionarios/edit.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('css/edit-form.css') }}?v={{ filemtime(public_path('css/edit-form.css')) }}">
 @endpush
 
 @section('content')
@@ -58,27 +58,17 @@
                        required>
             </div>
 
-            {{-- EMPRESA (SOMENTE UI) --}}
+            {{-- EMPRESA --}}
             <div class="form-group full">
-                <label>Empresa</label>
-
-                <input type="text"
-                       id="empresa_nome"
-                       class="form-control"
-                       list="lista-empresas"
-                       autocomplete="off"
-                       value="{{ $funcionario->empresa->nome ?? '' }}"
-                       placeholder="Digite para buscar a empresa"
-                       required>
-
-                <datalist id="lista-empresas"></datalist>
-
-                <input type="hidden"
-                       id="empresa_id"
-                       name="empresa_id"
-                       value="{{ old('empresa_id', $funcionario->empresa_id) }}">
-
-                <small>Selecione uma empresa válida da lista.</small>
+                <label for="empresa_id">Empresa</label>
+                <select id="empresa_id" name="empresa_id" class="form-control" required>
+                    @foreach($empresas as $empresa)
+                        <option value="{{ $empresa->id }}" {{ (string) old('empresa_id', $funcionario->empresa_id) === (string) $empresa->id ? 'selected' : '' }}>
+                            {{ $empresa->nome }} — {{ $empresa->cnpj_formatado }}
+                        </option>
+                    @endforeach
+                </select>
+                <small>Selecione a empresa à qual o funcionário pertence.</small>
             </div>
 
             {{-- STATUS --}}
@@ -109,12 +99,12 @@
 
         {{-- AÇÕES --}}
         <div class="form-actions">
-            <a href="{{ route('funcionarios.index') }}" class="btn btn-cancelar">
+            <a href="{{ route('funcionarios.show', $funcionario) }}" class="btn btn-cancelar">
                 Voltar
             </a>
 
             <button type="submit" class="btn btn-salvar">
-                Atualizar
+                Salvar alterações
             </button>
         </div>
     </form>
@@ -176,37 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Autocomplete empresas
-    const input = document.getElementById('empresa_nome');
-    const hidden = document.getElementById('empresa_id');
-    const datalist = document.getElementById('lista-empresas');
-    let cache = [];
-
-    async function buscarEmpresas(q) {
-        const res = await fetch(`{{ route('empresas.search') }}?q=${encodeURIComponent(q)}`);
-        return res.ok ? await res.json() : [];
-    }
-
-    input.addEventListener('input', async () => {
-        const q = input.value.trim();
-        hidden.value = '';
-        datalist.innerHTML = '';
-        if (q.length < 2) return;
-
-        try { cache = await buscarEmpresas(q); } catch (_) { cache = []; }
-        if (input.value.trim() !== q) return;
-        datalist.replaceChildren(...cache.map(e => {
-            const option = document.createElement('option');
-            option.value = e.nome;
-            return option;
-        }));
-    });
-
-    input.addEventListener('change', () => {
-        const val = input.value.toLowerCase();
-        const found = cache.find(e => e.nome.toLowerCase() === val);
-        hidden.value = found ? found.id : '';
-    });
 });
 </script>
 @endsection

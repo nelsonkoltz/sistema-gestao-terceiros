@@ -119,6 +119,27 @@ class SystemTest extends TestCase
         $this->delete('/servicos/' . $service->id)->assertRedirect('/servicos');
     }
 
+    public function test_new_service_request_always_starts_pending()
+    {
+        $this->actingAs($this->user());
+        $company = Empresa::create($this->companyData());
+        $sector = Setor::create(['nome' => 'Portaria']);
+
+        $this->post('/servicos', [
+            'empresa_id' => $company->id,
+            'setor_id' => $sector->id,
+            'descricao' => 'Acesso para manutenção preventiva',
+            'vai_almocar' => '0',
+            'status' => 'Finalizado',
+            'data_servico' => now()->format('Y-m-d'),
+            'data_conclusao' => now()->format('Y-m-d'),
+        ])->assertSessionHasNoErrors();
+
+        $service = Servico::firstOrFail();
+        $this->assertSame('Pendente', $service->status);
+        $this->assertNull($service->data_conclusao);
+    }
+
     public function test_documents_require_authentication_and_parent_ownership()
     {
         Storage::fake('public');

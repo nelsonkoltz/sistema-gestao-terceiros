@@ -1,106 +1,43 @@
 @extends('layouts.app')
-
 @section('title', 'Detalhes da Empresa')
-
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/empresas/show.css') }}?v={{ time() }}">
-@endpush
-
-@php
-    use Illuminate\Support\Str;
-@endphp
+@push('styles')<link rel="stylesheet" href="{{ asset('css/empresas/show.css') }}?v={{ filemtime(public_path('css/empresas/show.css')) }}">@endpush
 
 @section('content')
-<div class="form-container">
+<div class="details-page">
+    <nav class="breadcrumb" aria-label="Navegação"><a href="{{ route('empresas.index') }}">Empresas</a><i class="bi bi-chevron-right"></i><span>Detalhes</span></nav>
 
-    {{-- HEADER --}}
-    <header class="form-header">
-        <h1 class="form-title">Detalhes da Empresa</h1>
-        <p class="form-subtitle">
-            Visualização completa das informações cadastradas.
-        </p>
+    <header class="company-header">
+        <div class="company-identity"><span class="company-icon"><i class="bi bi-building"></i></span><div><span class="eyebrow">{{ $empresa->tipo === 'CPF' ? 'Prestador pessoa física' : 'Empresa terceirizada' }}</span><h1>{{ $empresa->nome }}</h1><p>Cadastrada em {{ optional($empresa->created_at)->format('d/m/Y') }}</p></div></div>
+        <div class="header-actions"><a href="{{ route('empresas.index') }}" class="secondary-btn"><i class="bi bi-arrow-left"></i> Voltar</a>@if(auth()->user()->permissao !== 'Consulta')<a href="{{ route('empresas.edit',$empresa) }}" class="primary-btn"><i class="bi bi-pencil"></i> Editar empresa</a>@endif</div>
     </header>
 
-    {{-- DADOS --}}
-    <div class="details-grid">
+    <section class="summary-grid">
+        <div class="summary-card"><i class="bi bi-people"></i><span><strong>{{ $empresa->funcionarios_count }}</strong><small>Funcionários cadastrados</small></span></div>
+        <div class="summary-card"><i class="bi bi-person-check"></i><span><strong>{{ $empresa->funcionarios_ativos_count }}</strong><small>Funcionários ativos</small></span></div>
+        <div class="summary-card"><i class="bi bi-files"></i><span><strong>{{ $empresa->documentos->count() }}</strong><small>Documentos anexados</small></span></div>
+    </section>
 
-        <div class="detail-item">
-            <span class="detail-label">Nome / Razão Social</span>
-            <span class="detail-value">{{ $empresa->nome }}</span>
-        </div>
+    <div class="content-grid">
+        <section class="panel info-panel">
+            <div class="panel-header"><div><h2>Informações cadastrais</h2><p>Dados de identificação e contato.</p></div></div>
+            <dl class="info-grid">
+                <div><dt>{{ $empresa->tipo === 'CPF' ? 'CPF' : 'CNPJ' }}</dt><dd>{{ $empresa->cnpj_formatado }}</dd></div>
+                <div><dt>Telefone</dt><dd><a href="tel:{{ preg_replace('/\D/','',$empresa->telefone) }}">{{ $empresa->telefone_formatado }}</a></dd></div>
+                <div class="full"><dt>E-mail</dt><dd><a href="mailto:{{ $empresa->email }}">{{ $empresa->email }}</a></dd></div>
+            </dl>
+            <div class="address-block"><span class="address-icon"><i class="bi bi-geo-alt"></i></span><div><strong>Endereço</strong><address>{{ $empresa->endereco_rua }}, {{ $empresa->endereco_numero }}<br>{{ $empresa->endereco_bairro }} · {{ $empresa->endereco_cidade }}/{{ $empresa->endereco_estado }}<br>CEP {{ $empresa->cep_formatado }}</address></div></div>
+        </section>
 
-        <div class="detail-item">
-            <span class="detail-label">CPF / CNPJ</span>
-            <span class="detail-value">{{ $empresa->cnpj }}</span>
-        </div>
-
-        <div class="detail-item">
-            <span class="detail-label">E-mail</span>
-            <span class="detail-value">{{ $empresa->email }}</span>
-        </div>
-
-        <div class="detail-item">
-            <span class="detail-label">Telefone</span>
-            <span class="detail-value">{{ $empresa->telefone }}</span>
-        </div>
-
-        <div class="detail-item full">
-            <span class="detail-label">Endereço</span>
-            <span class="detail-value">
-                {{ $empresa->endereco_rua }}, {{ $empresa->endereco_numero }} –
-                {{ $empresa->endereco_bairro }},
-                {{ $empresa->endereco_cidade }}/{{ $empresa->endereco_estado }}
-                – CEP {{ $empresa->endereco_cep }}
-            </span>
-        </div>
-
+        <section class="panel documents-panel">
+            <div class="panel-header"><div><h2>Documentos</h2><p>{{ $empresa->documentos->count() }} {{ $empresa->documentos->count() === 1 ? 'arquivo anexado' : 'arquivos anexados' }}</p></div>@if(auth()->user()->permissao !== 'Consulta')<a href="{{ route('empresas.edit',$empresa) }}#documentos" class="panel-action"><i class="bi bi-plus"></i> Adicionar</a>@endif</div>
+            <div class="document-list">
+                @forelse($empresa->documentos as $documento)
+                    <div class="document-item"><span class="document-icon"><i class="bi bi-file-earmark-pdf"></i></span><span class="document-info"><strong title="{{ $documento->nome_arquivo }}">{{ $documento->nome_arquivo }}</strong><small>Adicionado em {{ $documento->created_at->format('d/m/Y \à\s H:i') }}</small></span><a href="{{ route('empresas.documentos.download',[$empresa,$documento]) }}" class="download-btn" title="Baixar {{ $documento->nome_arquivo }}"><i class="bi bi-download"></i><span>Baixar</span></a></div>
+                @empty
+                    <div class="empty-documents"><i class="bi bi-file-earmark"></i><strong>Nenhum documento anexado</strong><span>Os documentos desta empresa aparecerão aqui.</span></div>
+                @endforelse
+            </div>
+        </section>
     </div>
-
-    {{-- DOCUMENTOS --}}
-    <div class="documents-box">
-        <h3 class="documents-title">Documentos</h3>
-
-        <ul class="file-list">
-            @forelse ($empresa->documentos as $documento)
-                @php
-                    $filePath = Str::startsWith($documento->caminho_arquivo, 'public/')
-                        ? Str::replaceFirst('public/', '', $documento->caminho_arquivo)
-                        : $documento->caminho_arquivo;
-                @endphp
-
-                <li class="file-item">
-                    <a href="{{ route('empresas.documentos.download', [$empresa, $documento]) }}"
-                       target="_blank"
-                       class="file-name">
-                        📄 {{ $documento->nome_arquivo }}
-                    </a>
-
-                    <span class="file-date">
-                        {{ $documento->updated_at->format('d/m/Y H:i') }}
-                    </span>
-                </li>
-            @empty
-                <li class="file-item muted">
-                    Nenhum documento anexado.
-                </li>
-            @endforelse
-        </ul>
-    </div>
-
-    {{-- AÇÕES --}}
-    <div class="form-actions">
-        <a href="{{ route('empresas.index') }}" class="btn btn-cancelar">
-            <i class="fa-solid fa-arrow-left"></i>
-            Voltar
-        </a>
-
-        @if(auth()->user()->permissao !== 'Consulta')
-<a href="{{ route('empresas.edit', $empresa->id) }}" class="btn btn-salvar">
-            <i class="fa-solid fa-pen"></i>
-            Editar
-        </a>
-@endif
-    </div>
-
 </div>
 @endsection

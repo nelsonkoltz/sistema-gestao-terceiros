@@ -3,7 +3,7 @@
 @section('title', 'Editar Empresa')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/empresas/edit.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/edit-form.css') }}?v={{ filemtime(public_path('css/edit-form.css')) }}">
 @endpush
 
 @section('content')
@@ -105,14 +105,14 @@
 
             {{-- AÇÕES --}}
             <div class="form-actions">
-                <a href="{{ route('empresas.index') }}" class="btn btn-cancelar">
+                <a href="{{ route('empresas.show', $empresa) }}" class="btn btn-cancelar">
                     <i class="fa-solid fa-arrow-left"></i>
                     Voltar
                 </a>
 
                 <button type="submit" class="btn btn-salvar">
                     <i class="fa-solid fa-check"></i>
-                    Atualizar
+                    Salvar alterações
                 </button>
             </div>
 

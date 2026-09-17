@@ -3,7 +3,7 @@
 @section('title', 'Editar Serviço')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/servicos/edit.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/edit-form.css') }}?v={{ filemtime(public_path('css/edit-form.css')) }}">
 @endpush
 
 @section('content')
@@ -16,6 +16,13 @@
                 Atualize as informações do serviço abaixo.
             </p>
         </header>
+
+        @if ($errors->any())
+            <div class="alert-error" role="alert">
+                <strong>Revise os campos destacados:</strong>
+                <ul>@foreach ($errors->all() as $erro)<li>{{ $erro }}</li>@endforeach</ul>
+            </div>
+        @endif
 
         {{-- MENSAGEM DE SUCESSO --}}
         @if (session('success'))
@@ -106,16 +113,18 @@
                     </select>
                 </div>
 
+            </div>
+
             {{-- AÇÕES --}}
             <div class="form-actions">
-                <a href="{{ route('servicos.index') }}" class="btn btn-cancelar">
+                <a href="{{ route('servicos.show', $servico) }}" class="btn btn-cancelar">
                     <i class="fa-solid fa-arrow-left"></i>
                     Voltar
                 </a>
 
                 <button type="submit" class="btn btn-salvar">
                     <i class="fa-solid fa-rotate"></i>
-                    Atualizar
+                    Salvar alterações
                 </button>
             </div>
 

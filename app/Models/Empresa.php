@@ -54,5 +54,25 @@ class Empresa extends Model
 
         return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $this->cnpj);
     }
-}
 
+    public function getTelefoneFormatadoAttribute()
+    {
+        $telefone = preg_replace('/\D/', '', (string) $this->telefone);
+
+        if (strlen($telefone) === 11) {
+            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $telefone);
+        }
+
+        if (strlen($telefone) === 10) {
+            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $telefone);
+        }
+
+        return $this->telefone;
+    }
+
+    public function getCepFormatadoAttribute()
+    {
+        $cep = preg_replace('/\D/', '', (string) $this->endereco_cep);
+        return strlen($cep) === 8 ? substr($cep, 0, 5) . '-' . substr($cep, 5) : $this->endereco_cep;
+    }
+}

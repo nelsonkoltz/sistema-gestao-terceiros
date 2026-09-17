@@ -1,70 +1,12 @@
 @extends('layouts.app')
-@section('title', 'Detalhes do Serviço')
-
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/servicos/show.css') }}?v={{ time() }}">
-@endpush
-
+@section('title','Detalhes do Serviço')
+@push('styles')<link rel="stylesheet" href="{{ asset('css/details.css') }}?v={{ filemtime(public_path('css/details.css')) }}">@endpush
 @section('content')
-<div class="servicos-form">
-    <div class="form-container">
-
-        {{-- HEADER --}}
-        <header class="form-header">
-            <h1 class="form-title">Detalhes do Serviço</h1>
-            <p class="form-subtitle">
-                Visualização completa das informações do serviço.
-            </p>
-        </header>
-
-        {{-- GRID --}}
-        <div class="details-grid">
-
-            <div class="detail-item full">
-                <label>Descrição do Serviço</label>
-                <div class="detail-value">
-                    {{ $servico->descricao }}
-                </div>
-            </div>
-
-            <div class="detail-item">
-                <label>Empresa</label>
-                <div class="detail-value">
-                    {{ $servico->empresa->nome ?? '-' }}
-                </div>
-            </div>
-
-            <div class="detail-item">
-                <label>Solicitante</label>
-                <div class="detail-value">
-                    {{ $servico->solicitante->name ?? '-' }}
-                </div>
-            </div>
-
-            <div class="detail-item">
-                <label>Vai Almoçar?</label>
-                <span class="badge {{ $servico->vai_almocar ? 'badge-success' : 'badge-danger' }}">
-                    {{ $servico->vai_almocar ? 'Sim' : 'Não' }}
-                </span>
-            </div>
-
-            <div class="detail-item">
-                <label>Status</label>
-                <span class="badge status-{{ strtolower(str_replace(' ', '-', $servico->status)) }}">
-                    {{ $servico->status }}
-                </span>
-            </div>
-
-        </div>
-
-        {{-- AÇÕES --}}
-        <div class="form-actions">
-            <a href="{{ route('servicos.index') }}" class="btn btn-cancelar">
-                <i class="fa-solid fa-arrow-left"></i>
-                Voltar
-            </a>
-        </div>
-
-    </div>
+@php $statusClass=str_replace(' ','-',mb_strtolower($servico->status)); @endphp
+<div class="details-page">
+ <nav class="breadcrumb"><a href="{{ route('servicos.index') }}">Solicitações</a><i class="bi bi-chevron-right"></i><span>Detalhes</span></nav>
+ <header class="detail-header"><div class="identity"><span class="identity-icon"><i class="bi bi-clipboard2-check"></i></span><div><span class="eyebrow">Solicitação #{{ $servico->id }}</span><h1>{{ $servico->empresa->nome ?? 'Serviço terceirizado' }}</h1><p>Solicitado por {{ $servico->solicitante->name ?? 'usuário não informado' }}</p></div></div><div class="header-actions"><a href="{{ route('servicos.index') }}" class="secondary-btn"><i class="bi bi-arrow-left"></i> Voltar</a>@if(auth()->user()->permissao!=='Consulta')<a href="{{ route('servicos.edit',$servico) }}" class="primary-btn"><i class="bi bi-pencil"></i> Editar serviço</a>@endif</div></header>
+ <section class="summary-grid"><div class="summary-card"><i class="bi bi-calendar-event"></i><span><strong>{{ optional($servico->data_servico)->format('d/m/Y') ?? '—' }}</strong><small>Data do serviço</small></span></div><div class="summary-card"><i class="bi bi-activity"></i><span><strong><span class="badge {{ $statusClass }}">{{ $servico->status }}</span></strong><small>Status</small></span></div><div class="summary-card"><i class="bi bi-cup-hot"></i><span><strong>{{ $servico->vai_almocar?'Sim':'Não' }}</strong><small>Utilizará o refeitório</small></span></div></section>
+ <div class="content-grid single"><section class="panel"><div class="panel-header"><div><h2>Informações da solicitação</h2><p>Dados do serviço e responsáveis.</p></div></div><dl class="info-grid"><div><dt>Empresa</dt><dd>@if($servico->empresa)<a href="{{ route('empresas.show',$servico->empresa) }}">{{ $servico->empresa->nome }}</a>@else—@endif</dd></div><div><dt>Setor</dt><dd>{{ $servico->setor->nome ?? '—' }}</dd></div><div><dt>Solicitante</dt><dd>{{ $servico->solicitante->name ?? '—' }}</dd></div><div><dt>Conclusão</dt><dd>{{ optional($servico->data_conclusao)->format('d/m/Y') ?? 'Ainda não concluído' }}</dd></div></dl><div class="description"><strong>Descrição do serviço</strong><br>{{ $servico->descricao }}</div></section></div>
 </div>
 @endsection

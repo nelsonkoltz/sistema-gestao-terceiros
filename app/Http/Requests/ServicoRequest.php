@@ -6,6 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ServicoRequest extends FormRequest
 {
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'descricao' => trim((string) $this->descricao),
+        ]);
+    }
+
     public function authorize()
     {
         // Se futuramente usar Policy, pode trocar por $this->user()->can(...)
@@ -26,7 +33,11 @@ class ServicoRequest extends FormRequest
             'status' => ['required', 'in:Pendente,Em Andamento,Finalizado,Cancelado'],
 
 
-            'data_servico' => ['required', 'date'],
+            'data_servico' => array_filter([
+                'required',
+                'date',
+                $this->isMethod('post') ? 'after_or_equal:today' : null,
+            ]),
 
             'data_conclusao' => ['nullable', 'date', 'after_or_equal:data_servico'],
         ];
@@ -55,8 +66,10 @@ class ServicoRequest extends FormRequest
 
             'data_servico.required' => 'Informe a data do serviço.',
             'data_servico.date' => 'Data do serviço inválida.',
+            'data_servico.after_or_equal' => 'A data do serviço não pode estar no passado.',
 
             'data_conclusao.date' => 'Data de conclusão inválida.',
+            'data_conclusao.after_or_equal' => 'A conclusão não pode ser anterior à data do serviço.',
         ];
     }
 }

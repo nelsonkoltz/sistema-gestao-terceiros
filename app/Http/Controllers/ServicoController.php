@@ -77,6 +77,8 @@ class ServicoController extends Controller
     {
         $data = $request->validated();
         $data['solicitante_id'] = Auth::id();
+        $data['status'] = 'Pendente';
+        $data['data_conclusao'] = null;
 
         Servico::create($data);
 

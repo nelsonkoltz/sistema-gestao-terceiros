@@ -3,23 +3,24 @@
 @section('title', 'Cadastrar Funcionário')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/funcionarios/create.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/funcionarios/create.css') }}?v={{ filemtime(public_path('css/funcionarios/create.css')) }}">
 @endpush
 
 @section('content')
 <div class="form-container">
-
-    {{-- HEADER --}}
     <header class="form-header">
-        <h1 class="form-title">Cadastrar Funcionário</h1>
-        <p class="form-subtitle">
-            Preencha os dados abaixo para registrar um novo funcionário.
-        </p>
+        <div class="form-heading">
+            <span class="form-icon" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
+            <div>
+                <h1 class="form-title">Cadastrar funcionário</h1>
+                <p class="form-subtitle">Informe os dados de identificação e, se necessário, anexe os documentos.</p>
+            </div>
+        </div>
     </header>
 
-    {{-- ERROS --}}
     @if ($errors->any())
-        <div class="alert-error">
+        <div class="alert-error" role="alert" aria-live="polite">
+            <strong>Revise os campos destacados:</strong>
             <ul>
                 @foreach ($errors->all() as $erro)
                     <li>{{ $erro }}</li>
@@ -28,154 +29,150 @@
         </div>
     @endif
 
-    {{-- FORM --}}
-    <form action="{{ route('funcionarios.store') }}"
-          method="POST"
-          enctype="multipart/form-data"
-          id="funcionario-form">
+    <form action="{{ route('funcionarios.store') }}" method="POST" enctype="multipart/form-data" id="funcionario-form">
         @csrf
 
         <div class="form-grid">
-
-            {{-- NOME --}}
-            <div class="form-group">
-                <label>Nome Completo</label>
-                <input type="text"
-                       name="nome"
-                       class="form-control"
-                       value="{{ old('nome') }}"
-                       required>
+            <div class="section-heading full">
+                <span>Dados do funcionário</span>
+                <small>Os campos com * são obrigatórios.</small>
             </div>
 
-            {{-- CPF --}}
             <div class="form-group">
-                <label>CPF</label>
-                <input type="text"
-                       name="cpf"
-                       id="cpf"
-                       class="form-control"
-                       value="{{ old('cpf') }}"
-                       required>
+                <label for="nome">Nome completo <span aria-hidden="true">*</span></label>
+                <input type="text" id="nome" name="nome" class="form-control @error('nome') is-invalid @enderror"
+                       value="{{ old('nome') }}" maxlength="255" autocomplete="name" autofocus
+                       aria-describedby="nome-error" required>
+                @error('nome')<small class="field-error" id="nome-error">{{ $message }}</small>@enderror
             </div>
 
-            {{-- EMPRESA (APENAS UI) --}}
+            <div class="form-group">
+                <label for="cpf">CPF <span aria-hidden="true">*</span></label>
+                <input type="text" id="cpf" name="cpf" class="form-control @error('cpf') is-invalid @enderror"
+                       value="{{ old('cpf') }}" inputmode="numeric" autocomplete="off" maxlength="14"
+                       placeholder="000.000.000-00" aria-describedby="cpf-help cpf-error" required>
+                <small id="cpf-help">Digite os números do CPF.</small>
+                @error('cpf')<small class="field-error" id="cpf-error">{{ $message }}</small>@enderror
+            </div>
+
             <div class="form-group full">
-                <label>Empresa</label>
-
-                <input type="text"
-                       id="empresa_nome"
-                       class="form-control"
-                       list="lista-empresas"
-                       autocomplete="off"
-                       placeholder="Digite para buscar a empresa">
-
-                <datalist id="lista-empresas"></datalist>
-
-                {{-- CAMPO QUE REALMENTE IMPORTA --}}
-                <input type="hidden"
-                       name="empresa_id"
-                       id="empresa_id"
-                       value="{{ old('empresa_id') }}">
-
-                <small>Digite e selecione uma empresa válida da lista.</small>
+                <label for="empresa_id">Empresa <span aria-hidden="true">*</span></label>
+                <select id="empresa_id" name="empresa_id"
+                        class="form-control @error('empresa_id') is-invalid @enderror"
+                        aria-describedby="empresa-help empresa-error" required>
+                    <option value="">Selecione a empresa do funcionário</option>
+                    @foreach($empresas as $empresa)
+                        <option value="{{ $empresa->id }}" {{ (string) old('empresa_id') === (string) $empresa->id ? 'selected' : '' }}>
+                            {{ $empresa->nome }} — {{ $empresa->cnpj_formatado }}
+                        </option>
+                    @endforeach
+                </select>
+                <small id="empresa-help">A empresa precisa estar cadastrada antes de vincular o funcionário.</small>
+                @error('empresa_id')<small class="field-error" id="empresa-error">{{ $message }}</small>@enderror
             </div>
 
-            {{-- STATUS --}}
-            <div class="form-group">
-                <label>Status</label>
-                <select name="ativo" class="form-control">
+            <div class="form-group status-field">
+                <label for="ativo">Status <span aria-hidden="true">*</span></label>
+                <select name="ativo" id="ativo" class="form-control">
                     <option value="1" {{ old('ativo', 1) == 1 ? 'selected' : '' }}>Ativo</option>
                     <option value="0" {{ old('ativo') == 0 ? 'selected' : '' }}>Inativo</option>
                 </select>
+                <small>Funcionários inativos não devem ser liberados na guarita.</small>
             </div>
 
-            {{-- DOCUMENTOS --}}
+            <div class="section-heading full documents-heading">
+                <span>Documentos</span>
+                <small>Opcional — outros documentos poderão ser adicionados depois.</small>
+            </div>
+
             <div class="form-group full">
-                <label>Documentos</label>
+                <label for="documentos" class="upload-area" id="upload-area">
+                    <span class="upload-icon" aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
+                    <strong>Selecione os documentos</strong>
+                    <span>ou arraste os arquivos para esta área</span>
+                    <small>PDF, JPG ou PNG • até 5 MB por arquivo • máximo de 10 arquivos</small>
+                </label>
+                <input type="file" id="documentos" name="documentos[]" class="file-input"
+                       accept=".pdf,.jpg,.jpeg,.png" multiple>
+                @error('documentos')<small class="field-error">{{ $message }}</small>@enderror
+                @error('documentos.*')<small class="field-error">{{ $message }}</small>@enderror
 
-                <input type="file"
-                       name="documentos[]"
-                       class="form-control"
-                       accept=".pdf,.jpg,.jpeg,.png"
-                       multiple>
-
-                <small>PDF, JPG ou PNG • até 5MB por arquivo</small>
-
-                <ul id="lista-documentos" class="file-list"></ul>
+                <div id="arquivos-selecionados" class="selected-files" hidden>
+                    <div class="selected-files-header">
+                        <strong id="resumo-arquivos">Arquivos selecionados</strong>
+                        <button type="button" class="clear-files" id="limpar-arquivos">Remover todos</button>
+                    </div>
+                    <ul id="lista-documentos" class="file-list" aria-live="polite"></ul>
+                </div>
             </div>
-
         </div>
 
-        {{-- AÇÕES --}}
         <div class="form-actions">
             <a href="{{ route('funcionarios.index') }}" class="btn btn-cancelar">
-                Voltar
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar
             </a>
-
             <button type="submit" class="btn btn-salvar">
-                Salvar
+                <i class="bi bi-check-lg" aria-hidden="true"></i> Cadastrar funcionário
             </button>
         </div>
     </form>
 </div>
 
-{{-- SCRIPTS --}}
-<script src="https://cdn.jsdelivr.net/npm/inputmask/dist/inputmask.min.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const cpf = document.getElementById('cpf');
+    const formatarCpf = value => value.replace(/\D/g, '').slice(0, 11)
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    cpf.value = formatarCpf(cpf.value);
+    cpf.addEventListener('input', () => cpf.value = formatarCpf(cpf.value));
 
-    /* =========================
-       MÁSCARA CPF
-    ========================= */
-    if (window.Inputmask) new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
+    const inputDocs = document.getElementById('documentos');
+    const uploadArea = document.getElementById('upload-area');
+    const selectedFiles = document.getElementById('arquivos-selecionados');
+    const fileList = document.getElementById('lista-documentos');
+    const fileSummary = document.getElementById('resumo-arquivos');
+    const clearFiles = document.getElementById('limpar-arquivos');
+    const formatarTamanho = bytes => bytes < 1024 * 1024
+        ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+        : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
-    /* =========================
-       AUTOCOMPLETE EMPRESAS
-    ========================= */
-    const inputEmpresa = document.getElementById('empresa_nome');
-    const hiddenEmpresa = document.getElementById('empresa_id');
-    const datalist = document.getElementById('lista-empresas');
-    let cache = [];
-
-    async function buscarEmpresas(q) {
-        const res = await fetch("{{ url('empresas/search') }}?q=" + encodeURIComponent(q));
-        return res.ok ? await res.json() : [];
+    function renderizarArquivos() {
+        const files = [...inputDocs.files];
+        fileList.replaceChildren(...files.map(file => {
+            const item = document.createElement('li');
+            item.className = 'file-item';
+            const icon = document.createElement('i');
+            icon.className = file.type === 'application/pdf' ? 'bi bi-file-earmark-pdf' : 'bi bi-file-earmark-image';
+            const info = document.createElement('span');
+            const name = document.createElement('strong');
+            name.textContent = file.name;
+            const size = document.createElement('small');
+            size.textContent = formatarTamanho(file.size);
+            info.append(name, size);
+            item.append(icon, info);
+            return item;
+        }));
+        selectedFiles.hidden = files.length === 0;
+        fileSummary.textContent = `${files.length} ${files.length === 1 ? 'arquivo selecionado' : 'arquivos selecionados'}`;
     }
 
-    inputEmpresa.addEventListener('input', async () => {
-        const q = inputEmpresa.value.trim();
-        hiddenEmpresa.value = '';
-        datalist.innerHTML = '';
-
-        if (q.length < 2) return;
-
-        try { cache = await buscarEmpresas(q); } catch (_) { cache = []; }
-        if (inputEmpresa.value.trim() !== q) return;
-        datalist.replaceChildren(...cache.map(e => {
-            const option = document.createElement('option');
-            option.value = e.nome;
-            return option;
-        }));
+    inputDocs.addEventListener('change', renderizarArquivos);
+    clearFiles.addEventListener('click', () => {
+        inputDocs.value = '';
+        renderizarArquivos();
     });
-
-    inputEmpresa.addEventListener('change', () => {
-        const val = inputEmpresa.value.toLowerCase();
-        const found = cache.find(e => e.nome.toLowerCase() === val);
-        hiddenEmpresa.value = found ? found.id : '';
-    });
-
-    /* =========================
-       BLOQUEIO DE SUBMIT INVÁLIDO
-    ========================= */
-    document.getElementById('funcionario-form')
-        .addEventListener('submit', function (e) {
-
-        if (!hiddenEmpresa.value) {
-            e.preventDefault();
-            alert('Selecione uma empresa válida da lista.');
-            inputEmpresa.focus();
-        }
+    ['dragenter', 'dragover'].forEach(name => uploadArea.addEventListener(name, event => {
+        event.preventDefault();
+        uploadArea.classList.add('is-dragging');
+    }));
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('is-dragging'));
+    uploadArea.addEventListener('drop', event => {
+        event.preventDefault();
+        uploadArea.classList.remove('is-dragging');
+        inputDocs.files = event.dataTransfer.files;
+        renderizarArquivos();
     });
 
 });

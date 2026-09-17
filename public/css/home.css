@@ -1,78 +1,23 @@
-/* =========================================================
-   HOME – TERCEIROSCR
-   Profissional • Clean • Corporativo
-   ========================================================= */
-
-/* ===============================
-   WRAPPER
-   =============================== */
-.home-wrapper {
-    min-height: calc(100vh - 80px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-/* ===============================
-   CARD
-   =============================== */
-.home-card {
-    background-color: #ffffff;
-    padding: 40px 46px;
-    max-width: 520px;
-    width: 100%;
-
-    border-radius: 14px;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-
-    text-align: center;
-}
-
-/* ===============================
-   TÍTULOS
-   =============================== */
-.home-title {
-    font-size: 1.9rem;
-    font-weight: 700;
-    color: #002A51;
-    margin-bottom: 8px;
-}
-
-.home-subtitle {
-    font-size: 1.05rem;
-    color: #6c757d;
-    margin-bottom: 22px;
-}
-
-/* ===============================
-   TEXTO
-   =============================== */
-.home-text {
-    font-size: 1rem;
-    color: #444;
-    line-height: 1.6;
-}
-
-/* ===============================
-   RESPONSIVIDADE
-   =============================== */
-@media (max-width: 768px) {
-    .home-card {
-        padding: 30px;
-    }
-
-    .home-title {
-        font-size: 1.6rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .home-title {
-        font-size: 1.4rem;
-    }
-
-    .home-text {
-        font-size: 0.95rem;
-    }
-}
+:root { --primary:#002a51; --border:#e2e8f0; --muted:#64748b; --surface:#fff; --text:#1f2937; }
+* { box-sizing:border-box; }
+.dashboard { max-width:1280px; margin:36px auto; padding:0 24px; color:var(--text); }
+.dashboard-header { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:28px; }
+.eyebrow { color:#52708c; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.dashboard-header h1 { margin:5px 0 4px; color:var(--primary); font-size:1.75rem; }
+.dashboard-header p,.panel-header p { margin:0; color:var(--muted); font-size:.88rem; }
+.primary-action { display:inline-flex; min-height:44px; align-items:center; gap:8px; padding:11px 20px; border-radius:999px; background:var(--primary); color:#fff; font-size:.88rem; font-weight:600; text-decoration:none; }
+.metric-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px; }
+.metric-card { display:flex; align-items:center; gap:14px; padding:20px; border:1px solid var(--border); border-radius:13px; background:#fff; color:var(--text); text-decoration:none; transition:.2s ease; }
+.metric-card:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,42,81,.08); }
+.metric-icon { display:grid; width:44px; height:44px; flex:0 0 44px; place-items:center; border-radius:11px; font-size:1.2rem; }
+.metric-card.warning .metric-icon { background:#fff4d6; color:#8a5b00; }.metric-card.info .metric-icon { background:#e7f1ff; color:#084298; }.metric-card.success .metric-icon { background:#e8f7ed; color:#176b38; }.metric-card.neutral .metric-icon { background:#eef2f6; color:#465b70; }
+.metric-card > span:last-child { display:flex; flex-direction:column; }.metric-card strong { color:var(--primary); font-size:1.5rem; line-height:1.1; }.metric-card small { margin-top:4px; color:var(--muted); font-size:.76rem; }
+.dashboard-grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(280px,1fr); gap:22px; }
+.panel { border:1px solid var(--border); border-radius:14px; background:var(--surface); box-shadow:0 8px 24px rgba(0,42,81,.04); }
+.panel-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 22px; border-bottom:1px solid var(--border); }.panel-header h2 { margin:0 0 3px; color:var(--primary); font-size:1rem; }.panel-header > a { color:var(--primary); font-size:.78rem; font-weight:600; text-decoration:none; }
+.upcoming-list { padding:4px 20px; }.upcoming-item { display:flex; align-items:center; gap:14px; padding:15px 2px; border-bottom:1px solid #edf1f5; color:inherit; text-decoration:none; }.upcoming-item:last-child { border-bottom:0; }.upcoming-item time { display:flex; width:46px; height:50px; flex:0 0 46px; align-items:center; justify-content:center; flex-direction:column; border-radius:9px; background:#f1f5f9; color:var(--primary); }.upcoming-item time strong { font-size:1rem; }.upcoming-item time span { font-size:.62rem; font-weight:700; }.upcoming-content { display:flex; min-width:0; flex:1; flex-direction:column; }.upcoming-content strong { font-size:.84rem; }.upcoming-content small { overflow:hidden; color:var(--muted); font-size:.74rem; text-overflow:ellipsis; white-space:nowrap; }
+.status-badge { padding:5px 9px; border-radius:999px; background:#fff4d6; color:#7a5100; font-size:.67rem; font-weight:700; }.status-em-andamento { background:#e7f1ff; color:#084298; }
+.shortcut-list { display:flex; padding:8px 18px 16px; flex-direction:column; }.shortcut-list a { display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid #edf1f5; color:inherit; text-decoration:none; }.shortcut-list a:last-child { border:0; }.shortcut-list a > i:first-child { display:grid; width:36px; height:36px; place-items:center; border-radius:9px; background:#eef4f9; color:var(--primary); }.shortcut-list a > i:last-child { color:#94a3b8; }.shortcut-list span { display:flex; flex:1; flex-direction:column; }.shortcut-list strong { font-size:.82rem; }.shortcut-list small { color:var(--muted); font-size:.7rem; }
+.empty-state { display:flex; align-items:center; justify-content:center; flex-direction:column; color:var(--muted); text-align:center; }.empty-state.compact { min-height:210px; }.empty-state i { margin-bottom:10px; color:#9fb0c0; font-size:2rem; }.empty-state strong { color:#475569; font-size:.85rem; }.empty-state span { margin-top:3px; font-size:.74rem; }
+@media(max-width:950px){.metric-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.dashboard{margin:20px auto;padding:0 16px}.dashboard-header{align-items:flex-start;flex-direction:column}.primary-action{width:100%;justify-content:center}.metric-grid{grid-template-columns:1fr}.upcoming-item{align-items:flex-start}.status-badge{display:none}}

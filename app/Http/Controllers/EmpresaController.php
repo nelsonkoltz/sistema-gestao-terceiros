@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Empresa;
 use App\Models\Documento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
@@ -63,21 +64,30 @@ class EmpresaController extends Controller
 
         $this->validar($request);
 
-        $empresa = Empresa::create($request->only([
-            'nome',
-            'tipo',
-            'cnpj',
-            'telefone',
-            'email',
-            'endereco_rua',
-            'endereco_numero',
-            'endereco_bairro',
-            'endereco_cidade',
-            'endereco_estado',
-            'endereco_cep',
-        ]));
+        $arquivosSalvos = [];
 
-        $this->uploadDocumentos($empresa, $request);
+        try {
+            DB::transaction(function () use ($request, &$arquivosSalvos) {
+                $empresa = Empresa::create($request->only([
+                    'nome',
+                    'tipo',
+                    'cnpj',
+                    'telefone',
+                    'email',
+                    'endereco_rua',
+                    'endereco_numero',
+                    'endereco_bairro',
+                    'endereco_cidade',
+                    'endereco_estado',
+                    'endereco_cep',
+                ]));
+
+                $arquivosSalvos = $this->uploadDocumentos($empresa, $request);
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete($arquivosSalvos);
+            throw $exception;
+        }
 
         return redirect()
             ->route('empresas.index')
@@ -89,7 +99,12 @@ class EmpresaController extends Controller
        ===================================== */
     public function show(Empresa $empresa)
     {
-        $empresa->load('documentos');
+        $empresa->load('documentos')->loadCount([
+            'funcionarios',
+            'funcionarios as funcionarios_ativos_count' => function ($query) {
+                $query->where('ativo', true);
+            },
+        ]);
         return view('empresas.show', compact('empresa'));
     }
 
@@ -179,45 +194,80 @@ class EmpresaController extends Controller
     private function validar(Request $request, $empresaId = null)
     {
         $request->validate([
+            'tipo' => 'required|in:CPF,CNPJ',
             'nome' => 'required|string|max:255',
-            'cnpj' => ['required', 'regex:/^(?:[0-9]{11}|[0-9]{14})$/', 'unique:empresas,cnpj,' . $empresaId],
+            'cnpj' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $tamanhoEsperado = $request->tipo === 'CPF' ? 11 : 14;
+                    if (!ctype_digit((string) $value) || strlen((string) $value) !== $tamanhoEsperado) {
+                        $fail('Informe um ' . $request->tipo . ' válido.');
+                    }
+                },
+                'unique:empresas,cnpj,' . $empresaId,
+            ],
             'telefone' => 'required|string|max:20',
-            'email' => 'required|email',
+            'email' => 'required|email|max:255',
             'endereco_rua' => 'required|string|max:255',
             'endereco_numero' => 'required|string|max:20',
             'endereco_bairro' => 'required|string|max:255',
             'endereco_cidade' => 'required|string|max:255',
             'endereco_estado' => 'required|string|max:2',
-            'endereco_cep' => 'required|string|max:9',
+            'endereco_cep' => ['required', 'regex:/^[0-9]{8}$/'],
+            'documentos' => 'nullable|array|max:10',
             'documentos.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
+        ], [
+            'tipo.required' => 'Selecione o tipo de cadastro.',
+            'tipo.in' => 'O tipo de cadastro selecionado é inválido.',
+            'nome.required' => 'Informe o nome ou a razão social.',
+            'cnpj.required' => 'Informe o CPF ou CNPJ.',
+            'cnpj.unique' => 'Este CPF ou CNPJ já está cadastrado.',
+            'telefone.required' => 'Informe o telefone.',
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um endereço de e-mail válido.',
+            'endereco_cep.regex' => 'O CEP deve conter 8 dígitos.',
+            'documentos.max' => 'Selecione no máximo 10 documentos por vez.',
+            'documentos.*.mimes' => 'Os documentos devem ser arquivos PDF, JPG ou PNG.',
+            'documentos.*.max' => 'Cada documento pode ter no máximo 20 MB.',
         ]);
     }
 
     private function normalizarDados(Request $request)
     {
+        $documento = preg_replace('/\D/', '', (string) $request->cnpj);
+        $tipo = strtoupper((string) $request->tipo);
+
         $request->merge([
-            'cnpj' => preg_replace('/\D/', '', $request->cnpj),
-            'tipo' => strlen(preg_replace('/\D/', '', $request->cnpj)) === 11 ? 'CPF' : 'CNPJ',
+            'nome' => trim((string) $request->nome),
+            'cnpj' => $documento,
+            'tipo' => in_array($tipo, ['CPF', 'CNPJ'], true)
+                ? $tipo
+                : (strlen($documento) === 11 ? 'CPF' : 'CNPJ'),
+            'telefone' => trim((string) $request->telefone),
+            'email' => mb_strtolower(trim((string) $request->email)),
+            'endereco_cep' => preg_replace('/\D/', '', $request->endereco_cep),
             'endereco_estado' => strtoupper(substr($request->endereco_estado, 0, 2)),
         ]);
     }
 
     private function uploadDocumentos(Empresa $empresa, Request $request)
     {
-        if (!$request->hasFile('documentos')) return;
+        $arquivosSalvos = [];
+        if (!$request->hasFile('documentos')) return $arquivosSalvos;
 
         foreach ($request->file('documentos') as $file) {
             if (!$file) continue;
 
             $path = $file->store("empresas/{$empresa->id}", 'public');
+            $arquivosSalvos[] = $path;
 
             Documento::create([
                 'empresa_id' => $empresa->id,
-                'nome_arquivo' => $file->getClientOriginalName(),
+                'nome_arquivo' => mb_substr($file->getClientOriginalName(), 0, 255),
                 'caminho_arquivo' => $path,
-                'mime' => $file->getClientMimeType(),
-                'tamanho' => $file->getSize(),
             ]);
         }
+
+        return $arquivosSalvos;
     }
 }

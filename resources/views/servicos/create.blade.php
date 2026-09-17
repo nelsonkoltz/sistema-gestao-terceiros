@@ -1,126 +1,145 @@
 @extends('layouts.app')
 
-@section('title', 'Cadastrar Serviço')
+@section('title', 'Nova Solicitação de Serviço')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/servicos/create.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/servicos/create.css') }}?v={{ filemtime(public_path('css/servicos/create.css')) }}">
 @endpush
 
-
 @section('content')
-    <div class="form-container">
-
-        {{-- HEADER --}}
-        <header class="form-header">
-            <h1 class="form-title">Cadastrar Serviço</h1>
-            <p class="form-subtitle">
-                Preencha as informações abaixo para registrar um novo serviço.
-            </p>
-        </header>
-
-        {{-- ERROS --}}
-        @if ($errors->any())
-            <div class="alert-error">
-                <ul>
-                    @foreach ($errors->all() as $erro)
-                        <li>{{ $erro }}</li>
-                    @endforeach
-                </ul>
+<div class="form-container">
+    <header class="form-header">
+        <div class="form-heading">
+            <span class="form-icon" aria-hidden="true"><i class="bi bi-clipboard2-plus"></i></span>
+            <div>
+                <h1 class="form-title">Nova solicitação de serviço</h1>
+                <p class="form-subtitle">Informe quem realizará o serviço, o setor responsável e a data prevista.</p>
             </div>
-        @endif
+        </div>
+    </header>
 
+    @if ($errors->any())
+        <div class="alert-error" role="alert" aria-live="polite">
+            <strong>Revise os campos destacados:</strong>
+            <ul>
+                @foreach ($errors->all() as $erro)<li>{{ $erro }}</li>@endforeach
+            </ul>
+        </div>
+    @endif
 
-        <form action="{{ route('servicos.store') }}" method="POST">
-            @csrf
+    <form action="{{ route('servicos.store') }}" method="POST" id="servico-form">
+        @csrf
+        <input type="hidden" name="status" value="Pendente">
 
-            {{-- GRID --}}
-            <div class="form-grid">
+        <div class="form-grid">
+            <div class="section-heading full">
+                <span>Dados da solicitação</span>
+                <small>Os campos com * são obrigatórios.</small>
+            </div>
 
-                {{-- EMPRESA --}}
-                <div class="form-group">
-                    <label for="empresa_id">Empresa</label>
-                    <select id="empresa_id" name="empresa_id" class="form-control" required>
+            <div class="form-group">
+                <label for="empresa_id">Empresa terceirizada <span>*</span></label>
+                <div class="control-with-icon">
+                    <i class="bi bi-building" aria-hidden="true"></i>
+                    <select id="empresa_id" name="empresa_id"
+                            class="form-control @error('empresa_id') is-invalid @enderror" required>
                         <option value="">Selecione uma empresa</option>
                         @foreach($empresas as $empresa)
-                            <option value="{{ $empresa->id }}">{{ $empresa->nome }}</option>
+                            <option value="{{ $empresa->id }}" {{ (string) old('empresa_id') === (string) $empresa->id ? 'selected' : '' }}>
+                                {{ $empresa->nome }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
+                @error('empresa_id')<small class="field-error">{{ $message }}</small>@enderror
+            </div>
 
-                {{-- SETOR --}}
-                <div class="form-group">
-                    <label for="setor_id">Setor</label>
-                    <select id="setor_id" name="setor_id" class="form-control" required>
+            <div class="form-group">
+                <label for="setor_id">Setor solicitante <span>*</span></label>
+                <div class="control-with-icon">
+                    <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                    <select id="setor_id" name="setor_id"
+                            class="form-control @error('setor_id') is-invalid @enderror" required>
                         <option value="">Selecione um setor</option>
                         @foreach($setores as $setor)
-                            <option value="{{ $setor->id }}">{{ $setor->nome }}</option>
+                            <option value="{{ $setor->id }}" {{ (string) old('setor_id') === (string) $setor->id ? 'selected' : '' }}>
+                                {{ $setor->nome }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
-
-                {{-- DESCRIÇÃO --}}
-                <div class="form-group full">
-                    <label for="descricao">Descrição do Serviço</label>
-                    <textarea id="descricao" name="descricao" class="form-control" required></textarea>
-                </div>
-
-                {{-- DATA SERVIÇO --}}
-                <div class="form-group">
-                    <label for="data_servico">Data do Serviço</label>
-                    <input type="date" id="data_servico" name="data_servico" class="form-control" required>
-                </div>
-
-                {{-- ALMOÇO --}}
-                <div class="form-group">
-                    <label for="vai_almocar">O terceiro vai almoçar?</label>
-                    <select id="vai_almocar" name="vai_almocar" class="form-control" required>
-                        <option value="1">Sim</option>
-                        <option value="0">Não</option>
-                    </select>
-                </div>
-
-                {{-- STATUS --}}
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" class="form-control" required>
-                        <option value="Pendente">Pendente</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Finalizado">Finalizado</option>
-                    </select>
-                </div>
-
-                {{-- DATA CONCLUSÃO --}}
-                <div class="form-group full" id="data_conclusao_container" style="display:none;">
-                    <label for="data_conclusao">Data de Conclusão</label>
-                    <input type="date" id="data_conclusao" name="data_conclusao" class="form-control">
-                </div>
-
+                @error('setor_id')<small class="field-error">{{ $message }}</small>@enderror
             </div>
 
-            {{-- AÇÕES --}}
-            <div class="form-actions">
-                <a href="{{ route('servicos.index') }}" class="btn btn-cancelar">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Cancelar
-                </a>
-
-                <button type="submit" class="btn btn-salvar">
-                    <i class="fa-solid fa-check"></i>
-                    Salvar
-                </button>
+            <div class="form-group full">
+                <div class="label-row">
+                    <label for="descricao">Descrição do serviço <span>*</span></label>
+                    <small id="contador-descricao">0 / 1000</small>
+                </div>
+                <textarea id="descricao" name="descricao"
+                          class="form-control @error('descricao') is-invalid @enderror"
+                          maxlength="1000" rows="5"
+                          placeholder="Descreva o trabalho que será realizado, local e outras orientações importantes para a entrada."
+                          aria-describedby="descricao-help contador-descricao" required>{{ old('descricao') }}</textarea>
+                <small id="descricao-help">Uma descrição clara ajuda a guarita a confirmar o motivo da entrada.</small>
+                @error('descricao')<small class="field-error">{{ $message }}</small>@enderror
             </div>
 
-        </form>
-    </div>
+            <div class="section-heading full section-spaced"><span>Agendamento</span></div>
 
-    {{-- SCRIPT STATUS --}}
-    <script>
-        const statusSelect = document.getElementById('status');
-        const dataConclusaoContainer = document.getElementById('data_conclusao_container');
+            <div class="form-group">
+                <label for="data_servico">Data do serviço <span>*</span></label>
+                <div class="control-with-icon">
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                    <input type="date" id="data_servico" name="data_servico"
+                           class="form-control @error('data_servico') is-invalid @enderror"
+                           value="{{ old('data_servico') }}" min="{{ now()->format('Y-m-d') }}" required>
+                </div>
+                @error('data_servico')<small class="field-error">{{ $message }}</small>@enderror
+            </div>
 
-        statusSelect.addEventListener('change', function () {
-            dataConclusaoContainer.style.display =
-                this.value === 'Finalizado' ? 'block' : 'none';
-        });
-    </script>
+            <fieldset class="form-group lunch-field">
+                <legend>O terceiro utilizará o refeitório? <span>*</span></legend>
+                <div class="choice-group">
+                    <label class="choice-card">
+                        <input type="radio" name="vai_almocar" value="1" {{ old('vai_almocar', '0') === '1' ? 'checked' : '' }}>
+                        <span><i class="bi bi-check-circle"></i> Sim</span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="vai_almocar" value="0" {{ old('vai_almocar', '0') === '0' ? 'checked' : '' }}>
+                        <span><i class="bi bi-x-circle"></i> Não</span>
+                    </label>
+                </div>
+                @error('vai_almocar')<small class="field-error">{{ $message }}</small>@enderror
+            </fieldset>
+
+            <div class="status-card full">
+                <i class="bi bi-clock-history" aria-hidden="true"></i>
+                <div>
+                    <strong>Status inicial: Pendente</strong>
+                    <span>A solicitação será criada como pendente e poderá ser acompanhada na lista de serviços.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ route('servicos.index') }}" class="btn btn-cancelar">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" class="btn btn-salvar">
+                <i class="bi bi-send-check"></i> Enviar solicitação
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const descricao = document.getElementById('descricao');
+    const contador = document.getElementById('contador-descricao');
+    const atualizarContador = () => contador.textContent = `${descricao.value.length} / 1000`;
+    descricao.addEventListener('input', atualizarContador);
+    atualizarContador();
+});
+</script>
 @endsection

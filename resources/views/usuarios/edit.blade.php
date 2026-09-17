@@ -3,7 +3,7 @@
 @section('title', 'Editar Usuário')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/usuarios/edit.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('css/edit-form.css') }}?v={{ filemtime(public_path('css/edit-form.css')) }}">
 @endpush
 
 @section('content')
@@ -112,12 +112,12 @@
 
         {{-- AÇÕES --}}
         <div class="form-actions">
-            <a href="{{ route('usuarios.index') }}" class="btn btn-cancelar">
+            <a href="{{ route('usuarios.show', $usuario) }}" class="btn btn-cancelar">
                 Voltar
             </a>
 
             <button type="submit" class="btn btn-salvar">
-                Atualizar
+                Salvar alterações
             </button>
         </div>
 

@@ -47,7 +47,9 @@ class FuncionarioController extends Controller
     // =============================
     public function create()
     {
-        return view('funcionarios.create');
+        $empresas = Empresa::orderBy('nome')->get(['id', 'nome', 'cnpj']);
+
+        return view('funcionarios.create', compact('empresas'));
     }
 
     // =============================
@@ -56,6 +58,7 @@ class FuncionarioController extends Controller
     public function store(Request $request)
     {
         $request->merge([
+            'nome'  => trim((string) $request->nome),
             'cpf'   => preg_replace('/\D/', '', $request->cpf),
             'ativo' => $request->boolean('ativo'),
         ]);
@@ -65,10 +68,24 @@ class FuncionarioController extends Controller
             'nome'         => ['required', 'string', 'max:255'],
             'cpf'          => ['required', 'string', 'size:11', 'unique:funcionarios,cpf'],
             'ativo'        => ['boolean'],
+            'documentos'   => ['nullable', 'array', 'max:10'],
             'documentos.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ], [
+            'empresa_id.required' => 'Selecione uma empresa válida.',
+            'empresa_id.exists' => 'A empresa selecionada não foi encontrada.',
+            'nome.required' => 'Informe o nome completo.',
+            'cpf.required' => 'Informe o CPF.',
+            'cpf.size' => 'O CPF deve conter 11 dígitos.',
+            'cpf.unique' => 'Já existe um funcionário cadastrado com este CPF.',
+            'documentos.max' => 'Selecione no máximo 10 documentos por vez.',
+            'documentos.*.mimes' => 'Os documentos devem ser arquivos PDF, JPG ou PNG.',
+            'documentos.*.max' => 'Cada documento pode ter no máximo 5 MB.',
         ]);
 
-        DB::transaction(function () use ($request, $data) {
+        $arquivosSalvos = [];
+
+        try {
+            DB::transaction(function () use ($request, $data, &$arquivosSalvos) {
 
             $funcionario = Funcionario::create([
                 'empresa_id' => $data['empresa_id'],
@@ -86,16 +103,22 @@ class FuncionarioController extends Controller
                         'public'
                     );
 
+                    $arquivosSalvos[] = $path;
+
                     DocumentoFuncionario::create([
                         'funcionario_id' => $funcionario->id,
-                        'nome_original'  => $file->getClientOriginalName(),
+                        'nome_original'  => mb_substr($file->getClientOriginalName(), 0, 255),
                         'path'           => $path,
-                        'mime'           => $file->getClientMimeType(),
+                        'mime'           => $file->getMimeType(),
                         'tamanho'        => $file->getSize(),
                     ]);
                 }
             }
-        });
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete($arquivosSalvos);
+            throw $exception;
+        }
 
         return redirect()
             ->route('funcionarios.index')
@@ -108,8 +131,9 @@ class FuncionarioController extends Controller
     public function edit(Funcionario $funcionario)
     {
         $funcionario->load('empresa', 'documentos');
+        $empresas = Empresa::orderBy('nome')->get(['id', 'nome', 'cnpj']);
 
-        return view('funcionarios.edit', compact('funcionario'));
+        return view('funcionarios.edit', compact('funcionario', 'empresas'));
     }
 
     // =============================
