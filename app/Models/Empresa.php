@@ -46,6 +46,16 @@ class Empresa extends Model
         return $this->hasMany(Funcionario::class);
     }
 
+    public function documentacaoRegular(): bool
+    {
+        $documentosAtuais = $this->documentos->where('status', '!=', 'Substituido');
+
+        return $documentosAtuais->isNotEmpty()
+            && $documentosAtuais->every(fn ($documento) =>
+                in_array($documento->status_atual, ['Aprovado', 'Proximo do vencimento'], true)
+            );
+    }
+
     public function getCnpjFormatadoAttribute()
     {
         if (strlen($this->cnpj) === 11) {

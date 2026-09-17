@@ -77,4 +77,13 @@ class Servico extends Model
     {
         return $this->belongsTo(Setor::class, 'setor_id');
     }
+
+    public function autorizaFuncionario(Funcionario $funcionario): bool
+    {
+        return (int) $funcionario->empresa_id === (int) $this->empresa_id
+            && in_array($this->status, ['Aprovado', 'Em Andamento'], true)
+            && $this->data_servico?->isSameDay(today())
+            && $this->empresa->documentacaoRegular()
+            && $funcionario->documentacaoRegular();
+    }
 }

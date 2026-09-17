@@ -14,6 +14,7 @@ class FuncionarioController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('seguranca_trabalho')->only(['create', 'store', 'edit', 'update', 'destroy', 'destroyDocumento']);
     }
 
     // =============================
@@ -229,7 +230,7 @@ class FuncionarioController extends Controller
     // =============================
     public function show(Funcionario $funcionario)
     {
-        $funcionario->load('empresa', 'documentos');
+        $funcionario->load('empresa', 'documentos.analisador');
 
         return view('funcionarios.show', compact('funcionario'));
     }

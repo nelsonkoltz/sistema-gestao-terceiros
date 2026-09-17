@@ -95,12 +95,17 @@ class ServicoController extends Controller
     public function show($id)
     {
         $servico = Servico::with([
-            'empresa',
+            'empresa.documentos',
+            'empresa.funcionarios.documentos',
             'solicitante',
             'setor'
         ])->findOrFail($id);
 
-        return view('servicos.show', compact('servico'));
+        $funcionariosElegiveis = $servico->empresa
+            ? $servico->empresa->funcionarios->filter(fn ($funcionario) => $funcionario->documentacaoRegular())
+            : collect();
+
+        return view('servicos.show', compact('servico', 'funcionariosElegiveis'));
     }
 
     /**

@@ -66,6 +66,7 @@ class Kernel extends HttpKernel
 
         // 👇 REGISTRO DO ADMIN (NOVO)
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'seguranca_trabalho' => \App\Http\Middleware\EnsureWorkSafety::class,
     ];
 
 

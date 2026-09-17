@@ -96,6 +96,11 @@
                             Pendente
                         </option>
 
+                        <option value="Aprovado"
+                            {{ old('status', $servico->status) == 'Aprovado' ? 'selected' : '' }}>
+                            Aprovado
+                        </option>
+
                         <option value="Em Andamento"
                             {{ old('status', $servico->status) == 'Em Andamento' ? 'selected' : '' }}>
                             Em Andamento

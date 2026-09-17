@@ -38,4 +38,15 @@ class Funcionario extends Model
         return $this->hasMany(DocumentoFuncionario::class, 'funcionario_id');
     }
 
+    public function documentacaoRegular(): bool
+    {
+        $documentosAtuais = $this->documentos->where('status', '!=', 'Substituido');
+
+        return $this->ativo
+            && $documentosAtuais->isNotEmpty()
+            && $documentosAtuais->every(fn ($documento) =>
+                in_array($documento->status_atual, ['Aprovado', 'Proximo do vencimento'], true)
+            );
+    }
+
 }

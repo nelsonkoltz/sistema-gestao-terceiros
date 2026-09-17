@@ -30,7 +30,7 @@ class ServicoRequest extends FormRequest
 
             'vai_almocar' => ['required', 'boolean'],
 
-            'status' => ['required', 'in:Pendente,Em Andamento,Finalizado,Cancelado'],
+            'status' => ['required', 'in:Pendente,Aprovado,Em Andamento,Finalizado,Cancelado'],
 
 
             'data_servico' => array_filter([

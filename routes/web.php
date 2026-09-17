@@ -7,6 +7,8 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ConfiguracaoController;
+use App\Http\Controllers\GestaoDocumentoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,4 +113,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::resource('usuarios', UsuarioController::class);
 
+    Route::get('configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
+    Route::put('configuracoes/job-documentos', [ConfiguracaoController::class, 'updateJob'])->name('configuracoes.job');
+    Route::post('configuracoes/job-documentos/executar', [ConfiguracaoController::class, 'executarJob'])->name('configuracoes.job.executar');
+
+});
+
+Route::middleware(['auth', 'seguranca_trabalho'])->group(function () {
+    Route::post('empresas/{empresa}/documentos', [GestaoDocumentoController::class, 'storeEmpresa'])->name('empresas.documentos.store');
+    Route::put('empresas/{empresa}/documentos/{documento}/analise', [GestaoDocumentoController::class, 'analisarEmpresa'])->name('empresas.documentos.analisar');
+    Route::post('funcionarios/{funcionario}/documentos', [GestaoDocumentoController::class, 'storeFuncionario'])->name('funcionarios.documentos.store');
+    Route::put('funcionarios/{funcionario}/documentos/{documento}/analise', [GestaoDocumentoController::class, 'analisarFuncionario'])->name('funcionarios.documentos.analisar');
 });

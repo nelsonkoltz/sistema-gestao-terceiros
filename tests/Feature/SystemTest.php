@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\Documento;
+use App\Models\DocumentoFuncionario;
+use App\Models\Configuracao;
 use App\Models\Empresa;
 use App\Models\Funcionario;
 use App\Models\Servico;
 use App\Models\Setor;
 use App\Models\Usuario;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -186,5 +189,82 @@ class SystemTest extends TestCase
         $this->assertSame(8, Setor::count());
         $this->assertSame(1, Usuario::count());
         $this->assertSame($passwordHash, $user->fresh()->password);
+    }
+
+    public function test_document_has_fixed_six_month_validity_and_can_be_reviewed()
+    {
+        Storage::fake('public');
+        Carbon::setTestNow('2026-09-17 10:00:00');
+        $admin = $this->user();
+        $company = Empresa::create($this->companyData());
+        $this->actingAs($admin)->post('/empresas/' . $company->id . '/documentos', [
+            'arquivo' => UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf'),
+        ])->assertSessionHasNoErrors();
+
+        $document = Documento::latest('id')->firstOrFail();
+        $this->assertSame('Pendente', $document->status);
+        $this->assertSame('2027-03-17', $document->validade_ate->toDateString());
+
+        $this->put('/empresas/' . $company->id . '/documentos/' . $document->id . '/analise', [
+            'status' => 'Aprovado',
+        ])->assertSessionHasNoErrors();
+        $this->assertSame('Aprovado', $document->fresh()->status);
+        $this->assertSame($admin->id, $document->fresh()->analisado_por);
+        Carbon::setTestNow();
+    }
+
+    public function test_admin_controls_document_job()
+    {
+        $this->actingAs($this->user());
+        $this->get('/configuracoes')->assertOk();
+        $this->put('/configuracoes/job-documentos', ['ativo' => '0'])->assertSessionHasNoErrors();
+        $this->assertSame('0', Configuracao::valor('job_validade_documentos_ativo'));
+    }
+
+    public function test_only_admin_or_work_safety_can_manage_company_documents()
+    {
+        Storage::fake('public');
+        $company = Empresa::create($this->companyData());
+        $regular = $this->user('Usuário');
+        $this->actingAs($regular)->post('/empresas/' . $company->id . '/documentos', [
+            'arquivo' => UploadedFile::fake()->create('certidao.pdf', 20, 'application/pdf'),
+        ])->assertForbidden();
+
+        $safety = $this->user('Usuário');
+        $safety->update(['setor' => 'Segurança do Trabalho']);
+        $this->actingAs($safety)->post('/empresas/' . $company->id . '/documentos', [
+            'arquivo' => UploadedFile::fake()->create('certidao.pdf', 20, 'application/pdf'),
+        ])->assertSessionHasNoErrors();
+        $this->assertSame(1, Documento::count());
+    }
+
+    public function test_approved_service_allows_any_regular_employee_from_its_company()
+    {
+        Carbon::setTestNow('2026-09-17 09:00:00');
+        $requester = $this->user();
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create([
+            'empresa_id' => $company->id, 'nome' => 'Terceiro Regular',
+            'cpf' => '12345678901', 'ativo' => true,
+        ]);
+        Documento::create([
+            'empresa_id' => $company->id, 'nome_arquivo' => 'empresa.pdf',
+            'caminho_arquivo' => 'empresa.pdf', 'status' => 'Aprovado',
+        ]);
+        DocumentoFuncionario::create([
+            'funcionario_id' => $employee->id, 'nome_original' => 'funcionario.pdf',
+            'path' => 'funcionario.pdf', 'status' => 'Aprovado',
+        ]);
+        $sector = Setor::create(['nome' => 'Manutenção']);
+        $service = Servico::create([
+            'empresa_id' => $company->id, 'solicitante_id' => $requester->id,
+            'setor_id' => $sector->id, 'descricao' => 'Serviço autorizado',
+            'vai_almocar' => false, 'status' => 'Aprovado', 'data_servico' => today(),
+        ]);
+
+        $this->assertTrue($service->autorizaFuncionario($employee));
+        $employee->update(['ativo' => false]);
+        $this->assertFalse($service->fresh()->autorizaFuncionario($employee->fresh()));
+        Carbon::setTestNow();
     }
 }

@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('seguranca_trabalho')->only(['create', 'store', 'edit', 'update', 'destroy', 'deleteDocumento']);
+    }
+
     public function search(Request $request)
     {
         $data = $request->validate(['q' => 'nullable|string|max:255']);
@@ -99,7 +104,7 @@ class EmpresaController extends Controller
        ===================================== */
     public function show(Empresa $empresa)
     {
-        $empresa->load('documentos')->loadCount([
+        $empresa->load(['documentos.analisador'])->loadCount([
             'funcionarios',
             'funcionarios as funcionarios_ativos_count' => function ($query) {
                 $query->where('ativo', true);

@@ -1,43 +1,24 @@
 @extends('layouts.app')
 @section('title', 'Detalhes da Empresa')
-@push('styles')<link rel="stylesheet" href="{{ asset('css/empresas/show.css') }}?v={{ filemtime(public_path('css/empresas/show.css')) }}">@endpush
-
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/details.css') }}?v={{ filemtime(public_path('css/details.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/document-control.css') }}?v={{ filemtime(public_path('css/document-control.css')) }}">
+@endpush
 @section('content')
+@php
+    $setor = mb_strtolower(trim((string) auth()->user()->setor));
+    $podeGerenciar = auth()->user()->permissao === 'Administrador' || in_array($setor, ['segurança do trabalho','seguranca do trabalho']);
+    $irregulares = $empresa->documentos->filter(fn($d) => in_array($d->status_atual, ['Pendente','Rejeitado','Vencido']));
+    $documentacaoRegular = $irregulares->isEmpty();
+@endphp
 <div class="details-page">
-    <nav class="breadcrumb" aria-label="Navegação"><a href="{{ route('empresas.index') }}">Empresas</a><i class="bi bi-chevron-right"></i><span>Detalhes</span></nav>
-
-    <header class="company-header">
-        <div class="company-identity"><span class="company-icon"><i class="bi bi-building"></i></span><div><span class="eyebrow">{{ $empresa->tipo === 'CPF' ? 'Prestador pessoa física' : 'Empresa terceirizada' }}</span><h1>{{ $empresa->nome }}</h1><p>Cadastrada em {{ optional($empresa->created_at)->format('d/m/Y') }}</p></div></div>
-        <div class="header-actions"><a href="{{ route('empresas.index') }}" class="secondary-btn"><i class="bi bi-arrow-left"></i> Voltar</a>@if(auth()->user()->permissao !== 'Consulta')<a href="{{ route('empresas.edit',$empresa) }}" class="primary-btn"><i class="bi bi-pencil"></i> Editar empresa</a>@endif</div>
-    </header>
-
-    <section class="summary-grid">
-        <div class="summary-card"><i class="bi bi-people"></i><span><strong>{{ $empresa->funcionarios_count }}</strong><small>Funcionários cadastrados</small></span></div>
-        <div class="summary-card"><i class="bi bi-person-check"></i><span><strong>{{ $empresa->funcionarios_ativos_count }}</strong><small>Funcionários ativos</small></span></div>
-        <div class="summary-card"><i class="bi bi-files"></i><span><strong>{{ $empresa->documentos->count() }}</strong><small>Documentos anexados</small></span></div>
-    </section>
-
-    <div class="content-grid">
-        <section class="panel info-panel">
-            <div class="panel-header"><div><h2>Informações cadastrais</h2><p>Dados de identificação e contato.</p></div></div>
-            <dl class="info-grid">
-                <div><dt>{{ $empresa->tipo === 'CPF' ? 'CPF' : 'CNPJ' }}</dt><dd>{{ $empresa->cnpj_formatado }}</dd></div>
-                <div><dt>Telefone</dt><dd><a href="tel:{{ preg_replace('/\D/','',$empresa->telefone) }}">{{ $empresa->telefone_formatado }}</a></dd></div>
-                <div class="full"><dt>E-mail</dt><dd><a href="mailto:{{ $empresa->email }}">{{ $empresa->email }}</a></dd></div>
-            </dl>
-            <div class="address-block"><span class="address-icon"><i class="bi bi-geo-alt"></i></span><div><strong>Endereço</strong><address>{{ $empresa->endereco_rua }}, {{ $empresa->endereco_numero }}<br>{{ $empresa->endereco_bairro }} · {{ $empresa->endereco_cidade }}/{{ $empresa->endereco_estado }}<br>CEP {{ $empresa->cep_formatado }}</address></div></div>
-        </section>
-
-        <section class="panel documents-panel">
-            <div class="panel-header"><div><h2>Documentos</h2><p>{{ $empresa->documentos->count() }} {{ $empresa->documentos->count() === 1 ? 'arquivo anexado' : 'arquivos anexados' }}</p></div>@if(auth()->user()->permissao !== 'Consulta')<a href="{{ route('empresas.edit',$empresa) }}#documentos" class="panel-action"><i class="bi bi-plus"></i> Adicionar</a>@endif</div>
-            <div class="document-list">
-                @forelse($empresa->documentos as $documento)
-                    <div class="document-item"><span class="document-icon"><i class="bi bi-file-earmark-pdf"></i></span><span class="document-info"><strong title="{{ $documento->nome_arquivo }}">{{ $documento->nome_arquivo }}</strong><small>Adicionado em {{ $documento->created_at->format('d/m/Y \à\s H:i') }}</small></span><a href="{{ route('empresas.documentos.download',[$empresa,$documento]) }}" class="download-btn" title="Baixar {{ $documento->nome_arquivo }}"><i class="bi bi-download"></i><span>Baixar</span></a></div>
-                @empty
-                    <div class="empty-documents"><i class="bi bi-file-earmark"></i><strong>Nenhum documento anexado</strong><span>Os documentos desta empresa aparecerão aqui.</span></div>
-                @endforelse
-            </div>
-        </section>
-    </div>
+ <nav class="breadcrumb"><a href="{{ route('empresas.index') }}">Empresas</a><i class="bi bi-chevron-right"></i><span>Detalhes</span></nav>
+ @if(session('success'))<div class="doc-alert success">{{ session('success') }}</div>@endif
+ @if($errors->any())<div class="doc-alert danger">{{ $errors->first() }}</div>@endif
+ <header class="detail-header"><div class="identity"><span class="identity-icon"><i class="bi bi-building"></i></span><div><span class="eyebrow">{{ $empresa->tipo==='CPF'?'Prestador pessoa física':'Empresa terceirizada' }}</span><h1>{{ $empresa->nome }}</h1><p>Cadastrada em {{ optional($empresa->created_at)->format('d/m/Y') }}</p></div></div><div class="header-actions"><a href="{{ route('empresas.index') }}" class="secondary-btn"><i class="bi bi-arrow-left"></i> Voltar</a>@if($podeGerenciar)<a href="{{ route('empresas.edit',$empresa) }}" class="primary-btn"><i class="bi bi-pencil"></i> Editar empresa</a>@endif</div></header>
+ <section class="summary-grid"><div class="summary-card"><i class="bi bi-people"></i><span><strong>{{ $empresa->funcionarios_count }}</strong><small>Funcionários cadastrados</small></span></div><div class="summary-card"><i class="bi bi-files"></i><span><strong>{{ $empresa->documentos->count() }}</strong><small>Documentos no histórico</small></span></div><div class="summary-card"><i class="bi bi-shield-check"></i><span><strong><span class="badge {{ $documentacaoRegular?'success':'danger' }}">{{ $documentacaoRegular?'Regular':'Com pendências' }}</span></strong><small>Situação documental</small></span></div></section>
+ <div class="content-grid"><section class="panel"><div class="panel-header"><div><h2>Informações cadastrais</h2><p>Identificação e contato.</p></div></div><dl class="info-grid"><div><dt>{{ $empresa->tipo }}</dt><dd>{{ $empresa->cnpj_formatado }}</dd></div><div><dt>Telefone</dt><dd>{{ $empresa->telefone_formatado }}</dd></div><div class="full"><dt>E-mail</dt><dd><a href="mailto:{{ $empresa->email }}">{{ $empresa->email }}</a></dd></div><div class="full"><dt>Endereço</dt><dd>{{ $empresa->endereco_rua }}, {{ $empresa->endereco_numero }} · {{ $empresa->endereco_bairro }} · {{ $empresa->endereco_cidade }}/{{ $empresa->endereco_estado }} · CEP {{ $empresa->cep_formatado }}</dd></div></dl></section>
+ <section class="panel"><div class="panel-header"><div><h2>Novo documento</h2><p>Validade automática de seis meses.</p></div></div>@if($podeGerenciar)<form class="doc-upload-form" method="POST" enctype="multipart/form-data" action="{{ route('empresas.documentos.store',$empresa) }}">@csrf<label>Arquivo<input type="file" name="arquivo" required accept=".pdf,.jpg,.jpeg,.png"></label><button type="submit" class="primary-btn"><i class="bi bi-cloud-arrow-up"></i> Enviar para análise</button></form>@else<div class="empty-state"><i class="bi bi-shield-lock"></i><strong>Acesso de consulta</strong><span>O envio é restrito à Segurança do Trabalho.</span></div>@endif</section></div>
+ <section class="panel document-history"><div class="panel-header"><div><h2>Histórico documental</h2><p>Arquivos, análises, vencimentos e renovações permanecem registrados.</p></div></div><div class="document-list">@forelse($empresa->documentos->sortByDesc('created_at') as $documento)<article class="document-record"><span class="document-icon"><i class="bi bi-file-earmark-text"></i></span><div class="document-main"><div class="document-title"><strong>{{ $documento->nome_arquivo }}</strong><span class="doc-status status-{{ Str::slug($documento->status_atual) }}">{{ str_replace('Proximo','Próximo',$documento->status_atual) }}</span></div><small>Cadastrado em {{ $documento->created_at->format('d/m/Y') }} · válido até {{ optional($documento->validade_ate)->format('d/m/Y') ?? 'não informado' }}</small>@if($documento->observacao_analise)<small class="review-note">{{ $documento->observacao_analise }}</small>@endif</div><div class="document-actions"><a href="{{ route('empresas.documentos.download',[$empresa,$documento]) }}" class="icon-action" title="Baixar"><i class="bi bi-download"></i></a>@if($podeGerenciar && $documento->status==='Pendente')<form class="review-actions" method="POST" action="{{ route('empresas.documentos.analisar',[$empresa,$documento]) }}">@csrf @method('PUT')<input name="observacao_analise" placeholder="Observação (obrigatória ao rejeitar)"><button name="status" value="Aprovado" class="approve" title="Aprovar"><i class="bi bi-check-lg"></i></button><button name="status" value="Rejeitado" class="reject" title="Rejeitar"><i class="bi bi-x-lg"></i></button></form>@endif @if($podeGerenciar && in_array($documento->status_atual,['Vencido','Rejeitado']))<button type="button" class="renew-button" onclick="document.getElementById('renew-{{ $documento->id }}').hidden=false">Renovar</button>@endif</div>@if($podeGerenciar && in_array($documento->status_atual,['Vencido','Rejeitado']))<form hidden id="renew-{{ $documento->id }}" class="renew-form" method="POST" enctype="multipart/form-data" action="{{ route('empresas.documentos.store',$empresa) }}">@csrf<input type="hidden" name="documento_anterior_id" value="{{ $documento->id }}"><input type="file" name="arquivo" required accept=".pdf,.jpg,.jpeg,.png"><button class="primary-btn">Enviar renovação</button></form>@endif</article>@empty<div class="empty-state"><i class="bi bi-file-earmark"></i><strong>Nenhum documento cadastrado</strong></div>@endforelse</div></section>
 </div>
 @endsection
