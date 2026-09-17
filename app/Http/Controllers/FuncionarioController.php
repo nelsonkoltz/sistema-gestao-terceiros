@@ -169,10 +169,10 @@ class FuncionarioController extends Controller
     // =============================
     public function destroy(Funcionario $funcionario)
     {
+        $funcionario->delete();
+
         Storage::disk('public')
             ->deleteDirectory("funcionarios/{$funcionario->id}");
-
-        $funcionario->delete();
 
         return redirect()
             ->route('funcionarios.index')
@@ -208,5 +208,12 @@ class FuncionarioController extends Controller
         $funcionario->load('empresa', 'documentos');
 
         return view('funcionarios.show', compact('funcionario'));
+    }
+
+    public function downloadDocumento(Funcionario $funcionario, DocumentoFuncionario $documento)
+    {
+        abort_unless((int) $documento->funcionario_id === (int) $funcionario->id, 404);
+        abort_unless(Storage::disk('public')->exists($documento->path), 404);
+        return Storage::disk('public')->download($documento->path, $documento->nome_original);
     }
 }

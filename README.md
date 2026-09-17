@@ -58,13 +58,26 @@ O objetivo é centralizar informações e reduzir falhas operacionais no process
 
 ---
 
-## ▶ Como Executar o Projeto
+## ▶ Como Executar com Docker
 
-1. Clonar o repositório
-2. Executar `composer install`
-3. Configurar o arquivo `.env`
-4. Executar `php artisan migrate`
-5. Executar `php artisan serve`
+Com o Docker Desktop iniciado, execute na pasta do projeto:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1
+```
+
+Acesse **http://localhost:8090**. Na primeira instalação, o script gera as credenciais do administrador em `.local/acesso.txt` e as configurações em `.env.docker`. Esses arquivos são locais e não entram no Git.
+
+O banco e os documentos ficam nos volumes `dbdata` e `app_storage`. Preserve os dois volumes ao realizar backups. Depois de alterar o código, execute novamente `scripts/start.ps1` para reconstruir as imagens.
+
+### Testes isolados
+
+```powershell
+docker compose -p terceiroscr-tests -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+docker compose -p terceiroscr-tests -f docker-compose.test.yml down
+```
+
+A suíte usa um banco MySQL temporário separado e não acessa os dados da aplicação.
 
 ---
 
@@ -78,8 +91,8 @@ O objetivo é centralizar informações e reduzir falhas operacionais no process
 
 - Versão em API
 - Integração com React
-- Containerização com Docker
-- Expansão de testes automatizados
+- Painel específico para operação da guarita
+- Notificações de vencimento de documentos
 
 ---
 

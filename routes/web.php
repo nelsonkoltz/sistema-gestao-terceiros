@@ -29,6 +29,7 @@ Route::get('login', [LoginController::class, 'showLoginForm'])
 
 // Processa login
 Route::post('login', [LoginController::class, 'login'])
+    ->middleware('throttle:5,1')
     ->name('login.post');
 
 // Logout
@@ -52,7 +53,7 @@ Route::middleware('auth')
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\EnsureWritePermission::class])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -67,6 +68,9 @@ Route::middleware('auth')->group(function () {
     // CRUD completo
     Route::resource('empresas', EmpresaController::class);
 
+    Route::get('empresas/{empresa}/documentos/{documento}',
+        [EmpresaController::class, 'downloadDocumento'])->name('empresas.documentos.download');
+
     // Remover documento
     Route::delete('empresas/{empresa}/documentos/{documento}',
         [EmpresaController::class, 'deleteDocumento'])
@@ -79,6 +83,9 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::resource('funcionarios', FuncionarioController::class);
+
+    Route::get('funcionarios/{funcionario}/documentos/{documento}',
+        [FuncionarioController::class, 'downloadDocumento'])->name('funcionarios.documentos.download');
 
     // Remover documento
     Route::delete('funcionarios/{funcionario}/documentos/{documento}',

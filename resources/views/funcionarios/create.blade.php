@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================
        MÁSCARA CPF
     ========================= */
-    new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
+    if (window.Inputmask) new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
 
     /* =========================
        AUTOCOMPLETE EMPRESAS
@@ -150,10 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (q.length < 2) return;
 
-        cache = await buscarEmpresas(q);
-        datalist.innerHTML = cache
-            .map(e => `<option value="${e.nome}"></option>`)
-            .join('');
+        try { cache = await buscarEmpresas(q); } catch (_) { cache = []; }
+        if (inputEmpresa.value.trim() !== q) return;
+        datalist.replaceChildren(...cache.map(e => {
+            const option = document.createElement('option');
+            option.value = e.nome;
+            return option;
+        }));
     });
 
     inputEmpresa.addEventListener('change', () => {

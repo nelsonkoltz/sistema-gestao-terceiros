@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+vendor
+node_modules
+storage
+bootstrap/cache/*.php
+public/storage
+.local
+*.log

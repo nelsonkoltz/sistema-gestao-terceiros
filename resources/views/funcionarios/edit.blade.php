@@ -126,7 +126,7 @@
         <ul class="file-list">
             @forelse ($funcionario->documentos as $doc)
                 <li class="file-item">
-                    <a href="{{ asset('storage/' . $doc->path) }}"
+                    <a href="{{ route('funcionarios.documentos.download', [$funcionario, $doc]) }}"
                        target="_blank"
                        class="file-name">
                         {{ $doc->nome_original }}
@@ -159,7 +159,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // Máscara CPF
-    new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
+    if (window.Inputmask) new Inputmask('999.999.999-99').mask(document.getElementById('cpf'));
 
     // Preview documentos
     const inputDocs = document.querySelector('input[name="documentos[]"]');
@@ -193,10 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         datalist.innerHTML = '';
         if (q.length < 2) return;
 
-        cache = await buscarEmpresas(q);
-        datalist.innerHTML = cache.map(e =>
-            `<option value="${e.nome}"></option>`
-        ).join('');
+        try { cache = await buscarEmpresas(q); } catch (_) { cache = []; }
+        if (input.value.trim() !== q) return;
+        datalist.replaceChildren(...cache.map(e => {
+            const option = document.createElement('option');
+            option.value = e.nome;
+            return option;
+        }));
     });
 
     input.addEventListener('change', () => {

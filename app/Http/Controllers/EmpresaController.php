@@ -9,6 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
 {
+    public function search(Request $request)
+    {
+        $data = $request->validate(['q' => 'nullable|string|max:255']);
+        $search = trim($data['q'] ?? '');
+        if (mb_strlen($search) < 2) {
+            return response()->json([]);
+        }
+        return response()->json(Empresa::query()
+            ->where(function ($query) use ($search) {
+                $query->where('nome', 'like', '%' . $search . '%')
+                    ->orWhere('cnpj', 'like', '%' . $search . '%');
+            })->orderBy('nome')->limit(20)->get(['id', 'nome', 'cnpj']));
+    }
+
     /* =====================================
        LISTAGEM
        ===================================== */
@@ -51,6 +65,7 @@ class EmpresaController extends Controller
 
         $empresa = Empresa::create($request->only([
             'nome',
+            'tipo',
             'cnpj',
             'telefone',
             'email',
@@ -92,6 +107,8 @@ class EmpresaController extends Controller
        ===================================== */
     public function update(Request $request, Empresa $empresa)
     {
+        // The document number is read-only in the edit form.
+        $request->merge(['cnpj' => $empresa->cnpj]);
         $this->normalizarDados($request);
 
         $this->validar($request, $empresa->id);
@@ -131,12 +148,24 @@ class EmpresaController extends Controller
         return back()->with('success', 'Documento removido com sucesso.');
     }
 
+    public function downloadDocumento(Empresa $empresa, Documento $documento)
+    {
+        abort_unless((int) $documento->empresa_id === (int) $empresa->id, 404);
+        abort_unless(Storage::disk('public')->exists($documento->caminho_arquivo), 404);
+        return Storage::disk('public')->download($documento->caminho_arquivo, $documento->nome_arquivo);
+    }
+
     /* =====================================
        DESTROY
        ===================================== */
     public function destroy(Empresa $empresa)
     {
-        $empresa->delete(); // cascade cuida dos documentos
+        $funcionarios = $empresa->funcionarios()->pluck('id');
+        $empresa->delete();
+        Storage::disk('public')->deleteDirectory("empresas/{$empresa->id}");
+        foreach ($funcionarios as $id) {
+            Storage::disk('public')->deleteDirectory("funcionarios/{$id}");
+        }
 
         return redirect()
             ->route('empresas.index')
@@ -151,7 +180,7 @@ class EmpresaController extends Controller
     {
         $request->validate([
             'nome' => 'required|string|max:255',
-            'cnpj' => 'required|string|min:11|max:14|unique:empresas,cnpj,' . $empresaId,
+            'cnpj' => ['required', 'regex:/^(?:[0-9]{11}|[0-9]{14})$/', 'unique:empresas,cnpj,' . $empresaId],
             'telefone' => 'required|string|max:20',
             'email' => 'required|email',
             'endereco_rua' => 'required|string|max:255',
@@ -168,6 +197,7 @@ class EmpresaController extends Controller
     {
         $request->merge([
             'cnpj' => preg_replace('/\D/', '', $request->cnpj),
+            'tipo' => strlen(preg_replace('/\D/', '', $request->cnpj)) === 11 ? 'CPF' : 'CNPJ',
             'endereco_estado' => strtoupper(substr($request->endereco_estado, 0, 2)),
         ]);
     }

@@ -15,7 +15,7 @@ class SetorSeeder extends Seeder
         ];
 
         foreach ($setores as $nome) {
-            DB::table('setores')->insert(['nome' => $nome]);
+            DB::table('setores')->updateOrInsert(['nome' => $nome], []);
         }
     }
 }

@@ -125,7 +125,7 @@
             <ul class="file-list">
                 @forelse ($empresa->documentos as $documento)
                     <li class="file-item">
-                        <a href="{{ asset('storage/' . $documento->caminho_arquivo) }}" target="_blank" class="file-name">
+                        <a href="{{ route('empresas.documentos.download', [$empresa, $documento]) }}" target="_blank" class="file-name">
                             {{ $documento->nome_arquivo }}
                         </a>
 

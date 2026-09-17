@@ -69,7 +69,7 @@
                 @endphp
 
                 <li class="file-item">
-                    <a href="{{ asset('storage/' . $filePath) }}"
+                    <a href="{{ route('empresas.documentos.download', [$empresa, $documento]) }}"
                        target="_blank"
                        class="file-name">
                         📄 {{ $documento->nome_arquivo }}
@@ -94,10 +94,12 @@
             Voltar
         </a>
 
-        <a href="{{ route('empresas.edit', $empresa->id) }}" class="btn btn-salvar">
+        @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('empresas.edit', $empresa->id) }}" class="btn btn-salvar">
             <i class="fa-solid fa-pen"></i>
             Editar
         </a>
+@endif
     </div>
 
 </div>

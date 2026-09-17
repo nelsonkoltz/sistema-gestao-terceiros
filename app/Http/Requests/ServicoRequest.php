@@ -28,7 +28,7 @@ class ServicoRequest extends FormRequest
 
             'data_servico' => ['required', 'date'],
 
-            'data_conclusao' => ['nullable', 'date'],
+            'data_conclusao' => ['nullable', 'date', 'after_or_equal:data_servico'],
         ];
     }
 

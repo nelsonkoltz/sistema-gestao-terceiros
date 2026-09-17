@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Serviços')
 
-<head>
+@push('styles')
     <link href="{{ asset('css/servicos/index.css') }}" rel="stylesheet">
-</head>
+@endpush
 
 @section('content')
     <div class="container">
@@ -28,10 +28,12 @@
                 </a>
 
                 <!-- Novo Serviço -->
-                <a href="{{ route('servicos.create') }}" class="btn-novo" title="Novo serviço">
+                @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('servicos.create') }}" class="btn-novo" title="Novo serviço">
                     <i class="bi bi-plus-circle"></i>
                     Novo Serviço
                 </a>
+@endif
             </form>
         </div>
 
@@ -98,11 +100,14 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    <a href="{{ route('servicos.edit', $s->id) }}" class="btn btn-edit" title="Editar">
+                                    @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('servicos.edit', $s->id) }}" class="btn btn-edit" title="Editar">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+@endif
 
-                                    <form action="{{ route('servicos.destroy', $s->id) }}" method="POST">
+                                    @if(auth()->user()->permissao !== 'Consulta')
+<form action="{{ route('servicos.destroy', $s->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-delete" title="Excluir"
@@ -110,6 +115,7 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+@endif
                                 </div>
 
                             </td>

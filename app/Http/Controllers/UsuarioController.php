@@ -37,7 +37,7 @@ class UsuarioController extends Controller
             'name'      => 'required|string|max:255',
             'setor'     => 'required|string|max:255',
             'username'  => 'required|string|max:100|unique:usuarios,username',
-            'email'     => 'nullable|email|max:255',
+            'email'     => 'nullable|email|max:255|unique:usuarios,email',
             'password'  => 'required|min:6|confirmed',
             'permissao' => 'required|in:Administrador,Usuário,Consulta',
         ]);
@@ -72,7 +72,7 @@ class UsuarioController extends Controller
             'name'      => 'required|string|max:255',
             'setor'     => 'required|string|max:255',
             'username'  => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
-            'email'     => 'nullable|email|max:255',
+            'email'     => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
             'password'  => 'nullable|min:6|confirmed',
             'permissao' => 'required|in:Administrador,Usuário,Consulta',
         ]);
@@ -102,6 +102,10 @@ class UsuarioController extends Controller
             return redirect()
                 ->route('usuarios.index')
                 ->with('error', 'Você não pode excluir seu próprio usuário.');
+        }
+
+        if (\App\Models\Servico::where('solicitante_id', $usuario->id)->exists()) {
+            return back()->with('error', 'Este usuário possui serviços vinculados e não pode ser excluído.');
         }
 
         $usuario->delete();

@@ -75,7 +75,7 @@
         <ul class="file-list">
             @forelse ($funcionario->documentos as $documento)
                 <li class="file-item">
-                    <a href="{{ asset('storage/' . ($documento->path ?? $documento->caminho_arquivo)) }}"
+                    <a href="{{ route('funcionarios.documentos.download', [$funcionario, $documento]) }}"
                        target="_blank"
                        class="file-name">
                         📄 {{ $documento->nome_original ?? basename($documento->nome_arquivo ?? 'arquivo') }}
@@ -100,10 +100,12 @@
             Voltar
         </a>
 
-        <a href="{{ route('funcionarios.edit', $funcionario->id) }}" class="btn btn-salvar">
+        @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('funcionarios.edit', $funcionario->id) }}" class="btn btn-salvar">
             <i class="fa-solid fa-pen"></i>
             Editar
         </a>
+@endif
     </div>
 
 </div>

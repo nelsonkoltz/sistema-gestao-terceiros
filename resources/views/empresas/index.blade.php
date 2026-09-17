@@ -32,10 +32,12 @@
             </a>
 
             <!-- Nova Empresa -->
-            <a href="{{ route('empresas.create') }}" class="btn-novo" title="Nova empresa">
+            @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('empresas.create') }}" class="btn-novo" title="Nova empresa">
                 <i class="bi bi-plus-circle"></i>
                 Nova Empresa
             </a>
+@endif
         </form>
     </div>
 
@@ -79,13 +81,16 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
 
-                                <a href="{{ route('empresas.edit', $empresa->id) }}"
+                                @if(auth()->user()->permissao !== 'Consulta')
+<a href="{{ route('empresas.edit', $empresa->id) }}"
                                    class="btn btn-edit"
                                    title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
+@endif
 
-                                <form action="{{ route('empresas.destroy', $empresa->id) }}"
+                                @if(auth()->user()->permissao !== 'Consulta')
+<form action="{{ route('empresas.destroy', $empresa->id) }}"
                                       method="POST">
                                     @csrf
                                     @method('DELETE')
@@ -97,6 +102,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+@endif
 
                             </div>
                         </td>
