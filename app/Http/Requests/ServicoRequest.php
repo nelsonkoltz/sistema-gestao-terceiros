@@ -30,7 +30,7 @@ class ServicoRequest extends FormRequest
 
             'vai_almocar' => ['required', 'boolean'],
 
-            'status' => ['required', 'in:Pendente,Aprovado,Em Andamento,Finalizado,Cancelado'],
+            'status' => ['required', 'in:Agendado,Em Andamento,Finalizado,Cancelado'],
 
 
             'data_servico' => array_filter([
@@ -40,6 +40,8 @@ class ServicoRequest extends FormRequest
             ]),
 
             'data_conclusao' => ['nullable', 'date', 'after_or_equal:data_servico'],
+            'hora_inicio' => ['required', 'date_format:H:i'],
+            'hora_fim' => ['required', 'date_format:H:i', 'after:hora_inicio'],
         ];
     }
 
@@ -70,6 +72,9 @@ class ServicoRequest extends FormRequest
 
             'data_conclusao.date' => 'Data de conclusão inválida.',
             'data_conclusao.after_or_equal' => 'A conclusão não pode ser anterior à data do serviço.',
+            'hora_inicio.required' => 'Informe o horário inicial.',
+            'hora_fim.required' => 'Informe o horário final.',
+            'hora_fim.after' => 'O horário final deve ser posterior ao horário inicial.',
         ];
     }
 }

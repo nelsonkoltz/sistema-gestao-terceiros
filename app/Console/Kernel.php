@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('documentos:atualizar-validade')->dailyAt('00:10')->withoutOverlapping();
+        $schedule->command('documentos:enviar-alertas')->dailyAt('07:00')->withoutOverlapping();
     }
 
     /**

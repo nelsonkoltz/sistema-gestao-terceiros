@@ -25,6 +25,10 @@ class ServicoController extends Controller
     {
         $query = Servico::with(['empresa', 'solicitante', 'setor']);
 
+        if (Auth::user()->permissao === 'Solicitante') {
+            $query->where('solicitante_id', Auth::id());
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
 
@@ -77,7 +81,7 @@ class ServicoController extends Controller
     {
         $data = $request->validated();
         $data['solicitante_id'] = Auth::id();
-        $data['status'] = 'Pendente';
+        $data['status'] = 'Agendado';
         $data['data_conclusao'] = null;
 
         Servico::create($data);
@@ -100,6 +104,7 @@ class ServicoController extends Controller
             'solicitante',
             'setor'
         ])->findOrFail($id);
+        $this->garantirAcesso($servico);
 
         $funcionariosElegiveis = $servico->empresa
             ? $servico->empresa->funcionarios->filter(fn ($funcionario) => $funcionario->documentacaoRegular())
@@ -119,6 +124,7 @@ class ServicoController extends Controller
             'empresa',
             'setor'
         ])->findOrFail($id);
+        $this->garantirAcesso($servico);
 
         $empresas = Empresa::orderBy('nome')->get();
         $setores  = Setor::orderBy('nome')->get();
@@ -138,10 +144,14 @@ class ServicoController extends Controller
     public function update(ServicoRequest $request, $id)
     {
         $servico = Servico::findOrFail($id);
+        $this->garantirAcesso($servico);
+        $data = $request->validated();
 
-        $servico->update(
-            $request->validated()
-        );
+        if (Auth::user()->permissao === 'Solicitante') {
+            $data['status'] = $servico->status;
+        }
+
+        $servico->update($data);
 
         return redirect()
             ->route('servicos.index')
@@ -156,10 +166,18 @@ class ServicoController extends Controller
     public function destroy($id)
     {
         $servico = Servico::findOrFail($id);
+        $this->garantirAcesso($servico);
         $servico->delete();
 
         return redirect()
             ->route('servicos.index')
             ->with('success', 'Serviço excluído com sucesso!');
+    }
+
+    private function garantirAcesso(Servico $servico): void
+    {
+        if (Auth::user()->permissao === 'Solicitante') {
+            abort_unless((int) $servico->solicitante_id === (int) Auth::id(), 403);
+        }
     }
 }

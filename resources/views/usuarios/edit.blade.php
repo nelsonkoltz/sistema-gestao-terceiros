@@ -71,7 +71,8 @@
                 <input type="email"
                        name="email"
                        class="form-control"
-                       value="{{ old('email', $usuario->email) }}">
+                       value="{{ old('email', $usuario->email) }}"
+                       required>
             </div>
 
             {{-- NOVA SENHA --}}
@@ -96,15 +97,12 @@
             <div class="form-group full">
                 <label>Permissão</label>
                 <select name="permissao" class="form-control" required>
-                    <option value="Usuário" {{ old('permissao', $usuario->permissao) == 'Usuário' ? 'selected' : '' }}>
-                        Usuário
-                    </option>
                     <option value="Administrador" {{ old('permissao', $usuario->permissao) == 'Administrador' ? 'selected' : '' }}>
                         Administrador
                     </option>
-                    <option value="Consulta" {{ old('permissao', $usuario->permissao) == 'Consulta' ? 'selected' : '' }}>
-                        Consulta
-                    </option>
+                    <option value="Solicitante" {{ old('permissao', $usuario->permissao) == 'Solicitante' ? 'selected' : '' }}>Solicitante</option>
+                    <option value="Segurança do Trabalho" {{ old('permissao', $usuario->permissao) == 'Segurança do Trabalho' ? 'selected' : '' }}>Segurança do Trabalho</option>
+                    <option value="Guarita" {{ old('permissao', $usuario->permissao) == 'Guarita' ? 'selected' : '' }}>Guarita</option>
                 </select>
             </div>
 

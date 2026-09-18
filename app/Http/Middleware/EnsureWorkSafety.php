@@ -9,9 +9,11 @@ class EnsureWorkSafety
     public function handle($request, Closure $next)
     {
         $usuario = $request->user();
-        $setor = mb_strtolower(trim((string) $usuario->setor));
-        $autorizado = $usuario->permissao === 'Administrador'
-            || in_array($setor, ['segurança do trabalho', 'seguranca do trabalho'], true);
+        $autorizado = $usuario && in_array(
+            $usuario->permissao,
+            ['Administrador', 'Segurança do Trabalho'],
+            true
+        );
 
         abort_unless($autorizado, 403, 'Ação restrita à Segurança do Trabalho.');
 

@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 class AtualizarValidadeDocumentos extends Command
 {
     protected $signature = 'documentos:atualizar-validade {--force : Executa mesmo com o job desativado}';
-    protected $description = 'Marca como vencidos os documentos cuja validade de seis meses terminou';
+    protected $description = 'Marca como vencidos os documentos cuja data de validade terminou';
 
     public function handle(): int
     {
@@ -19,14 +19,14 @@ class AtualizarValidadeDocumentos extends Command
             return self::SUCCESS;
         }
 
-        $empresa = Documento::whereIn('status', ['Aprovado', 'Proximo do vencimento'])
-            ->whereDate('validade_ate', '<', today())->update(['status' => 'Vencido']);
-        $funcionario = DocumentoFuncionario::whereIn('status', ['Aprovado', 'Proximo do vencimento'])
-            ->whereDate('validade_ate', '<', today())->update(['status' => 'Vencido']);
+        $empresa = Documento::whereNotIn('status', ['Substituido', 'Vencido'])
+            ->whereDate('validade_ate', '<=', today())->update(['status' => 'Vencido']);
+        $funcionario = DocumentoFuncionario::whereNotIn('status', ['Substituido', 'Vencido'])
+            ->whereDate('validade_ate', '<=', today())->update(['status' => 'Vencido']);
 
-        Documento::where('status', 'Aprovado')->whereBetween('validade_ate', [today(), today()->addDays(30)])
+        Documento::where('status', 'Ativo')->whereBetween('validade_ate', [today(), today()->addDays(30)])
             ->update(['status' => 'Proximo do vencimento']);
-        DocumentoFuncionario::where('status', 'Aprovado')->whereBetween('validade_ate', [today(), today()->addDays(30)])
+        DocumentoFuncionario::where('status', 'Ativo')->whereBetween('validade_ate', [today(), today()->addDays(30)])
             ->update(['status' => 'Proximo do vencimento']);
 
         $this->info(($empresa + $funcionario) . ' documento(s) marcado(s) como vencido(s).');

@@ -71,6 +71,16 @@
                         value="{{ old('data_servico', optional($servico->data_servico)->format('Y-m-d')) }}" required>
                 </div>
 
+                <div class="form-group">
+                    <label for="hora_inicio">Horário de entrada</label>
+                    <input type="time" id="hora_inicio" name="hora_inicio" class="form-control" value="{{ old('hora_inicio', substr((string) $servico->hora_inicio, 0, 5) ?: '08:00') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora_fim">Horário de saída</label>
+                    <input type="time" id="hora_fim" name="hora_fim" class="form-control" value="{{ old('hora_fim', substr((string) $servico->hora_fim, 0, 5) ?: '18:00') }}" required>
+                </div>
+
                 {{-- ALMOÇO --}}
                 <div class="form-group">
                     <label for="vai_almocar">O terceiro vai almoçar?</label>
@@ -91,14 +101,9 @@
                 <div class="form-group">
                     <label for="status">Status</label>
                     <select id="status" name="status" class="form-control" required>
-                        <option value="Pendente"
-                            {{ old('status', $servico->status) == 'Pendente' ? 'selected' : '' }}>
-                            Pendente
-                        </option>
-
-                        <option value="Aprovado"
-                            {{ old('status', $servico->status) == 'Aprovado' ? 'selected' : '' }}>
-                            Aprovado
+                        <option value="Agendado"
+                            {{ old('status', $servico->status) == 'Agendado' ? 'selected' : '' }}>
+                            Agendado
                         </option>
 
                         <option value="Em Andamento"

@@ -29,7 +29,7 @@
 
     <form action="{{ route('servicos.store') }}" method="POST" id="servico-form">
         @csrf
-        <input type="hidden" name="status" value="Pendente">
+        <input type="hidden" name="status" value="Agendado">
 
         <div class="form-grid">
             <div class="section-heading full">
@@ -98,6 +98,18 @@
                 @error('data_servico')<small class="field-error">{{ $message }}</small>@enderror
             </div>
 
+            <div class="form-group">
+                <label for="hora_inicio">Horário de entrada <span>*</span></label>
+                <input type="time" id="hora_inicio" name="hora_inicio" class="form-control" value="{{ old('hora_inicio', '08:00') }}" required>
+                @error('hora_inicio')<small class="field-error">{{ $message }}</small>@enderror
+            </div>
+
+            <div class="form-group">
+                <label for="hora_fim">Horário de saída <span>*</span></label>
+                <input type="time" id="hora_fim" name="hora_fim" class="form-control" value="{{ old('hora_fim', '18:00') }}" required>
+                @error('hora_fim')<small class="field-error">{{ $message }}</small>@enderror
+            </div>
+
             <fieldset class="form-group lunch-field">
                 <legend>O terceiro utilizará o refeitório? <span>*</span></legend>
                 <div class="choice-group">
@@ -116,8 +128,8 @@
             <div class="status-card full">
                 <i class="bi bi-clock-history" aria-hidden="true"></i>
                 <div>
-                    <strong>Status inicial: Pendente</strong>
-                    <span>A solicitação será criada como pendente e poderá ser acompanhada na lista de serviços.</span>
+                    <strong>Serviço agendado imediatamente</strong>
+                    <span>Não existe etapa de aprovação. Na data e no horário informados, a guarita poderá realizar a liberação.</span>
                 </div>
             </div>
         </div>

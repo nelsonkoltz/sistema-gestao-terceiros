@@ -1,0 +1,20 @@
+.service-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.service-summary > strong {
+    color: #263b50;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.service-summary > strong i {
+    margin-right: 5px;
+    color: var(--gate);
+}
+
+.present-service {
+    color: #3e607b !important;
+}

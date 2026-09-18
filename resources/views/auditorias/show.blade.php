@@ -1,0 +1,11 @@
+@extends('layouts.app')
+@section('title','Detalhes da auditoria')
+@push('styles')<link rel="stylesheet" href="{{ asset('css/audit.css') }}?v={{ filemtime(public_path('css/audit.css')) }}"><link rel="stylesheet" href="{{ asset('css/audit-detail.css') }}?v={{ filemtime(public_path('css/audit-detail.css')) }}">@endpush
+@section('content')
+<div class="audit-page">
+ <nav class="audit-breadcrumb"><a href="{{ route('auditorias.index') }}">Auditoria</a><i class="bi bi-chevron-right"></i><span>Evento #{{ $auditoria->id }}</span></nav>
+ <header class="audit-detail-head"><div><span class="audit-action {{ Str::slug($auditoria->acao) }}">{{ $auditoria->acao }}</span><h1>{{ $auditoria->modulo }} #{{ $auditoria->registro_id ?? '—' }}</h1><p>{{ $auditoria->created_at->format('d/m/Y H:i:s') }}</p></div><a href="{{ route('auditorias.index') }}"><i class="bi bi-arrow-left"></i> Voltar</a></header>
+ <section class="audit-meta"><div><small>Responsável</small><strong>{{ optional($auditoria->usuario)->name ?? 'Sistema automático' }}</strong></div><div><small>Endereço IP</small><strong>{{ $auditoria->ip ?? 'Processo interno' }}@if($auditoria->conexao_local)<em>Rede Docker/local</em>@endif</strong></div><div><small>Tipo do registro</small><strong>{{ class_basename($auditoria->registro_tipo) }}</strong></div><div><small>Navegador</small><strong>{{ $auditoria->navegador_resumido }}</strong><details><summary>Identificação técnica</summary><span>{{ $auditoria->user_agent }}</span></details></div></section>
+ <div class="audit-comparison"><section><h2>Valores anteriores</h2>@if($auditoria->dados_anteriores)<dl>@foreach($auditoria->dados_anteriores as $campo=>$valor)<div><dt>{{ str_replace('_',' ',$campo) }}</dt><dd>{{ is_array($valor)?json_encode($valor,JSON_UNESCAPED_UNICODE):($valor??'—') }}</dd></div>@endforeach</dl>@else<div class="no-data">Não se aplica a esta operação.</div>@endif</section><section><h2>Novos valores</h2>@if($auditoria->dados_novos)<dl>@foreach($auditoria->dados_novos as $campo=>$valor)<div><dt>{{ str_replace('_',' ',$campo) }}</dt><dd>{{ is_array($valor)?json_encode($valor,JSON_UNESCAPED_UNICODE):($valor??'—') }}</dd></div>@endforeach</dl>@else<div class="no-data">Não se aplica a esta operação.</div>@endif</section></div>
+</div>
+@endsection

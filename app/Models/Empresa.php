@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Empresa extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'nome',
@@ -51,9 +52,7 @@ class Empresa extends Model
         $documentosAtuais = $this->documentos->where('status', '!=', 'Substituido');
 
         return $documentosAtuais->isNotEmpty()
-            && $documentosAtuais->every(fn ($documento) =>
-                in_array($documento->status_atual, ['Aprovado', 'Proximo do vencimento'], true)
-            );
+            && $documentosAtuais->every(fn ($documento) => $documento->status_atual !== 'Vencido');
     }
 
     public function getCnpjFormatadoAttribute()

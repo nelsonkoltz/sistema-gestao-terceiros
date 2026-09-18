@@ -20,7 +20,7 @@ Responsável por:
 
 - cadastrar e editar empresas terceirizadas;
 - cadastrar e editar funcionários terceirizados;
-- anexar, analisar, aprovar, rejeitar e renovar documentos;
+- anexar e renovar documentos, que ficam válidos imediatamente por seis meses;
 - inativar empresas e funcionários;
 - consultar documentos vencidos ou próximos do vencimento;
 - registrar observações sobre pendências documentais.
@@ -33,6 +33,14 @@ Cada colaborador que precisar de mão de obra terceirizada será responsável po
 - selecionar a empresa terceirizada;
 - informar setor, descrição, período e condições do serviço;
 - acompanhar a situação da solicitação;
+- autorizar o serviço no próprio cadastro, sem etapa posterior de aprovação;
+
+## Regra atual: sem aprovações manuais
+
+- O cadastro da solicitação já cria o serviço como **Agendado**.
+- O cadastro de um documento já o torna **Ativo** por seis meses.
+- A guarita valida automaticamente documentos existentes e não vencidos, funcionário ativo, vínculo com a empresa, data e horário do serviço.
+- Não existem etapas de aprovação ou rejeição de serviço e documento.
 - cancelar a solicitação quando necessário.
 
 O solicitante não poderá aprovar documentos nem ignorar bloqueios documentais.
@@ -147,10 +155,10 @@ O cadastro atual precisa ser ampliado.
 
 ### Pendências
 
-- [ ] Adicionar horário inicial e final.
+- [x] Adicionar horário inicial e final.
 - [ ] Permitir serviços com mais de um dia.
 - [ ] Adicionar veículo e placa como campos opcionais.
-- [ ] Definir fluxo de aprovação da solicitação.
+- [x] Definir aprovação por Administrador ou Segurança do Trabalho.
 - [ ] Impedir aprovação da solicitação quando a empresa estiver documentalmente irregular.
 - [ ] Restringir alteração ao solicitante ou a perfis autorizados.
 - [ ] Registrar cancelamento, motivo, responsável e data.
@@ -213,13 +221,13 @@ O sistema deve informar todos os motivos do bloqueio, e não apenas apresentar u
 
 ## 10. Registro de acesso
 
-- [ ] Criar registro de entrada.
-- [ ] Registrar data e hora automaticamente.
-- [ ] Registrar usuário da guarita responsável.
-- [ ] Criar registro de saída.
-- [ ] Impedir duas entradas abertas para a mesma pessoa.
+- [x] Criar registro de entrada.
+- [x] Registrar data e hora automaticamente.
+- [x] Registrar usuário da guarita responsável.
+- [x] Criar registro de saída.
+- [x] Impedir duas entradas abertas para a mesma pessoa.
 - [ ] Permitir observações e ocorrências.
-- [ ] Exibir quem está dentro da empresa naquele momento.
+- [x] Exibir quem está dentro da empresa naquele momento.
 - [ ] Alertar permanência após o horário autorizado.
 - [ ] Manter histórico pesquisável de acessos.
 

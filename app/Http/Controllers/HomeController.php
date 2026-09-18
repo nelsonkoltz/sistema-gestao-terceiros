@@ -11,10 +11,14 @@ class HomeController extends Controller
 {
     public function index()
     {
+        if (auth()->user()->permissao === 'Guarita') return redirect()->route('guarita.index');
+        if (auth()->user()->permissao === 'Solicitante') return redirect()->route('servicos.index');
+        if (auth()->user()->permissao === 'Segurança do Trabalho') return redirect()->route('funcionarios.index');
+
         $counts = [
             'empresas' => Empresa::count(),
             'funcionarios' => Funcionario::where('ativo', true)->count(),
-            'pendentes' => Servico::where('status', 'Pendente')->count(),
+            'pendentes' => Servico::where('status', 'Agendado')->count(),
             'hoje' => Servico::whereDate('data_servico', today())
                 ->whereNotIn('status', ['Finalizado', 'Cancelado'])
                 ->count(),

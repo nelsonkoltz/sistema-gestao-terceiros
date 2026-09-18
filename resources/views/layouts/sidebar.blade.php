@@ -19,18 +19,33 @@
     </div>
 
     <nav class="sidebar-menu">
+        @if(in_array($currentUser->permissao, ['Administrador', 'Guarita']))
+        <span class="menu-label">Portaria</span>
+        <a href="{{ route('guarita.index') }}" class="{{ request()->routeIs('guarita.index') ? 'active' : '' }}" @if(request()->routeIs('guarita.index')) aria-current="page" @endif><i class="bi bi-shield-check"></i><span>Controle de acesso</span></a>
+        <a href="{{ route('guarita.historico') }}" class="{{ request()->routeIs('guarita.historico*') ? 'active' : '' }}" @if(request()->routeIs('guarita.historico*')) aria-current="page" @endif><i class="bi bi-clock-history"></i><span>Histórico da portaria</span></a>
+        @endif
+
+        @if($currentUser->permissao === 'Administrador')
         <span class="menu-label">Principal</span>
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif><i class="bi bi-grid"></i><span>Visão geral</span></a>
-        <a href="{{ route('servicos.index') }}" class="{{ request()->is('servicos*') ? 'active' : '' }}" @if(request()->is('servicos*')) aria-current="page" @endif><i class="bi bi-clipboard-check"></i><span>Solicitações</span></a>
+        @endif
 
+        @if(in_array($currentUser->permissao, ['Administrador', 'Solicitante', 'Segurança do Trabalho']))
+        <a href="{{ route('servicos.index') }}" class="{{ request()->is('servicos*') ? 'active' : '' }}" @if(request()->is('servicos*')) aria-current="page" @endif><i class="bi bi-clipboard-check"></i><span>Solicitações</span></a>
+        @endif
+
+        @if(in_array($currentUser->permissao, ['Administrador', 'Segurança do Trabalho']))
         <span class="menu-label">Cadastros</span>
         <a href="{{ route('empresas.index') }}" class="{{ request()->is('empresas*') ? 'active' : '' }}" @if(request()->is('empresas*')) aria-current="page" @endif><i class="bi bi-buildings"></i><span>Empresas</span></a>
         <a href="{{ route('funcionarios.index') }}" class="{{ request()->is('funcionarios*') ? 'active' : '' }}" @if(request()->is('funcionarios*')) aria-current="page" @endif><i class="bi bi-person-vcard"></i><span>Funcionários</span></a>
+        <a href="{{ route('alertas-documentos.index') }}" class="{{ request()->routeIs('alertas-documentos.*') ? 'active' : '' }}" @if(request()->routeIs('alertas-documentos.*')) aria-current="page" @endif><i class="bi bi-bell"></i><span>Alertas documentais</span></a>
+        @endif
 
         @if($currentUser->permissao === 'Administrador')
             <span class="menu-label">Administração</span>
             <a href="{{ route('usuarios.index') }}" class="{{ request()->is('usuarios*') ? 'active' : '' }}" @if(request()->is('usuarios*')) aria-current="page" @endif><i class="bi bi-people"></i><span>Usuários</span></a>
             <a href="{{ route('configuracoes.index') }}" class="{{ request()->is('configuracoes*') ? 'active' : '' }}" @if(request()->is('configuracoes*')) aria-current="page" @endif><i class="bi bi-gear"></i><span>Configurações</span></a>
+            <a href="{{ route('auditorias.index') }}" class="{{ request()->routeIs('auditorias.*') ? 'active' : '' }}" @if(request()->routeIs('auditorias.*')) aria-current="page" @endif><i class="bi bi-journal-check"></i><span>Auditoria</span></a>
         @endif
     </nav>
 

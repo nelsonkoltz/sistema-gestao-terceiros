@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Funcionario extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = ['empresa_id', 'nome', 'cpf', 'ativo'];
     protected $casts = ['ativo' => 'boolean'];
@@ -44,9 +45,7 @@ class Funcionario extends Model
 
         return $this->ativo
             && $documentosAtuais->isNotEmpty()
-            && $documentosAtuais->every(fn ($documento) =>
-                in_array($documento->status_atual, ['Aprovado', 'Proximo do vencimento'], true)
-            );
+            && $documentosAtuais->every(fn ($documento) => $documento->status_atual !== 'Vencido');
     }
 
 }

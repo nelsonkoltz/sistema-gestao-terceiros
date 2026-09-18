@@ -66,11 +66,12 @@
 
             {{-- E-MAIL --}}
             <div class="form-group">
-                <label>E-mail (opcional)</label>
+                <label>E-mail</label>
                 <input type="email"
                        name="email"
                        class="form-control"
-                       value="{{ old('email') }}">
+                       value="{{ old('email') }}"
+                       required>
             </div>
 
             {{-- SENHA --}}
@@ -96,9 +97,10 @@
                 <label>Permissão</label>
                 <select name="permissao" class="form-control" required>
                     <option value="">Selecione</option>
-                    <option value="Usuário" {{ old('permissao') == 'Usuário' ? 'selected' : '' }}>Usuário</option>
                     <option value="Administrador" {{ old('permissao') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                    <option value="Consulta" {{ old('permissao') == 'Consulta' ? 'selected' : '' }}>Consulta</option>
+                    <option value="Solicitante" {{ old('permissao') == 'Solicitante' ? 'selected' : '' }}>Solicitante</option>
+                    <option value="Segurança do Trabalho" {{ old('permissao') == 'Segurança do Trabalho' ? 'selected' : '' }}>Segurança do Trabalho</option>
+                    <option value="Guarita" {{ old('permissao') == 'Guarita' ? 'selected' : '' }}>Guarita</option>
                 </select>
             </div>
 

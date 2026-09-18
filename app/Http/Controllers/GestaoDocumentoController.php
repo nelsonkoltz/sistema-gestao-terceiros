@@ -23,7 +23,7 @@ class GestaoDocumentoController extends Controller
             'documento_anterior_id' => $data['documento_anterior_id'] ?? null,
         ]);
         if ($anterior) $anterior->update(['status' => 'Substituido']);
-        return back()->with('success', 'Documento enviado para análise. Validade: seis meses a partir de hoje.');
+        return back()->with('success', 'Documento cadastrado. Validade até '.$documento->validade_ate->format('d/m/Y').'.');
     }
 
     public function storeFuncionario(Request $request, Funcionario $funcionario)
@@ -42,35 +42,7 @@ class GestaoDocumentoController extends Controller
             'documento_anterior_id' => $data['documento_anterior_id'] ?? null,
         ]);
         if ($anterior) $anterior->update(['status' => 'Substituido']);
-        return back()->with('success', 'Documento enviado para análise. Validade: seis meses a partir de hoje.');
-    }
-
-    public function analisarEmpresa(Request $request, Empresa $empresa, Documento $documento)
-    {
-        abort_unless((int) $documento->empresa_id === (int) $empresa->id, 404);
-        $this->analisar($request, $documento);
-        return back()->with('success', 'Análise do documento registrada.');
-    }
-
-    public function analisarFuncionario(Request $request, Funcionario $funcionario, DocumentoFuncionario $documento)
-    {
-        abort_unless((int) $documento->funcionario_id === (int) $funcionario->id, 404);
-        $this->analisar($request, $documento);
-        return back()->with('success', 'Análise do documento registrada.');
-    }
-
-    private function analisar(Request $request, $documento): void
-    {
-        $data = $request->validate([
-            'status' => 'required|in:Aprovado,Rejeitado',
-            'observacao_analise' => 'nullable|string|max:1000|required_if:status,Rejeitado',
-        ]);
-        $documento->update([
-            'status' => $data['status'],
-            'observacao_analise' => $data['observacao_analise'] ?? null,
-            'analisado_por' => $request->user()->id,
-            'analisado_em' => now(),
-        ]);
+        return back()->with('success', 'Documento cadastrado. Validade até '.$documento->validade_ate->format('d/m/Y').'.');
     }
 
     private function validarUpload(Request $request): array

@@ -8,9 +8,7 @@
 <div class="listing-page">
     <header class="listing-header">
         <div><span class="eyebrow">Operação</span><h1>Solicitações de serviço</h1><p>Acompanhe os serviços solicitados às empresas terceirizadas.</p></div>
-        @if(auth()->user()->permissao !== 'Consulta')
-            <a href="{{ route('servicos.create') }}" class="primary-action"><i class="bi bi-plus-circle"></i> Nova solicitação</a>
-        @endif
+        <a href="{{ route('servicos.create') }}" class="primary-action"><i class="bi bi-plus-circle"></i> Nova solicitação</a>
     </header>
 
     @if(session('success'))<div class="flash success"><i class="bi bi-check-circle"></i>{{ session('success') }}</div>@endif
@@ -40,10 +38,8 @@
                             <td><span class="status status-{{ str_replace(' ', '-', mb_strtolower($s->status)) }}">{{ $s->status }}</span></td>
                             <td><div class="actions">
                                 <a href="{{ route('servicos.show', $s) }}" class="icon-btn view" title="Ver detalhes"><i class="bi bi-eye"></i></a>
-                                @if(auth()->user()->permissao !== 'Consulta')
-                                    <a href="{{ route('servicos.edit', $s) }}" class="icon-btn edit" title="Editar"><i class="bi bi-pencil"></i></a>
-                                    <form action="{{ route('servicos.destroy', $s) }}" method="POST" onsubmit="return confirm('Deseja excluir esta solicitação?')">@csrf @method('DELETE')<button class="icon-btn delete" title="Excluir"><i class="bi bi-trash"></i></button></form>
-                                @endif
+                                <a href="{{ route('servicos.edit', $s) }}" class="icon-btn edit" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <form action="{{ route('servicos.destroy', $s) }}" method="POST" onsubmit="return confirm('Deseja excluir esta solicitação?')">@csrf @method('DELETE')<button class="icon-btn delete" title="Excluir"><i class="bi bi-trash"></i></button></form>
                             </div></td>
                         </tr>
                     @endforeach
@@ -56,7 +52,7 @@
                 <h2>{{ request('search') ? 'Nenhuma solicitação encontrada' : 'Nenhuma solicitação cadastrada' }}</h2>
                 <p>{{ request('search') ? 'Tente buscar usando outros termos.' : 'Quando um serviço for solicitado, ele aparecerá aqui para acompanhamento.' }}</p>
                 @if(request('search'))<a href="{{ route('servicos.index') }}" class="secondary-action">Limpar pesquisa</a>
-                @elseif(auth()->user()->permissao !== 'Consulta')<a href="{{ route('servicos.create') }}" class="primary-action"><i class="bi bi-plus-circle"></i> Criar primeira solicitação</a>@endif
+                @else<a href="{{ route('servicos.create') }}" class="primary-action"><i class="bi bi-plus-circle"></i> Criar primeira solicitação</a>@endif
             </div>
         @endif
     </section>

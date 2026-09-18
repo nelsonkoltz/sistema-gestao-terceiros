@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class DocumentoFuncionario extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     // Nome da tabela no banco
     protected $table = 'funcionario_documentos';
@@ -37,8 +38,11 @@ class DocumentoFuncionario extends Model
     protected static function booted()
     {
         static::creating(function ($documento) {
-            $documento->status = $documento->status ?: 'Pendente';
-            $documento->validade_ate = $documento->validade_ate ?: now()->addMonthsNoOverflow(6)->toDateString();
+            $documento->status = $documento->status ?: 'Ativo';
+            $unidade = Configuracao::valor('validade_documentos_unidade', 'meses');
+            $quantidade = max(1, (int) Configuracao::valor('validade_documentos_quantidade', Configuracao::valor('validade_documentos_meses', 6)));
+            $validade = $unidade === 'dias' ? now()->addDays($quantidade) : now()->addMonthsNoOverflow($quantidade);
+            $documento->validade_ate = $documento->validade_ate ?: $validade->toDateString();
         });
     }
 
@@ -53,8 +57,8 @@ class DocumentoFuncionario extends Model
 
     public function getStatusAtualAttribute(): string
     {
-        if (!in_array($this->status, ['Rejeitado', 'Pendente'], true) && $this->validade_ate?->lt(today())) return 'Vencido';
-        if ($this->status === 'Aprovado' && $this->validade_ate?->lte(today()->addDays(30))) return 'Proximo do vencimento';
+        if ($this->status !== 'Substituido' && $this->validade_ate?->lte(today())) return 'Vencido';
+        if ($this->status !== 'Substituido' && $this->validade_ate?->lte(today()->addDays(30))) return 'Proximo do vencimento';
         return $this->status;
     }
 }

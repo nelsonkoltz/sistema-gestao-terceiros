@@ -27,7 +27,7 @@
     <section class="metric-grid" aria-label="Indicadores">
         <a href="{{ route('servicos.index') }}" class="metric-card warning">
             <span class="metric-icon"><i class="bi bi-clock-history"></i></span>
-            <span><strong>{{ $counts['pendentes'] }}</strong><small>Solicitações pendentes</small></span>
+            <span><strong>{{ $counts['pendentes'] }}</strong><small>Serviços agendados</small></span>
         </a>
         <a href="{{ route('servicos.index') }}" class="metric-card info">
             <span class="metric-icon"><i class="bi bi-calendar-check"></i></span>
@@ -46,7 +46,7 @@
     <div class="dashboard-grid">
         <section class="panel upcoming-panel">
             <div class="panel-header">
-                <div><h2>Próximos serviços</h2><p>Solicitações pendentes ou em andamento.</p></div>
+                <div><h2>Próximos serviços</h2><p>Serviços agendados ou em andamento.</p></div>
                 <a href="{{ route('servicos.index') }}">Ver todos <i class="bi bi-arrow-right"></i></a>
             </div>
             <div class="upcoming-list">

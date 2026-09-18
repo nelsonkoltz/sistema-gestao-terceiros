@@ -37,9 +37,9 @@ class UsuarioController extends Controller
             'name'      => 'required|string|max:255',
             'setor'     => 'required|string|max:255',
             'username'  => 'required|string|max:100|unique:usuarios,username',
-            'email'     => 'nullable|email|max:255|unique:usuarios,email',
+            'email'     => 'required|email|max:255|unique:usuarios,email',
             'password'  => 'required|min:6|confirmed',
-            'permissao' => 'required|in:Administrador,Usuário,Consulta',
+            'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
         ]);
 
         Usuario::create([
@@ -72,9 +72,9 @@ class UsuarioController extends Controller
             'name'      => 'required|string|max:255',
             'setor'     => 'required|string|max:255',
             'username'  => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
-            'email'     => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
+            'email'     => 'required|email|max:255|unique:usuarios,email,' . $usuario->id,
             'password'  => 'nullable|min:6|confirmed',
-            'permissao' => 'required|in:Administrador,Usuário,Consulta',
+            'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
         ]);
 
         $data = $request->only([

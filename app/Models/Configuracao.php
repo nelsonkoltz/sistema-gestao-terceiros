@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Configuracao extends Model
 {
+    use Auditable;
     protected $table = 'configuracoes';
     protected $fillable = ['chave', 'valor'];
 

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Servico extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     /**
      * Nome da tabela
@@ -25,6 +26,8 @@ class Servico extends Model
         'status',
         'setor_id',
         'data_servico',
+        'hora_inicio',
+        'hora_fim',
         'data_conclusao',
     ];
 
@@ -80,10 +83,21 @@ class Servico extends Model
 
     public function autorizaFuncionario(Funcionario $funcionario): bool
     {
-        return (int) $funcionario->empresa_id === (int) $this->empresa_id
-            && in_array($this->status, ['Aprovado', 'Em Andamento'], true)
-            && $this->data_servico?->isSameDay(today())
-            && $this->empresa->documentacaoRegular()
-            && $funcionario->documentacaoRegular();
+        return $this->motivosBloqueio($funcionario) === [];
+    }
+
+    public function motivosBloqueio(Funcionario $funcionario): array
+    {
+        $motivos = [];
+        if ((int) $funcionario->empresa_id !== (int) $this->empresa_id) $motivos[] = 'Funcionário não pertence à empresa autorizada.';
+        if (!in_array($this->status, ['Agendado', 'Em Andamento'], true)) $motivos[] = 'Solicitação não está ativa.';
+        if (!$this->data_servico?->isSameDay(today())) $motivos[] = 'Solicitação fora da data autorizada.';
+
+        if ($this->hora_inicio && now()->format('H:i:s') < $this->hora_inicio) $motivos[] = 'Entrada antes do horário autorizado.';
+        if ($this->hora_fim && now()->format('H:i:s') > $this->hora_fim) $motivos[] = 'Entrada após o horário autorizado.';
+        if (!$this->empresa->documentacaoRegular()) $motivos[] = 'Empresa com documentação irregular.';
+        if (!$funcionario->ativo) $motivos[] = 'Funcionário inativo.';
+        if (!$funcionario->documentacaoRegular()) $motivos[] = 'Funcionário com documentação irregular.';
+        return array_values(array_unique($motivos));
     }
 }

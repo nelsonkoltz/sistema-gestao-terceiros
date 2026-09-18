@@ -13,7 +13,7 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('home');
+            return redirect()->route($this->rotaInicial(Auth::user()));
         }
 
         return view('auth.login');
@@ -49,7 +49,7 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        return redirect()->route($this->rotaInicial($user));
     }
 
     public function logout(Request $request)
@@ -62,5 +62,15 @@ class LoginController extends Controller
         return redirect()
             ->route('login')
             ->with('status', 'Sessão encerrada com sucesso.');
+    }
+
+    private function rotaInicial(Usuario $usuario): string
+    {
+        return match ($usuario->permissao) {
+            'Guarita' => 'guarita.index',
+            'Solicitante' => 'servicos.index',
+            'Segurança do Trabalho' => 'funcionarios.index',
+            default => 'home',
+        };
     }
 }
