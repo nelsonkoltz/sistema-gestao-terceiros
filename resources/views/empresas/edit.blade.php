@@ -94,6 +94,20 @@
                         value="{{ old('endereco_cep', $empresa->endereco_cep) }}" required>
                 </div>
 
+                <div class="form-group">
+                    <label for="ativo">Status da empresa</label>
+                    <select name="ativo" id="ativo" class="form-control" required>
+                        <option value="1" {{ (string) old('ativo', (int) $empresa->ativo) === '1' ? 'selected' : '' }}>Ativa</option>
+                        <option value="0" {{ (string) old('ativo', (int) $empresa->ativo) === '0' ? 'selected' : '' }}>Inativa</option>
+                    </select>
+                    <small>Ao inativar, todos os funcionários serão bloqueados na Guarita.</small>
+                </div>
+
+                <div class="form-group full" id="motivo-inativacao-grupo">
+                    <label for="motivo_inativacao">Motivo da inativação</label>
+                    <textarea name="motivo_inativacao" id="motivo_inativacao" class="form-control" rows="3" maxlength="1000" placeholder="Informe o motivo do bloqueio">{{ old('motivo_inativacao', $empresa->motivo_inativacao) }}</textarea>
+                </div>
+
                 {{-- NOVOS DOCUMENTOS --}}
                 <div class="form-group full">
                     <label>Adicionar novos documentos</label>
@@ -129,6 +143,7 @@
                             {{ $documento->nome_arquivo }}
                         </a>
 
+                        @if(!$documento->fazParteDoHistorico())
                         <form action="{{ route('empresas.documentos.destroy', [$empresa->id, $documento->id]) }}" method="POST"
                             onsubmit="return confirm('Deseja realmente remover este documento?')">
                             @csrf
@@ -138,6 +153,9 @@
                                 ✕
                             </button>
                         </form>
+                        @else
+                            <span class="file-protected" title="Versão preservada no histórico"><i class="bi bi-lock"></i></span>
+                        @endif
                     </li>
                 @empty
                     <li class="file-item muted">Nenhum documento cadastrado.</li>
@@ -146,4 +164,18 @@
         </div>
 
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const status = document.getElementById('ativo');
+        const grupo = document.getElementById('motivo-inativacao-grupo');
+        const motivo = document.getElementById('motivo_inativacao');
+        const atualizar = () => {
+            const inativa = status.value === '0';
+            grupo.hidden = !inativa;
+            motivo.required = inativa;
+        };
+        status.addEventListener('change', atualizar);
+        atualizar();
+    });
+    </script>
 @endsection

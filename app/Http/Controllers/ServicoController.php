@@ -49,7 +49,7 @@ class ServicoController extends Controller
             ->withQueryString();
 
         // coleções auxiliares
-        $empresas = Empresa::orderBy('nome')->get();
+        $empresas = Empresa::where('ativo', true)->orderBy('nome')->get();
         $setores  = Setor::orderBy('nome')->get();
 
         return view('servicos.index', compact(
@@ -66,7 +66,7 @@ class ServicoController extends Controller
      */
     public function create()
     {
-        $empresas = Empresa::orderBy('nome')->get();
+        $empresas = Empresa::where('ativo', true)->orderBy('nome')->get();
         $setores  = Setor::orderBy('nome')->get();
 
         return view('servicos.create', compact('empresas', 'setores'));
@@ -126,7 +126,9 @@ class ServicoController extends Controller
         ])->findOrFail($id);
         $this->garantirAcesso($servico);
 
-        $empresas = Empresa::orderBy('nome')->get();
+        $empresas = Empresa::where('ativo', true)
+            ->orWhere('id', $servico->empresa_id)
+            ->orderBy('nome')->get();
         $setores  = Setor::orderBy('nome')->get();
 
         return view('servicos.edit', compact(
@@ -167,6 +169,16 @@ class ServicoController extends Controller
     {
         $servico = Servico::findOrFail($id);
         $this->garantirAcesso($servico);
+
+        if ($servico->registrosAcesso()->exists()) {
+            if (!in_array($servico->status, ['Finalizado', 'Cancelado'], true)) {
+                $servico->update(['status' => 'Cancelado']);
+            }
+
+            return redirect()->route('servicos.index')
+                ->with('success', 'O serviço possui histórico de acesso e foi preservado' . ($servico->status === 'Cancelado' ? ' como cancelado.' : '.'));
+        }
+
         $servico->delete();
 
         return redirect()

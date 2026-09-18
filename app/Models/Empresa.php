@@ -22,11 +22,17 @@ class Empresa extends Model
         'endereco_cidade',
         'endereco_estado',
         'endereco_cep',
+        'ativo',
+        'motivo_inativacao',
+        'inativada_por_id',
+        'inativada_em',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'ativo' => 'boolean',
+        'inativada_em' => 'datetime',
     ];
 
     protected static function booted()
@@ -45,6 +51,16 @@ class Empresa extends Model
     public function funcionarios()
     {
         return $this->hasMany(Funcionario::class);
+    }
+
+    public function servicos()
+    {
+        return $this->hasMany(Servico::class);
+    }
+
+    public function responsavelInativacao()
+    {
+        return $this->belongsTo(Usuario::class, 'inativada_por_id');
     }
 
     public function documentacaoRegular(): bool

@@ -130,6 +130,25 @@
             </div>
 
             <div class="section-heading full section-spaced">
+                <span>Situação da empresa</span>
+                <small>Empresas inativas não liberam a entrada de nenhum funcionário.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="ativo">Status <span>*</span></label>
+                <select name="ativo" id="ativo" class="form-control" required>
+                    <option value="1" {{ old('ativo', '1') === '1' ? 'selected' : '' }}>Ativa</option>
+                    <option value="0" {{ old('ativo') === '0' ? 'selected' : '' }}>Inativa</option>
+                </select>
+            </div>
+
+            <div class="form-group full" id="motivo-inativacao-grupo">
+                <label for="motivo_inativacao">Motivo da inativação <span>*</span></label>
+                <textarea name="motivo_inativacao" id="motivo_inativacao" class="form-control" rows="3" maxlength="1000" placeholder="Explique por que os acessos desta empresa devem permanecer bloqueados">{{ old('motivo_inativacao') }}</textarea>
+                @error('motivo_inativacao')<small class="field-error">{{ $message }}</small>@enderror
+            </div>
+
+            <div class="section-heading full section-spaced">
                 <span>Documentos</span>
                 <small>Opcional — outros documentos poderão ser adicionados depois.</small>
             </div>
@@ -169,6 +188,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const statusEmpresa = document.getElementById('ativo');
+    const motivoGrupo = document.getElementById('motivo-inativacao-grupo');
+    const motivo = document.getElementById('motivo_inativacao');
+    const atualizarStatus = () => {
+        const inativa = statusEmpresa.value === '0';
+        motivoGrupo.hidden = !inativa;
+        motivo.required = inativa;
+    };
+    statusEmpresa.addEventListener('change', atualizarStatus);
+    atualizarStatus();
+
     const tipo = document.getElementById('tipo');
     const documento = document.getElementById('cnpj');
     const documentoLabel = document.getElementById('documento-label');

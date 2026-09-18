@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Empresa;
 use App\Models\Documento;
+use App\Models\RegistroAcesso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -85,6 +86,10 @@ class EmpresaController extends Controller
                     'endereco_cidade',
                     'endereco_estado',
                     'endereco_cep',
+                    'ativo',
+                    'motivo_inativacao',
+                    'inativada_por_id',
+                    'inativada_em',
                 ]));
 
                 $arquivosSalvos = $this->uploadDocumentos($empresa, $request);
@@ -104,7 +109,7 @@ class EmpresaController extends Controller
        ===================================== */
     public function show(Empresa $empresa)
     {
-        $empresa->load(['documentos.analisador'])->loadCount([
+        $empresa->load(['documentos.analisador', 'responsavelInativacao'])->loadCount([
             'funcionarios',
             'funcionarios as funcionarios_ativos_count' => function ($query) {
                 $query->where('ativo', true);
@@ -128,12 +133,15 @@ class EmpresaController extends Controller
     public function update(Request $request, Empresa $empresa)
     {
         // The document number is read-only in the edit form.
-        $request->merge(['cnpj' => $empresa->cnpj]);
+        $request->merge([
+            'cnpj' => $empresa->cnpj,
+            'ativo' => $request->has('ativo') ? $request->input('ativo') : (int) $empresa->ativo,
+        ]);
         $this->normalizarDados($request);
 
         $this->validar($request, $empresa->id);
 
-        $empresa->update($request->only([
+        $dados = $request->only([
             'nome',
             'telefone',
             'email',
@@ -143,7 +151,20 @@ class EmpresaController extends Controller
             'endereco_cidade',
             'endereco_estado',
             'endereco_cep',
-        ]));
+            'ativo',
+            'motivo_inativacao',
+        ]);
+
+        if ($empresa->ativo && !$request->boolean('ativo')) {
+            $dados['inativada_por_id'] = $request->user()->id;
+            $dados['inativada_em'] = now();
+        } elseif ($request->boolean('ativo')) {
+            $dados['motivo_inativacao'] = null;
+            $dados['inativada_por_id'] = null;
+            $dados['inativada_em'] = null;
+        }
+
+        $empresa->update($dados);
 
         $this->uploadDocumentos($empresa, $request);
 
@@ -158,6 +179,10 @@ class EmpresaController extends Controller
     public function deleteDocumento(Empresa $empresa, Documento $documento)
     {
         abort_if($documento->empresa_id !== $empresa->id, 403);
+
+        if ($documento->fazParteDoHistorico()) {
+            return back()->with('error', 'Este documento faz parte de um histórico de renovação e não pode ser excluído.');
+        }
 
         if (Storage::disk('public')->exists($documento->caminho_arquivo)) {
             Storage::disk('public')->delete($documento->caminho_arquivo);
@@ -180,6 +205,23 @@ class EmpresaController extends Controller
        ===================================== */
     public function destroy(Empresa $empresa)
     {
+        $possuiHistorico = $empresa->servicos()->exists()
+            || RegistroAcesso::whereHas('funcionario', fn ($query) => $query->where('empresa_id', $empresa->id))->exists();
+
+        if ($possuiHistorico) {
+            if ($empresa->ativo) {
+                $empresa->update([
+                    'ativo' => false,
+                    'motivo_inativacao' => 'Inativada para preservar serviços ou acessos vinculados.',
+                    'inativada_por_id' => request()->user()->id,
+                    'inativada_em' => now(),
+                ]);
+            }
+
+            return redirect()->route('empresas.index')
+                ->with('success', 'A empresa possui histórico e foi preservada como inativa.');
+        }
+
         $funcionarios = $empresa->funcionarios()->pluck('id');
         $empresa->delete();
         Storage::disk('public')->deleteDirectory("empresas/{$empresa->id}");
@@ -219,6 +261,8 @@ class EmpresaController extends Controller
             'endereco_cidade' => 'required|string|max:255',
             'endereco_estado' => 'required|string|max:2',
             'endereco_cep' => ['required', 'regex:/^[0-9]{8}$/'],
+            'ativo' => ['required', 'boolean'],
+            'motivo_inativacao' => ['nullable', 'required_if:ativo,0', 'string', 'max:1000'],
             'documentos' => 'nullable|array|max:10',
             'documentos.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ], [
@@ -231,6 +275,7 @@ class EmpresaController extends Controller
             'email.required' => 'Informe o e-mail.',
             'email.email' => 'Informe um endereço de e-mail válido.',
             'endereco_cep.regex' => 'O CEP deve conter 8 dígitos.',
+            'motivo_inativacao.required_if' => 'Informe o motivo da inativação da empresa.',
             'documentos.max' => 'Selecione no máximo 10 documentos por vez.',
             'documentos.*.mimes' => 'Os documentos devem ser arquivos PDF, JPG ou PNG.',
             'documentos.*.max' => 'Cada documento pode ter no máximo 20 MB.',
@@ -241,6 +286,7 @@ class EmpresaController extends Controller
     {
         $documento = preg_replace('/\D/', '', (string) $request->cnpj);
         $tipo = strtoupper((string) $request->tipo);
+        $ativo = $request->has('ativo') ? $request->boolean('ativo') : true;
 
         $request->merge([
             'nome' => trim((string) $request->nome),
@@ -252,7 +298,16 @@ class EmpresaController extends Controller
             'email' => mb_strtolower(trim((string) $request->email)),
             'endereco_cep' => preg_replace('/\D/', '', $request->endereco_cep),
             'endereco_estado' => strtoupper(substr($request->endereco_estado, 0, 2)),
+            'ativo' => $ativo,
+            'motivo_inativacao' => trim((string) $request->motivo_inativacao) ?: null,
         ]);
+
+        if (!$ativo && !$request->route('empresa')) {
+            $request->merge([
+                'inativada_por_id' => $request->user()->id,
+                'inativada_em' => now(),
+            ]);
+        }
     }
 
     private function uploadDocumentos(Empresa $empresa, Request $request)

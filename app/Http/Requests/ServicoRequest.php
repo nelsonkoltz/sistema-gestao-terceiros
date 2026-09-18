@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ServicoRequest extends FormRequest
 {
@@ -24,7 +25,12 @@ class ServicoRequest extends FormRequest
         return [
             'descricao' => ['required', 'string', 'max:1000'],
 
-            'empresa_id' => ['required', 'exists:empresas,id'],
+            'empresa_id' => [
+                'required',
+                $this->isMethod('post')
+                    ? Rule::exists('empresas', 'id')->where(fn ($query) => $query->where('ativo', true))
+                    : 'exists:empresas,id',
+            ],
 
             'setor_id' => ['required', 'exists:setores,id'],
 

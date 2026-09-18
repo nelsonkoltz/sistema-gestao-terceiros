@@ -194,6 +194,13 @@ class FuncionarioController extends Controller
     // =============================
     public function destroy(Funcionario $funcionario)
     {
+        if ($funcionario->registrosAcesso()->exists()) {
+            $funcionario->update(['ativo' => false]);
+
+            return redirect()->route('funcionarios.index')
+                ->with('success', 'O funcionário possui histórico de acesso e foi preservado como inativo.');
+        }
+
         $funcionario->delete();
 
         Storage::disk('public')
@@ -211,6 +218,10 @@ class FuncionarioController extends Controller
     {
         if ($documento->funcionario_id !== $funcionario->id) {
             abort(404);
+        }
+
+        if ($documento->fazParteDoHistorico()) {
+            return back()->with('error', 'Este documento faz parte de um histórico de renovação e não pode ser excluído.');
         }
 
         if (

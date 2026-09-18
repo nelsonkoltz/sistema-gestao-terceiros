@@ -187,6 +187,7 @@ class GuaritaController extends Controller
 
         $motivos = [];
         if (!$funcionario->ativo) $motivos[] = 'Funcionário inativo.';
+        if (!$funcionario->empresa->ativo) $motivos[] = 'Empresa inativa: ' . ($funcionario->empresa->motivo_inativacao ?: 'acesso suspenso pela Segurança do Trabalho') . '.';
         if (!$funcionario->empresa->documentacaoRegular()) $motivos[] = 'Empresa com documentação irregular.';
         if (!$funcionario->documentacaoRegular()) $motivos[] = 'Funcionário com documentação irregular.';
         if ($servicosHoje->isEmpty()) $motivos[] = 'Nenhuma solicitação cadastrada para esta empresa hoje.';

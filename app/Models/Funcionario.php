@@ -39,6 +39,11 @@ class Funcionario extends Model
         return $this->hasMany(DocumentoFuncionario::class, 'funcionario_id');
     }
 
+    public function registrosAcesso()
+    {
+        return $this->hasMany(RegistroAcesso::class);
+    }
+
     public function documentacaoRegular(): bool
     {
         $documentosAtuais = $this->documentos->where('status', '!=', 'Substituido');

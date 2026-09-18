@@ -81,6 +81,11 @@ class Servico extends Model
         return $this->belongsTo(Setor::class, 'setor_id');
     }
 
+    public function registrosAcesso()
+    {
+        return $this->hasMany(RegistroAcesso::class);
+    }
+
     public function autorizaFuncionario(Funcionario $funcionario): bool
     {
         return $this->motivosBloqueio($funcionario) === [];
@@ -95,6 +100,7 @@ class Servico extends Model
 
         if ($this->hora_inicio && now()->format('H:i:s') < $this->hora_inicio) $motivos[] = 'Entrada antes do horário autorizado.';
         if ($this->hora_fim && now()->format('H:i:s') > $this->hora_fim) $motivos[] = 'Entrada após o horário autorizado.';
+        if (!$this->empresa->ativo) $motivos[] = 'Empresa inativa: ' . ($this->empresa->motivo_inativacao ?: 'acesso suspenso pela Segurança do Trabalho') . '.';
         if (!$this->empresa->documentacaoRegular()) $motivos[] = 'Empresa com documentação irregular.';
         if (!$funcionario->ativo) $motivos[] = 'Funcionário inativo.';
         if (!$funcionario->documentacaoRegular()) $motivos[] = 'Funcionário com documentação irregular.';

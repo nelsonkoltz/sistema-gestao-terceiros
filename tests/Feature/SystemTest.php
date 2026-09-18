@@ -362,4 +362,140 @@ class SystemTest extends TestCase
             $this->get($url)->assertSuccessful();
         }
     }
+
+    public function test_inactive_company_blocks_all_employees_and_records_inactivation_details()
+    {
+        Carbon::setTestNow('2026-09-18 14:30:00');
+        $safety = $this->user('Segurança do Trabalho');
+        $gate = $this->user('Guarita');
+        $requester = $this->user('Solicitante');
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create([
+            'empresa_id' => $company->id, 'nome' => 'Terceiro da Empresa Inativa',
+            'cpf' => '11122233344', 'ativo' => true,
+        ]);
+        Documento::create([
+            'empresa_id' => $company->id, 'nome_arquivo' => 'empresa.pdf',
+            'caminho_arquivo' => 'empresa.pdf', 'status' => 'Ativo',
+        ]);
+        DocumentoFuncionario::create([
+            'funcionario_id' => $employee->id, 'nome_original' => 'funcionario.pdf',
+            'path' => 'funcionario.pdf', 'status' => 'Ativo',
+        ]);
+        $sector = Setor::create(['nome' => 'Produção']);
+        Servico::create([
+            'empresa_id' => $company->id, 'solicitante_id' => $requester->id,
+            'setor_id' => $sector->id, 'descricao' => 'Serviço bloqueado pela empresa',
+            'vai_almocar' => false, 'status' => 'Agendado', 'data_servico' => today(),
+            'hora_inicio' => '08:00', 'hora_fim' => '18:00',
+        ]);
+
+        $dados = $this->companyData();
+        unset($dados['cnpj']);
+        $dados['ativo'] = '0';
+        $dados['motivo_inativacao'] = 'Contrato suspenso por segurança.';
+
+        $this->actingAs($safety)->put('/empresas/' . $company->id, $dados)->assertSessionHasNoErrors();
+        $company->refresh();
+        $this->assertFalse($company->ativo);
+        $this->assertSame('Contrato suspenso por segurança.', $company->motivo_inativacao);
+        $this->assertSame($safety->id, $company->inativada_por_id);
+        $this->assertSame('2026-09-18 14:30:00', $company->inativada_em->format('Y-m-d H:i:s'));
+
+        $this->actingAs($gate)->get('/guarita?q=11122233344')
+            ->assertOk()->assertSee('ENTRADA BLOQUEADA')->assertSee('Empresa inativa');
+        $this->post('/guarita/funcionarios/' . $employee->id . '/entrada')->assertSessionHas('error');
+        $this->assertDatabaseHas('registros_acesso', [
+            'funcionario_id' => $employee->id,
+            'decisao' => 'Bloqueado',
+        ]);
+
+        $dados['ativo'] = '1';
+        $dados['motivo_inativacao'] = null;
+        $this->actingAs($safety)->put('/empresas/' . $company->id, $dados)->assertSessionHasNoErrors();
+        $company->refresh();
+        $this->assertTrue($company->ativo);
+        $this->assertNull($company->motivo_inativacao);
+        $this->assertNull($company->inativada_por_id);
+        $this->assertNull($company->inativada_em);
+        Carbon::setTestNow();
+    }
+
+    public function test_operational_history_is_preserved_instead_of_being_deleted()
+    {
+        Storage::fake('public');
+        $admin = $this->user('Administrador');
+        $requester = $this->user('Solicitante');
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create([
+            'empresa_id' => $company->id, 'nome' => 'Funcionário com histórico',
+            'cpf' => '55566677788', 'ativo' => true,
+        ]);
+        $sector = Setor::create(['nome' => 'Histórico']);
+        $service = Servico::create([
+            'empresa_id' => $company->id, 'solicitante_id' => $requester->id,
+            'setor_id' => $sector->id, 'descricao' => 'Serviço com acesso',
+            'vai_almocar' => false, 'status' => 'Agendado', 'data_servico' => today(),
+            'hora_inicio' => '08:00', 'hora_fim' => '18:00',
+        ]);
+        RegistroAcesso::create([
+            'funcionario_id' => $employee->id, 'servico_id' => $service->id,
+            'registrado_por' => $admin->id, 'decisao' => 'Liberado', 'entrada_em' => now(),
+        ]);
+
+        $this->actingAs($admin)->delete('/servicos/' . $service->id)->assertSessionHas('success');
+        $this->assertDatabaseHas('servicos', ['id' => $service->id, 'status' => 'Cancelado']);
+
+        $this->delete('/funcionarios/' . $employee->id)->assertSessionHas('success');
+        $this->assertDatabaseHas('funcionarios', ['id' => $employee->id, 'ativo' => false]);
+
+        $this->delete('/empresas/' . $company->id)->assertSessionHas('success');
+        $this->assertDatabaseHas('empresas', ['id' => $company->id, 'ativo' => false]);
+        $this->assertDatabaseHas('registros_acesso', [
+            'funcionario_id' => $employee->id, 'servico_id' => $service->id,
+        ]);
+    }
+
+    public function test_document_renewal_versions_cannot_be_removed()
+    {
+        Storage::fake('public');
+        $admin = $this->user('Administrador');
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create([
+            'empresa_id' => $company->id, 'nome' => 'Funcionário Documentado',
+            'cpf' => '99988877766', 'ativo' => true,
+        ]);
+
+        $companyOld = Documento::create([
+            'empresa_id' => $company->id, 'nome_arquivo' => 'empresa-antigo.pdf',
+            'caminho_arquivo' => 'empresas/antigo.pdf', 'status' => 'Substituido',
+        ]);
+        $companyNew = Documento::create([
+            'empresa_id' => $company->id, 'nome_arquivo' => 'empresa-novo.pdf',
+            'caminho_arquivo' => 'empresas/novo.pdf', 'documento_anterior_id' => $companyOld->id,
+        ]);
+        $employeeOld = DocumentoFuncionario::create([
+            'funcionario_id' => $employee->id, 'nome_original' => 'funcionario-antigo.pdf',
+            'path' => 'funcionarios/antigo.pdf', 'status' => 'Substituido',
+        ]);
+        $employeeNew = DocumentoFuncionario::create([
+            'funcionario_id' => $employee->id, 'nome_original' => 'funcionario-novo.pdf',
+            'path' => 'funcionarios/novo.pdf', 'documento_anterior_id' => $employeeOld->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->delete('/empresas/' . $company->id . '/documentos/' . $companyOld->id)
+            ->assertSessionHas('error');
+        $this->delete('/empresas/' . $company->id . '/documentos/' . $companyNew->id)
+            ->assertSessionHas('error');
+        $this->delete('/funcionarios/' . $employee->id . '/documentos/' . $employeeOld->id)
+            ->assertSessionHas('error');
+        $this->delete('/funcionarios/' . $employee->id . '/documentos/' . $employeeNew->id)
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('documentos', ['id' => $companyOld->id]);
+        $this->assertDatabaseHas('documentos', ['id' => $companyNew->id]);
+        $this->assertDatabaseHas('funcionario_documentos', ['id' => $employeeOld->id]);
+        $this->assertDatabaseHas('funcionario_documentos', ['id' => $employeeNew->id]);
+    }
 }

@@ -122,6 +122,7 @@
                         {{ $doc->nome_original }}
                     </a>
 
+                    @if(!$doc->fazParteDoHistorico())
                     <form action="{{ route('funcionarios.documentos.destroy', [$funcionario->id, $doc->id]) }}"
                           method="POST"
                           onsubmit="return confirm('Deseja realmente remover este documento?')">
@@ -132,6 +133,9 @@
                             ✕
                         </button>
                     </form>
+                    @else
+                        <span class="file-protected" title="Versão preservada no histórico"><i class="bi bi-lock"></i></span>
+                    @endif
                 </li>
             @empty
                 <li class="file-item muted">

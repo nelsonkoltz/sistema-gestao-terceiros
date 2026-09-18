@@ -1,330 +1,225 @@
-# Pendências e regras de negócio — TerceirosCR
+# Situação atual e pendências — TerceirosCR
 
-Este documento reúne as funcionalidades que ainda precisam ser desenvolvidas para que o TerceirosCR controle a entrada de trabalhadores terceirizados com segurança, rastreabilidade e clareza para a guarita.
+Atualizado em 18/09/2026.
 
-## 1. Objetivo do sistema
+## 1. Objetivo e fluxo vigente
 
-O sistema deve permitir que:
+O TerceirosCR controla o acesso de trabalhadores terceirizados à empresa:
 
-- a Segurança do Trabalho cadastre e mantenha as empresas terceirizadas e seus documentos;
-- os colaboradores da empresa solicitem serviços que serão executados por terceiros;
-- qualquer funcionário ativo e documentalmente regular da empresa solicitada possa ser autorizado;
-- a guarita consulte rapidamente se uma pessoa está autorizada a entrar;
-- todas as entradas, saídas, liberações e bloqueios fiquem registradas.
+1. A Segurança do Trabalho cadastra empresas, funcionários e documentos.
+2. O Solicitante cadastra o serviço de uma empresa terceirizada.
+3. Qualquer funcionário ativo e documentalmente regular dessa empresa pode executar o serviço.
+4. A Guarita consulta o funcionário e recebe a decisão automática de acesso.
+5. A Guarita registra entrada e saída, preservando o histórico.
 
-## 2. Perfis e responsabilidades
+## 2. Decisões de negócio
 
-### Segurança do Trabalho
+- Não existe aprovação manual de documentos ou solicitações.
+- Documento novo ou renovado fica ativo imediatamente.
+- A validade começa no cadastro ou renovação e pode ser configurada em dias ou meses.
+- A configuração inicial recomendada é de seis meses.
+- O Administrador pode recalcular documentos existentes ao alterar o prazo.
+- Solicitações novas começam como **Agendado**.
+- A autorização vale para qualquer funcionário regular vinculado à empresa do serviço.
+- A entrada exige funcionário ativo, documentação regular e serviço vigente.
+- Fotografias ficam reservadas para um projeto futuro.
 
-Responsável por:
-
-- cadastrar e editar empresas terceirizadas;
-- cadastrar e editar funcionários terceirizados;
-- anexar e renovar documentos, que ficam válidos imediatamente por seis meses;
-- inativar empresas e funcionários;
-- consultar documentos vencidos ou próximos do vencimento;
-- registrar observações sobre pendências documentais.
-
-### Solicitante do serviço
-
-Cada colaborador que precisar de mão de obra terceirizada será responsável por:
-
-- cadastrar a solicitação de serviço;
-- selecionar a empresa terceirizada;
-- informar setor, descrição, período e condições do serviço;
-- acompanhar a situação da solicitação;
-- autorizar o serviço no próprio cadastro, sem etapa posterior de aprovação;
-
-## Regra atual: sem aprovações manuais
-
-- O cadastro da solicitação já cria o serviço como **Agendado**.
-- O cadastro de um documento já o torna **Ativo** por seis meses.
-- A guarita valida automaticamente documentos existentes e não vencidos, funcionário ativo, vínculo com a empresa, data e horário do serviço.
-- Não existem etapas de aprovação ou rejeição de serviço e documento.
-- cancelar a solicitação quando necessário.
-
-O solicitante não poderá aprovar documentos nem ignorar bloqueios documentais.
-
-### Guarita
-
-Responsável por:
-
-- pesquisar o terceirizado por CPF, nome, empresa, solicitação ou placa;
-- consultar a decisão calculada pelo sistema;
-- registrar entrada e saída;
-- registrar observações ou ocorrências;
-- solicitar autorização excepcional quando existir uma regra específica para isso.
-
-A guarita não deverá alterar cadastros ou aprovar documentos.
+## 3. Perfis implementados
 
 ### Administrador
 
-Responsável por:
+- acesso completo;
+- usuários, configurações e auditoria;
+- solicitações, cadastros e portaria.
 
-- cadastrar usuários;
-- definir perfis e permissões;
-- configurar setores e tipos de documentos;
-- consultar auditoria e relatórios;
-- administrar parâmetros gerais do sistema.
+### Solicitante
 
-## 3. Regra obrigatória dos documentos
+- cria, consulta, edita e exclui somente as próprias solicitações;
+- não acessa cadastros documentais, configurações ou portaria.
 
-Todo documento cadastrado terá validade de **6 meses**.
+### Segurança do Trabalho
 
-Regras:
+- mantém empresas, funcionários e documentos;
+- acompanha alertas documentais;
+- consulta serviços, sem criar, editar ou excluir solicitações.
 
-- a data de cadastro do documento será registrada automaticamente;
-- a data de vencimento será calculada automaticamente: `data do cadastro + 6 meses`;
-- o usuário não poderá aumentar manualmente esse prazo;
-- após o vencimento, o documento ficará com a situação **Vencido**;
-- documento vencido deverá bloquear a entrada quando for obrigatório;
-- a renovação exigirá o envio de um novo arquivo;
-- o documento anterior permanecerá no histórico e não poderá ser simplesmente substituído sem registro;
-- o sistema deverá guardar quem cadastrou, aprovou ou rejeitou cada versão;
-- a situação documental deverá ser recalculada automaticamente, sem depender de edição manual.
+### Guarita
 
-Situações possíveis:
+- consulta funcionário, decisão de acesso e serviço relacionado;
+- registra entrada e saída;
+- consulta e exporta o histórico da portaria.
 
-- **Pendente:** enviado e aguardando análise;
-- **Válido:** aprovado e dentro do período de seis meses;
-- **Próximo do vencimento:** faltam 30 dias ou menos;
-- **Vencido:** ultrapassou seis meses;
-- **Rejeitado:** arquivo recusado pela Segurança do Trabalho;
-- **Não enviado:** documento obrigatório ainda não cadastrado.
+As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitadas manualmente.
 
-> Decisão funcional adotada: os seis meses começam na data em que o documento é cadastrado no sistema. Se futuramente a empresa decidir usar a data de emissão, essa regra deverá ser alterada e registrada.
+## 4. Funcionalidades concluídas
 
-## 4. Forma de cadastro dos documentos
+### Autenticação e usuários
 
-Não existirão campos fixos nem cadastro de tipos de documento. A Segurança do Trabalho poderá anexar qualquer arquivo necessário diretamente à empresa ou ao funcionário. O nome original do arquivo será usado para identificá-lo, e todos seguirão a mesma validade obrigatória de seis meses.
+- [x] Login único e redirecionamento conforme o perfil.
+- [x] Cadastro de usuário, setor, e-mail, senha e permissão.
+- [x] Limitação de tentativas de login.
+- [x] Matriz de permissões e testes por perfil.
+- [x] Solicitante limitado às próprias solicitações.
 
-## 5. Gestão documental
+### Empresas, funcionários e documentos
 
-### Pendências
+- [x] Cadastro, edição, consulta e pesquisa de empresas e funcionários.
+- [x] Funcionário vinculado a uma empresa e com status ativo/inativo.
+- [x] Gestão restrita ao Administrador e à Segurança do Trabalho.
+- [x] Documentos livres, sem tipos ou campos fixos.
+- [x] Upload de PDF, JPG e PNG para empresa ou funcionário.
+- [x] Ativação imediata e validade automática configurável.
+- [x] Renovação preservando a versão anterior.
+- [x] Identificação de documentos vencidos, próximos do vencimento e ausentes.
+- [x] Job automático configurável e execução manual.
 
-- [x] Armazenar data de cadastro e vencimento.
-- [x] Armazenar situação da análise.
-- [x] Armazenar responsável e data da aprovação ou rejeição.
-- [x] Permitir observação ao rejeitar um documento.
-- [x] Implementar renovação com histórico de versões.
-- [x] Impedir exclusão definitiva do histórico documental no novo fluxo.
-- [ ] Criar filtros por situação e vencimento.
-- [ ] Criar painel de documentos vencidos.
-- [ ] Criar painel de documentos próximos do vencimento.
-- [x] Exibir pendências documentais nos detalhes da empresa e do funcionário.
-- [x] Criar rotina diária para atualizar as situações.
-- [ ] Gerar notificações a partir da rotina diária.
+### Alertas
 
-## 6. Empresas e funcionários
+- [x] Painel com filtros e níveis de antecedência configuráveis.
+- [x] Resumo por e-mail manual e automático, mesmo sem pendências.
+- [x] Envio para Administradores e Segurança do Trabalho com e-mail.
+- [x] Configuração de SMTP interno e senha criptografada.
+- [x] Modelo de mensagem compatível com Outlook.
 
-### Empresas
+### Solicitações
 
-- [ ] Adicionar status ativo ou inativo.
-- [ ] Restringir criação e alteração à Segurança do Trabalho e administradores autorizados.
-- [ ] Exibir situação documental consolidada.
-- [ ] Bloquear empresa com documento obrigatório vencido, rejeitado ou ausente.
-- [ ] Manter histórico de alterações do cadastro.
-- [ ] Evitar exclusão definitiva de empresas com histórico de serviços ou acessos.
+- [x] Empresa, setor, solicitante, descrição, data e horários.
+- [x] Informação sobre uso do refeitório.
+- [x] Status Agendado, Em Andamento e Finalizado sincronizado com a portaria.
+- [x] Autorização para qualquer funcionário regular da empresa.
+- [x] Consulta dos serviços pela Segurança do Trabalho.
+- [x] Exibição do serviço para a Guarita.
 
-### Funcionários terceirizados
+### Portaria
 
-- [ ] Definir se o cadastro será feito somente pela Segurança do Trabalho.
-- [ ] Exibir situação documental consolidada.
-- [ ] Bloquear funcionário inativo ou com documentação irregular.
-- [ ] Manter histórico de mudanças de empresa e de situação.
-- [ ] Evitar exclusão definitiva quando houver serviços ou acessos registrados.
-- [ ] Permitir fotografia para facilitar a conferência na guarita, se aprovado pela empresa.
+- [x] Tela operacional e pesquisa por nome ou CPF.
+- [x] Decisão automática de entrada e motivos do bloqueio.
+- [x] Registro de entrada, saída, data, hora e operador.
+- [x] Prevenção de duas entradas abertas para a mesma pessoa.
+- [x] Pessoas atualmente dentro da empresa.
+- [x] Histórico pesquisável e exportação CSV.
 
-## 7. Solicitações de serviço
+### Auditoria
 
-O cadastro atual precisa ser ampliado.
+- [x] Criação, alteração e exclusão dos principais cadastros.
+- [x] Responsável, data, hora, IP e navegador.
+- [x] Valores anteriores e novos, com proteção de dados sensíveis.
+- [x] Consulta e detalhes exclusivos do Administrador.
 
-### Dados necessários
+## 5. Pendências prioritárias
 
-- empresa terceirizada;
-- autorização para qualquer funcionário regular da empresa;
-- solicitante;
-- setor responsável;
-- descrição do serviço;
-- data e horário inicial;
-- data e horário final;
-- informação sobre almoço;
-- veículo e placa, quando aplicável;
-- observações para a guarita;
-- status da solicitação.
+### Empresa ativa ou inativa
 
-### Pendências
+- [x] Adicionar status ativo/inativo à empresa.
+- [x] Bloquear todos os funcionários quando a empresa estiver inativa.
+- [x] Exibir motivo, responsável e data da inativação.
 
-- [x] Adicionar horário inicial e final.
-- [ ] Permitir serviços com mais de um dia.
-- [ ] Adicionar veículo e placa como campos opcionais.
-- [x] Definir aprovação por Administrador ou Segurança do Trabalho.
-- [ ] Impedir aprovação da solicitação quando a empresa estiver documentalmente irregular.
-- [ ] Restringir alteração ao solicitante ou a perfis autorizados.
-- [ ] Registrar cancelamento, motivo, responsável e data.
-- [ ] Manter histórico de alterações de status.
+### Preservação do histórico
 
-### Status sugeridos
+- [x] Impedir exclusão definitiva de empresas com serviços ou acessos.
+- [x] Impedir exclusão definitiva de funcionários com acessos.
+- [x] Impedir exclusão definitiva de serviços com acessos.
+- [x] Usar inativação, cancelamento ou exclusão lógica nesses casos.
+- [x] Garantir acesso ao histórico de versões documentais.
 
-- Rascunho;
-- Pendente de documentação;
-- Aguardando aprovação;
-- Aprovado;
-- Em andamento;
-- Finalizado;
-- Cancelado.
+### Tentativas bloqueadas e ocorrências
 
-## 8. Tela operacional da guarita
+- [ ] Registrar cada tentativa de entrada bloqueada.
+- [ ] Guardar pessoa, empresa, serviço, motivos, operador, data, hora e IP.
+- [ ] Permitir observação na entrada e na saída.
+- [ ] Permitir ocorrência sem liberar a entrada.
+- [ ] Criar consulta e relatório de ocorrências.
 
-Criar uma tela específica, rápida e adequada para consulta durante o atendimento.
+### Cancelamento de solicitações
 
-### Formas de pesquisa
+- [ ] Criar ação própria de cancelamento.
+- [ ] Exigir motivo e registrar responsável, data e hora.
+- [ ] Bloquear novas entradas sem apagar o histórico.
 
-- CPF;
-- nome do funcionário;
-- empresa;
-- número da solicitação;
-- placa do veículo.
+### Contas de usuário
 
-### Resultado da consulta
-
-- **Verde — Entrada liberada**;
-- **Vermelho — Entrada bloqueada**;
-- **Amarelo — Necessita análise ou autorização**.
-
-A tela deverá mostrar:
-
-- foto, nome e CPF do funcionário;
-- empresa;
-- solicitação e setor de destino;
-- período autorizado;
-- situação da empresa;
-- situação do funcionário;
-- situação dos documentos;
-- motivo detalhado da liberação ou do bloqueio;
-- botão para registrar entrada ou saída.
-
-## 9. Regras para liberação da entrada
-
-A entrada somente será liberada quando todas as condições forem atendidas:
-
-- empresa ativa;
-- empresa sem documentos obrigatórios pendentes, rejeitados ou vencidos;
-- funcionário ativo;
-- funcionário sem documentos obrigatórios pendentes, rejeitados ou vencidos;
-- funcionário pertencente à empresa de uma solicitação aprovada e vigente;
-- solicitação dentro da data e do horário autorizado;
-- solicitação não cancelada ou finalizada;
-- nenhuma restrição manual ativa.
-
-O sistema deve informar todos os motivos do bloqueio, e não apenas apresentar uma mensagem genérica.
-
-## 10. Registro de acesso
-
-- [x] Criar registro de entrada.
-- [x] Registrar data e hora automaticamente.
-- [x] Registrar usuário da guarita responsável.
-- [x] Criar registro de saída.
-- [x] Impedir duas entradas abertas para a mesma pessoa.
-- [ ] Permitir observações e ocorrências.
-- [x] Exibir quem está dentro da empresa naquele momento.
-- [ ] Alertar permanência após o horário autorizado.
-- [ ] Manter histórico pesquisável de acessos.
-
-## 11. Alertas e notificações
-
-- [ ] Alertar a Segurança do Trabalho 30 dias antes do vencimento.
-- [ ] Destacar documentos vencidos no painel.
-- [ ] Informar ao solicitante quando a documentação bloquear o serviço.
-- [ ] Informar quando um documento for aprovado ou rejeitado.
-- [ ] Definir se os avisos serão somente internos ou também enviados por e-mail.
-
-## 12. Auditoria e segurança
-
-- [ ] Registrar criação, alteração, aprovação, rejeição e renovação de documentos.
-- [ ] Registrar mudanças em empresas, funcionários e solicitações.
-- [ ] Registrar tentativas de entrada bloqueadas.
-- [ ] Guardar usuário, data, hora e valores alterados.
-- [ ] Proibir exclusão definitiva de registros com histórico operacional.
-- [ ] Criar usuários ativos e inativos.
+- [ ] Adicionar status ativo/inativo e bloquear login de conta inativa.
+- [ ] Permitir troca de senha pelo usuário.
 - [ ] Implementar redefinição segura de senha.
-- [ ] Revisar permissões de cada perfil em todas as rotas.
-- [ ] Definir tempo de expiração da sessão.
-- [ ] Aplicar política de senha.
-- [ ] Revisar e atualizar Laravel e dependências.
+- [ ] Exigir troca da senha provisória no primeiro acesso.
+- [ ] Definir política de senha e tempo de sessão.
 
-## 13. Relatórios
+## 6. Melhorias operacionais
+
+### Serviços
+
+- [ ] Permitir serviços com data inicial e final.
+- [ ] Adicionar veículo e placa opcionais.
+- [ ] Adicionar observações específicas para a Guarita.
+- [ ] Avaliar serviços recorrentes.
+
+### Portaria
+
+- [ ] Pesquisar por empresa, solicitação e placa.
+- [ ] Alertar permanência após o horário autorizado.
+- [ ] Destacar registros sem saída após a troca de dia.
+- [ ] Corrigir entrada ou saída somente com justificativa e auditoria.
+
+### Relatórios
 
 - [ ] Entradas e saídas por período.
-- [ ] Pessoas que estão dentro da empresa.
-- [ ] Tentativas de entrada bloqueadas e seus motivos.
-- [ ] Documentos vencidos e próximos do vencimento.
-- [ ] Empresas e funcionários bloqueados.
+- [ ] Tentativas bloqueadas e motivos.
+- [ ] Tempo de permanência.
 - [ ] Serviços por empresa, setor e solicitante.
-- [ ] Tempo de permanência dos terceiros.
-- [ ] Exportação para PDF ou planilha, se necessária.
+- [ ] Cadastros irregulares e documentos próximos do vencimento.
+- [ ] Exportação em Excel e PDF, se necessária.
 
-## 14. Infraestrutura e operação
+### Auditoria e segurança
 
-- [ ] Definir ambiente oficial de produção.
+- [ ] Registrar login, logout e falhas de autenticação.
+- [ ] Registrar consultas e bloqueios da Guarita.
+- [ ] Registrar execuções manuais e automáticas dos jobs.
+- [ ] Filtrar auditoria por usuário, IP e período.
+- [ ] Definir prazo de retenção da auditoria.
+- [ ] Revisar e atualizar Laravel e dependências.
+
+## 7. Infraestrutura antes da produção
+
+- [ ] Definir servidor e endereço oficial na rede interna.
 - [ ] Configurar HTTPS.
-- [ ] Definir rotina automática de backup do banco e dos documentos.
-- [ ] Documentar procedimento de restauração.
-- [ ] Definir política de retenção dos arquivos.
-- [ ] Monitorar espaço em disco e disponibilidade.
-- [ ] Separar ambientes de desenvolvimento, homologação e produção.
-- [ ] Definir responsável pelo suporte do sistema.
+- [ ] Separar desenvolvimento, homologação e produção.
+- [ ] Fazer backup automático do banco e dos documentos.
+- [ ] Definir retenção externa e testar restauração.
+- [ ] Monitorar sistema, jobs, SMTP e espaço em disco.
+- [ ] Centralizar logs e proteger os segredos do ambiente.
+- [ ] Definir responsáveis por suporte e incidentes.
 
-## 15. Testes necessários
+## 8. Testes pendentes
 
-- [ ] Documento vence exatamente após seis meses.
-- [ ] Documento próximo do vencimento é identificado corretamente.
-- [ ] Renovação mantém a versão anterior no histórico.
-- [ ] Empresa irregular bloqueia todos os seus funcionários.
-- [ ] Funcionário irregular não pode ser liberado.
-- [ ] Funcionário regular sem solicitação é bloqueado.
-- [ ] Solicitação fora do período não libera entrada.
-- [ ] Guarita consegue registrar entrada e saída.
-- [ ] Usuários sem permissão não aprovam documentos.
-- [ ] Solicitante acessa apenas as ações permitidas.
-- [ ] Histórico e auditoria são preservados.
+- [x] Perfis não acessam ações não autorizadas.
+- [x] Solicitante acessa somente as próprias solicitações.
+- [x] Segurança consulta serviços sem alterá-los.
+- [x] Guarita registra entrada e saída.
+- [x] Entrada e saída atualizam o serviço.
+- [x] Serviço permite qualquer funcionário regular da empresa.
+- [x] Empresa inativa bloqueia todos os funcionários.
+- [ ] Documento bloqueia exatamente na data limite.
+- [ ] Renovação preserva corretamente a versão anterior.
+- [ ] Limites de data e horário do serviço são respeitados.
+- [ ] Concorrência impede duas entradas simultâneas.
+- [ ] Falha no SMTP não interrompe a validade documental.
+- [ ] Backup completo pode ser restaurado em ambiente limpo.
 
-## 16. Ordem recomendada de desenvolvimento
+## 9. Projeto futuro
 
-### Fase 1 — Base documental
+- [ ] Fotografia do funcionário para conferência na Guarita.
+- [ ] QR Code ou crachá temporário.
+- [ ] Integração com catraca ou controle físico de acesso.
+- [ ] Integração com diretório corporativo.
+- [ ] Portal externo para envio de documentos pelas terceirizadas.
 
-1. Validade automática de seis meses.
-2. Aprovação, rejeição e renovação.
-3. Situação consolidada da empresa e do funcionário.
-4. Painel da Segurança do Trabalho.
+## 10. Próxima entrega recomendada
 
-### Fase 2 — Solicitação completa
+Implementar em conjunto:
 
-1. Período e horários autorizados.
-2. Fluxo de aprovação.
-3. Autorização para qualquer funcionário regular da empresa.
-4. Bloqueio por irregularidade documental.
+1. status ativo/inativo da empresa;
+2. bloqueio de funcionários de empresa inativa;
+3. preservação de registros com histórico;
+4. registro das tentativas de entrada bloqueadas.
 
-### Fase 3 — Guarita
-
-1. Consulta rápida.
-2. Decisão automática de entrada.
-3. Registro de entrada e saída.
-4. Tela de pessoas presentes.
-
-### Fase 4 — Gestão
-
-1. Alertas e notificações.
-2. Auditoria.
-3. Relatórios.
-4. Backup, segurança e implantação em produção.
-
-## 17. Critério para o sistema estar operacional
-
-O sistema será considerado apto para uso completo quando a guarita conseguir consultar qualquer funcionário terceirizado e receber uma decisão confiável de entrada, baseada automaticamente em:
-
-- validade documental de seis meses;
-- aprovação dos documentos pela Segurança do Trabalho;
-- situação da empresa e do funcionário;
-- existência de uma solicitação aprovada e vigente;
-- registro rastreável da entrada e da saída.
+Essa entrega impede acessos de empresas suspensas sem perder as evidências da decisão tomada pela portaria.

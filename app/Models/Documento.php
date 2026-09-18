@@ -34,6 +34,14 @@ class Documento extends Model
 
     public function analisador() { return $this->belongsTo(Usuario::class, 'analisado_por'); }
     public function anterior() { return $this->belongsTo(self::class, 'documento_anterior_id'); }
+    public function posteriores() { return $this->hasMany(self::class, 'documento_anterior_id'); }
+
+    public function fazParteDoHistorico(): bool
+    {
+        return (bool) $this->documento_anterior_id
+            || $this->status === 'Substituido'
+            || $this->posteriores()->withTrashed()->exists();
+    }
 
     public function getStatusAtualAttribute(): string
     {
