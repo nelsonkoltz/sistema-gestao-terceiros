@@ -343,7 +343,11 @@ class SystemTest extends TestCase
         $this->get('/empresas')->assertOk();
         $this->get('/funcionarios')->assertOk();
         $this->get('/alertas-documentais')->assertOk();
-        $this->get('/servicos')->assertForbidden();
+        $this->get('/servicos')->assertOk()->assertSee('Serviço próprio')->assertSee('Serviço de outro solicitante');
+        $this->get('/servicos/' . $ownService->id)->assertOk();
+        $this->get('/servicos/create')->assertForbidden();
+        $this->get('/servicos/' . $ownService->id . '/edit')->assertForbidden();
+        $this->delete('/servicos/' . $ownService->id)->assertForbidden();
         $this->get('/guarita')->assertForbidden();
         $this->get('/configuracoes')->assertForbidden();
 

@@ -106,7 +106,13 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureWritePermission::class])->
     |--------------------------------------------------------------------------
     */
 
-    Route::resource('servicos', ServicoController::class)->middleware('role:Administrador,Solicitante');
+    // Segurança do Trabalho consulta o contexto dos terceiros, sem alterar a solicitação.
+    Route::resource('servicos', ServicoController::class)
+        ->except(['index', 'show'])
+        ->middleware('role:Administrador,Solicitante');
+    Route::resource('servicos', ServicoController::class)
+        ->only(['index', 'show'])
+        ->middleware('role:Administrador,Solicitante,Segurança do Trabalho');
 });
 
 /*
