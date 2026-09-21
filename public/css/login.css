@@ -105,3 +105,4 @@ button, input { font: inherit; }
     .login-header { margin-bottom: 22px; }
     .form-group { margin-bottom: 14px; }
 }
+.forgot-password{display:block;margin-top:14px;color:#0a4b7b;font-size:12px;font-weight:700;text-align:center;text-decoration:none}.forgot-password:hover{text-decoration:underline}.recovery-card{width:min(420px,calc(100% - 32px));margin:auto}.recovery-card .form-group{margin-top:18px}.recovery-actions{display:grid;gap:10px;margin-top:18px}.recovery-actions a{color:#536a7f;font-size:12px;text-align:center;text-decoration:none}

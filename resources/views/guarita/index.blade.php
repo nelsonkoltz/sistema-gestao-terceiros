@@ -72,7 +72,13 @@
                             @endif
                             @if(!$resultado['liberado'])<ul>@foreach($resultado['motivos'] as $motivo)<li>{{ $motivo }}</li>@endforeach</ul>@endif
                         </div>
-                        @if($resultado['liberado'])<form method="POST" action="{{ route('guarita.entrada', $funcionario) }}">@csrf<button class="entry-button" type="submit"><i class="bi bi-box-arrow-in-right"></i> Registrar entrada</button></form>@endif
+                        @if($resultado['ocorrencias']->isNotEmpty())
+                            <div class="recent-incidents"><strong><i class="bi bi-exclamation-triangle"></i> Registros anteriores</strong>@foreach($resultado['ocorrencias'] as $item)<small>{{ $item->created_at->format('d/m/Y H:i') }} · {{ $item->decisao === 'Bloqueado' ? 'Bloqueio' : ($item->categoria ?: 'Ocorrência') }} · {{ $item->observacao ?: $item->motivo }}</small>@endforeach</div>
+                        @endif
+                        <div class="gate-record-actions">
+                            @if($resultado['liberado'])<details><summary><i class="bi bi-box-arrow-in-right"></i> Registrar entrada</summary><form method="POST" action="{{ route('guarita.entrada', $funcionario) }}">@csrf<textarea name="observacao" maxlength="1000" placeholder="Observação da entrada (opcional)"></textarea><button class="entry-button" type="submit">Confirmar entrada</button></form></details>@endif
+                            <details class="incident-form"><summary>Registrar ocorrência</summary><form method="POST" action="{{ route('guarita.ocorrencias.registrar', $funcionario) }}">@csrf @if($servico)<input type="hidden" name="servico_id" value="{{ $servico->id }}">@endif<select name="categoria" required aria-label="Categoria da ocorrência"><option value="">Selecione a categoria</option><option>Documento fisico</option><option>Comportamento</option><option>Veiculo</option><option>Material</option><option>Seguranca</option><option>Outro</option></select><textarea name="observacao" required maxlength="1000" placeholder="Descreva a ocorrência"></textarea><button type="submit">Salvar ocorrência sem liberar entrada</button></form></details>
+                        </div>
                     </article>
                 @empty
                     <div class="empty-result"><i class="bi bi-person-x"></i><strong>Nenhum funcionário encontrado</strong><span>Confira o CPF ou nome informado.</span></div>
@@ -85,7 +91,7 @@
         <div class="section-title"><h2>Pessoas dentro da empresa</h2><span class="present-count">{{ $presentes->count() }}</span></div>
         <div class="present-list">
             @forelse($presentes as $registro)
-                <div class="present-row"><span class="presence-dot"></span><div><strong>{{ $registro->funcionario->nome }}</strong><small>{{ $registro->funcionario->empresa->nome }} · entrada às {{ $registro->entrada_em->format('H:i') }}</small><small class="present-service"><i class="bi bi-tools"></i> {{ optional($registro->servico)->descricao ?? 'Serviço não informado' }}@if(optional(optional($registro->servico)->setor)->nome) · {{ $registro->servico->setor->nome }}@endif</small></div><form method="POST" action="{{ route('guarita.saida', $registro) }}">@csrf @method('PUT')<button type="submit">Registrar saída</button></form></div>
+                <div class="present-row"><span class="presence-dot"></span><div><strong>{{ $registro->funcionario->nome }}</strong><small>{{ $registro->funcionario->empresa->nome }} · entrada às {{ $registro->entrada_em->format('H:i') }}</small><small class="present-service"><i class="bi bi-tools"></i> {{ optional($registro->servico)->descricao ?? 'Serviço não informado' }}@if(optional(optional($registro->servico)->setor)->nome) · {{ $registro->servico->setor->nome }}@endif</small></div><details class="exit-form"><summary>Registrar saída</summary><form method="POST" action="{{ route('guarita.saida', $registro) }}">@csrf @method('PUT')<textarea name="observacao_saida" maxlength="1000" placeholder="Observação da saída (opcional)"></textarea><button type="submit">Confirmar saída</button></form></details></div>
             @empty
                 <div class="empty-present">Nenhum terceirizado está com entrada aberta.</div>
             @endforelse

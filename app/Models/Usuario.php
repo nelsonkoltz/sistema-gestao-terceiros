@@ -18,11 +18,24 @@ class Usuario extends Authenticatable
         'username',
         'email',
         'password',
+        'trocar_senha',
+        'senha_alterada_em',
         'permissao',
+        'ativo',
+        'motivo_inativacao',
+        'inativado_por_id',
+        'inativado_em',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    protected $casts = ['ativo' => 'boolean', 'trocar_senha' => 'boolean', 'inativado_em' => 'datetime', 'senha_alterada_em' => 'datetime'];
+
+    public function inativadoPor()
+    {
+        return $this->belongsTo(self::class, 'inativado_por_id');
+    }
 }

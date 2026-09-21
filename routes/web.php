@@ -12,6 +12,7 @@ use App\Http\Controllers\GestaoDocumentoController;
 use App\Http\Controllers\GuaritaController;
 use App\Http\Controllers\AlertaDocumentoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\RecuperacaoSenhaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,13 @@ Route::post('login', [LoginController::class, 'login'])
     ->middleware('throttle:5,1')
     ->name('login.post');
 
+Route::middleware('guest')->group(function () {
+    Route::get('esqueci-minha-senha', [RecuperacaoSenhaController::class, 'solicitar'])->name('senha.solicitar');
+    Route::post('esqueci-minha-senha', [RecuperacaoSenhaController::class, 'enviar'])->middleware('throttle:3,10')->name('senha.enviar');
+    Route::get('redefinir-senha/{token}', [RecuperacaoSenhaController::class, 'redefinir'])->name('senha.redefinir');
+    Route::post('redefinir-senha', [RecuperacaoSenhaController::class, 'atualizar'])->middleware('throttle:5,10')->name('senha.atualizar');
+});
+
 // Logout
 Route::post('logout', [LoginController::class, 'logout'])
     ->middleware('auth')
@@ -51,6 +59,11 @@ Route::post('logout', [LoginController::class, 'logout'])
 Route::middleware('auth')
     ->get('/', [HomeController::class, 'index'])
     ->name('home');
+
+Route::middleware('auth')->group(function () {
+    Route::get('minha-conta', [UsuarioController::class, 'minhaConta'])->name('minha-conta.index');
+    Route::put('minha-conta/senha', [UsuarioController::class, 'alterarMinhaSenha'])->name('minha-conta.senha');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +123,9 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureWritePermission::class])->
     Route::resource('servicos', ServicoController::class)
         ->except(['index', 'show'])
         ->middleware('role:Administrador,Solicitante');
+    Route::post('servicos/{servico}/cancelar', [ServicoController::class, 'cancelar'])
+        ->middleware('role:Administrador,Solicitante')
+        ->name('servicos.cancelar');
     Route::resource('servicos', ServicoController::class)
         ->only(['index', 'show'])
         ->middleware('role:Administrador,Solicitante,Segurança do Trabalho');
@@ -148,6 +164,9 @@ Route::middleware(['auth', 'role:Administrador,Guarita'])->group(function () {
     Route::get('guarita', [GuaritaController::class, 'index'])->name('guarita.index');
     Route::get('guarita/historico', [GuaritaController::class, 'historico'])->name('guarita.historico');
     Route::get('guarita/historico/exportar', [GuaritaController::class, 'exportarHistorico'])->name('guarita.historico.exportar');
+    Route::get('guarita/ocorrencias', [GuaritaController::class, 'ocorrencias'])->name('guarita.ocorrencias');
+    Route::get('guarita/ocorrencias/exportar', [GuaritaController::class, 'exportarOcorrencias'])->name('guarita.ocorrencias.exportar');
+    Route::post('guarita/funcionarios/{funcionario}/ocorrencia', [GuaritaController::class, 'registrarOcorrencia'])->name('guarita.ocorrencias.registrar');
     Route::post('guarita/funcionarios/{funcionario}/entrada', [GuaritaController::class, 'entrada'])->name('guarita.entrada');
     Route::put('guarita/registros/{registro}/saida', [GuaritaController::class, 'saida'])->name('guarita.saida');
 });

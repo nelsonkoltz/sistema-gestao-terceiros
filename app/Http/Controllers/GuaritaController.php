@@ -24,7 +24,14 @@ class GuaritaController extends Controller
                     $query->where('nome', 'like', "%{$busca}%");
                     if ($digitos !== '') $query->orWhere('cpf', 'like', "%{$digitos}%");
                 })->orderBy('nome')->limit(20)->get()
-                ->map(fn ($funcionario) => $this->avaliar($funcionario));
+                ->map(function ($funcionario) {
+                    $resultado = $this->avaliar($funcionario);
+                    $resultado['ocorrencias'] = RegistroAcesso::with('operador')
+                        ->where('funcionario_id', $funcionario->id)
+                        ->where(fn ($query) => $query->where('tipo_registro', 'Ocorrencia')->orWhere('decisao', 'Bloqueado'))
+                        ->latest()->limit(3)->get();
+                    return $resultado;
+                });
         }
 
         $presentes = RegistroAcesso::with([
@@ -118,14 +125,21 @@ class GuaritaController extends Controller
 
     public function entrada(Request $request, Funcionario $funcionario)
     {
+        $dados = $request->validate([
+            'categoria' => 'nullable|in:Documento fisico,Comportamento,Veiculo,Material,Seguranca,Outro',
+            'observacao' => 'nullable|string|max:1000',
+        ]);
         $avaliacao = $this->avaliar($funcionario->load(['empresa.documentos', 'documentos']));
         if (!$avaliacao['liberado']) {
             RegistroAcesso::create([
                 'funcionario_id' => $funcionario->id,
                 'servico_id' => optional($avaliacao['servico'])->id,
                 'registrado_por' => $request->user()->id,
+                'endereco_ip' => $request->ip(),
                 'decisao' => 'Bloqueado',
                 'motivo' => implode(' ', $avaliacao['motivos']),
+                'categoria' => $dados['categoria'] ?? null,
+                'observacao' => $dados['observacao'] ?? null,
             ]);
             return back()->with('error', implode(' ', $avaliacao['motivos']));
         }
@@ -138,7 +152,10 @@ class GuaritaController extends Controller
             'funcionario_id' => $funcionario->id,
             'servico_id' => $avaliacao['servico']->id,
             'registrado_por' => $request->user()->id,
+            'endereco_ip' => $request->ip(),
             'decisao' => 'Liberado',
+            'categoria' => $dados['categoria'] ?? null,
+            'observacao' => $dados['observacao'] ?? null,
             'entrada_em' => now(),
         ]);
         $avaliacao['servico']->update([
@@ -151,7 +168,8 @@ class GuaritaController extends Controller
     public function saida(Request $request, RegistroAcesso $registro)
     {
         abort_if($registro->saida_em || !$registro->entrada_em, 422, 'Registro de acesso já encerrado.');
-        $registro->update(['saida_em' => now()]);
+        $dados = $request->validate(['observacao_saida' => 'nullable|string|max:1000']);
+        $registro->update(['saida_em' => now(), 'observacao_saida' => $dados['observacao_saida'] ?? null]);
 
         if ($registro->servico_id) {
             $temOutraEntradaAberta = RegistroAcesso::where('servico_id', $registro->servico_id)
@@ -169,6 +187,82 @@ class GuaritaController extends Controller
         }
 
         return back()->with('success', 'Saída registrada para ' . $registro->funcionario->nome . '.');
+    }
+
+    public function registrarOcorrencia(Request $request, Funcionario $funcionario)
+    {
+        $dados = $request->validate([
+            'categoria' => 'required|in:Documento fisico,Comportamento,Veiculo,Material,Seguranca,Outro',
+            'observacao' => 'required|string|max:1000',
+            'servico_id' => 'nullable|integer|exists:servicos,id',
+        ]);
+        $servicoId = $dados['servico_id'] ?? null;
+        if ($servicoId && !Servico::whereKey($servicoId)->where('empresa_id', $funcionario->empresa_id)->exists()) {
+            return back()->with('error', 'O servico informado nao pertence a empresa do funcionario.');
+        }
+        RegistroAcesso::create([
+            'funcionario_id' => $funcionario->id, 'servico_id' => $servicoId,
+            'registrado_por' => $request->user()->id, 'endereco_ip' => $request->ip(),
+            'decisao' => 'Ocorrencia', 'tipo_registro' => 'Ocorrencia',
+            'categoria' => $dados['categoria'], 'observacao' => $dados['observacao'],
+        ]);
+        return back()->with('success', 'Ocorrencia registrada sem liberar a entrada.');
+    }
+
+    public function ocorrencias(Request $request)
+    {
+        $this->validarFiltrosOcorrencias($request);
+        $registros = $this->consultaOcorrencias($request)->latest()->paginate(20)->withQueryString();
+        $empresas = Empresa::orderBy('nome')->get(['id', 'nome']);
+        return view('guarita.ocorrencias', compact('registros', 'empresas'));
+    }
+
+    public function exportarOcorrencias(Request $request)
+    {
+        $this->validarFiltrosOcorrencias($request);
+        $registros = $this->consultaOcorrencias($request)->latest()->get();
+        return response()->streamDownload(function () use ($registros) {
+            echo "\xEF\xBB\xBF";
+            $arquivo = fopen('php://output', 'w');
+            fputcsv($arquivo, ['Data', 'Tipo', 'Categoria', 'Funcionario', 'CPF', 'Empresa', 'Servico', 'Motivo', 'Observacao', 'Operador', 'IP'], ';');
+            foreach ($registros as $registro) fputcsv($arquivo, [
+                $registro->created_at->format('d/m/Y H:i:s'), $registro->decisao === 'Bloqueado' ? 'Bloqueio' : 'Ocorrencia',
+                $registro->categoria, optional($registro->funcionario)->nome, optional($registro->funcionario)->cpf,
+                optional(optional($registro->funcionario)->empresa)->nome, optional($registro->servico)->descricao,
+                $registro->motivo, $registro->observacao, optional($registro->operador)->name, $registro->endereco_ip,
+            ], ';');
+            fclose($arquivo);
+        }, 'ocorrencias-portaria-' . now()->format('Y-m-d-His') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    private function consultaOcorrencias(Request $request)
+    {
+        $query = RegistroAcesso::with(['funcionario.empresa', 'servico', 'operador'])
+            ->where(fn ($q) => $q->where('tipo_registro', 'Ocorrencia')->orWhere('decisao', 'Bloqueado'));
+        if ($request->filled('busca')) {
+            $busca = trim($request->busca); $digitos = preg_replace('/\D/', '', $busca);
+            $query->whereHas('funcionario', function ($q) use ($busca, $digitos) {
+                $q->where('nome', 'like', "%{$busca}%");
+                if ($digitos !== '') $q->orWhere('cpf', 'like', "%{$digitos}%");
+            });
+        }
+        if ($request->filled('empresa_id')) $query->whereHas('funcionario', fn ($q) => $q->where('empresa_id', $request->empresa_id));
+        if ($request->filled('categoria')) $query->where('categoria', $request->categoria);
+        if ($request->tipo === 'bloqueio') $query->where('decisao', 'Bloqueado');
+        elseif ($request->tipo === 'ocorrencia') $query->where('tipo_registro', 'Ocorrencia');
+        if ($request->filled('data_inicio')) $query->whereDate('created_at', '>=', $request->data_inicio);
+        if ($request->filled('data_fim')) $query->whereDate('created_at', '<=', $request->data_fim);
+        return $query;
+    }
+
+    private function validarFiltrosOcorrencias(Request $request): void
+    {
+        $request->validate([
+            'busca' => 'nullable|string|max:100', 'empresa_id' => 'nullable|integer|exists:empresas,id',
+            'categoria' => 'nullable|in:Documento fisico,Comportamento,Veiculo,Material,Seguranca,Outro',
+            'tipo' => 'nullable|in:bloqueio,ocorrencia', 'data_inicio' => 'nullable|date',
+            'data_fim' => 'nullable|date|after_or_equal:data_inicio',
+        ]);
     }
 
     private function avaliar(Funcionario $funcionario): array

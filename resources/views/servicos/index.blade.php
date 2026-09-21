@@ -13,6 +13,7 @@
     </header>
 
     @if(session('success'))<div class="flash success"><i class="bi bi-check-circle"></i>{{ session('success') }}</div>@endif
+    @if(session('error'))<div class="flash danger"><i class="bi bi-exclamation-circle"></i>{{ session('error') }}</div>@endif
 
     <section class="listing-card">
         <div class="listing-toolbar">
@@ -39,8 +40,9 @@
                             <td><span class="status status-{{ str_replace(' ', '-', mb_strtolower($s->status)) }}">{{ $s->status }}</span></td>
                             <td><div class="actions">
                                 <a href="{{ route('servicos.show', $s) }}" class="icon-btn view" title="Ver detalhes"><i class="bi bi-eye"></i></a>
-                                @if($podeGerenciarServico)
+                                @if($podeGerenciarServico && $s->status !== 'Cancelado')
                                     <a href="{{ route('servicos.edit', $s) }}" class="icon-btn edit" title="Editar"><i class="bi bi-pencil"></i></a>
+                                    @if($s->status !== 'Finalizado')<details class="cancel-popover"><summary class="icon-btn cancel" title="Cancelar"><i class="bi bi-x-octagon"></i></summary><form action="{{ route('servicos.cancelar', $s) }}" method="POST">@csrf<label>Motivo do cancelamento</label><textarea name="motivo_cancelamento" required minlength="5" maxlength="1000" placeholder="Informe por que a solicitação foi cancelada"></textarea><button type="submit">Confirmar cancelamento</button></form></details>@endif
                                     <form action="{{ route('servicos.destroy', $s) }}" method="POST" onsubmit="return confirm('Deseja excluir esta solicitação?')">@csrf @method('DELETE')<button class="icon-btn delete" title="Excluir"><i class="bi bi-trash"></i></button></form>
                                 @endif
                             </div></td>

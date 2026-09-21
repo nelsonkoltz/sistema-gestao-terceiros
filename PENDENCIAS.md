@@ -124,25 +124,25 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ### Tentativas bloqueadas e ocorrências
 
-- [ ] Registrar cada tentativa de entrada bloqueada.
-- [ ] Guardar pessoa, empresa, serviço, motivos, operador, data, hora e IP.
-- [ ] Permitir observação na entrada e na saída.
-- [ ] Permitir ocorrência sem liberar a entrada.
-- [ ] Criar consulta e relatório de ocorrências.
+- [x] Registrar cada tentativa de entrada bloqueada.
+- [x] Guardar pessoa, empresa, serviço, motivos, operador, data, hora e IP.
+- [x] Permitir observação na entrada e na saída.
+- [x] Permitir ocorrência sem liberar a entrada.
+- [x] Criar consulta e relatório de ocorrências.
 
 ### Cancelamento de solicitações
 
-- [ ] Criar ação própria de cancelamento.
-- [ ] Exigir motivo e registrar responsável, data e hora.
-- [ ] Bloquear novas entradas sem apagar o histórico.
+- [x] Criar ação própria de cancelamento.
+- [x] Exigir motivo e registrar responsável, data e hora.
+- [x] Bloquear novas entradas sem apagar o histórico.
 
 ### Contas de usuário
 
-- [ ] Adicionar status ativo/inativo e bloquear login de conta inativa.
-- [ ] Permitir troca de senha pelo usuário.
-- [ ] Implementar redefinição segura de senha.
-- [ ] Exigir troca da senha provisória no primeiro acesso.
-- [ ] Definir política de senha e tempo de sessão.
+- [x] Adicionar status ativo/inativo e bloquear login de conta inativa.
+- [x] Permitir troca de senha pelo usuário.
+- [x] Implementar redefinição segura de senha.
+- [x] Exigir troca da senha provisória no primeiro acesso.
+- [ ] Definir tempo de sessão configurável (a política mínima de senha já foi implementada).
 
 ## 6. Melhorias operacionais
 

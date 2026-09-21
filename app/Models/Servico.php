@@ -29,6 +29,9 @@ class Servico extends Model
         'hora_inicio',
         'hora_fim',
         'data_conclusao',
+        'motivo_cancelamento',
+        'cancelado_por_id',
+        'cancelado_em',
     ];
 
     /**
@@ -38,6 +41,7 @@ class Servico extends Model
         'vai_almocar' => 'boolean',
         'data_servico' => 'date',
         'data_conclusao' => 'date',
+        'cancelado_em' => 'datetime',
     ];
 
     /**
@@ -84,6 +88,11 @@ class Servico extends Model
     public function registrosAcesso()
     {
         return $this->hasMany(RegistroAcesso::class);
+    }
+
+    public function canceladoPor()
+    {
+        return $this->belongsTo(Usuario::class, 'cancelado_por_id');
     }
 
     public function autorizaFuncionario(Funcionario $funcionario): bool

@@ -23,6 +23,7 @@
         <span class="menu-label">Portaria</span>
         <a href="{{ route('guarita.index') }}" class="{{ request()->routeIs('guarita.index') ? 'active' : '' }}" @if(request()->routeIs('guarita.index')) aria-current="page" @endif><i class="bi bi-shield-check"></i><span>Controle de acesso</span></a>
         <a href="{{ route('guarita.historico') }}" class="{{ request()->routeIs('guarita.historico*') ? 'active' : '' }}" @if(request()->routeIs('guarita.historico*')) aria-current="page" @endif><i class="bi bi-clock-history"></i><span>Histórico da portaria</span></a>
+        <a href="{{ route('guarita.ocorrencias') }}" class="{{ request()->routeIs('guarita.ocorrencias*') ? 'active' : '' }}" @if(request()->routeIs('guarita.ocorrencias*')) aria-current="page" @endif><i class="bi bi-exclamation-diamond"></i><span>Ocorrências</span></a>
         @endif
 
         @if($currentUser->permissao === 'Administrador')
@@ -50,6 +51,7 @@
     </nav>
 
     <div class="sidebar-footer">
+        <a href="{{ route('minha-conta.index') }}" class="logout-btn"><i class="bi bi-person-lock"></i><span>Minha conta</span></a>
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left"></i><span>Sair</span></button>

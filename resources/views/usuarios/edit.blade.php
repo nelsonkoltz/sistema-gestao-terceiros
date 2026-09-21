@@ -106,6 +106,19 @@
                 </select>
             </div>
 
+            <div class="form-group full">
+                <label>Status da conta</label>
+                <select name="ativo" id="user-active" class="form-control" required {{ auth()->id() === $usuario->id ? 'disabled' : '' }}>
+                    <option value="1" {{ old('ativo', $usuario->ativo ? '1' : '0') === '1' ? 'selected' : '' }}>Ativa</option>
+                    <option value="0" {{ old('ativo', $usuario->ativo ? '1' : '0') === '0' ? 'selected' : '' }}>Inativa</option>
+                </select>
+                @if(auth()->id() === $usuario->id)<input type="hidden" name="ativo" value="1"><small>Você não pode inativar a própria conta.</small>@endif
+            </div>
+            <div class="form-group full" id="inactive-reason" style="display:none">
+                <label>Motivo da inativação</label>
+                <textarea name="motivo_inativacao" class="form-control" maxlength="1000" placeholder="Informe por que esta conta não deve mais acessar o sistema">{{ old('motivo_inativacao', $usuario->motivo_inativacao) }}</textarea>
+            </div>
+
         </div>
 
         {{-- AÇÕES --}}
@@ -121,4 +134,5 @@
 
     </form>
 </div>
+<script>document.addEventListener('DOMContentLoaded',function(){const status=document.getElementById('user-active');const box=document.getElementById('inactive-reason');if(!status||!box)return;const sync=()=>{const inactive=status.value==='0';box.style.display=inactive?'block':'none';box.querySelector('textarea').required=inactive};status.addEventListener('change',sync);sync()});</script>
 @endsection

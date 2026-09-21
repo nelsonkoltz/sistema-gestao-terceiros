@@ -9,6 +9,7 @@ use App\Models\Empresa;
 use App\Models\Funcionario;
 use App\Models\Servico;
 use App\Models\RegistroAcesso;
+use App\Models\RecuperacaoSenha;
 use App\Models\Setor;
 use App\Models\Usuario;
 use Carbon\Carbon;
@@ -16,6 +17,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class SystemTest extends TestCase
@@ -26,7 +28,7 @@ class SystemTest extends TestCase
     {
         return Usuario::create([
             'name' => 'Teste', 'username' => 'teste-' . uniqid(),
-            'password' => Hash::make('SenhaTeste123!'), 'permissao' => $role,
+            'password' => Hash::make('SenhaTeste123!'), 'permissao' => $role, 'ativo' => true,
         ]);
     }
 
@@ -174,7 +176,7 @@ class SystemTest extends TestCase
         $this->get('/usuarios/create')->assertOk();
         $data = ['name' => 'Operador', 'username' => 'operador', 'setor' => 'RH',
             'email' => 'operador@example.test', 'password' => 'SenhaTeste123!',
-            'password_confirmation' => 'SenhaTeste123!', 'permissao' => 'Solicitante'];
+            'password_confirmation' => 'SenhaTeste123!', 'permissao' => 'Solicitante', 'ativo' => '1'];
         $this->post('/usuarios', $data)->assertSessionHasNoErrors();
         $user = Usuario::where('username', 'operador')->firstOrFail();
         $this->get('/usuarios/' . $user->id)->assertOk();
@@ -443,8 +445,8 @@ class SystemTest extends TestCase
             'registrado_por' => $admin->id, 'decisao' => 'Liberado', 'entrada_em' => now(),
         ]);
 
-        $this->actingAs($admin)->delete('/servicos/' . $service->id)->assertSessionHas('success');
-        $this->assertDatabaseHas('servicos', ['id' => $service->id, 'status' => 'Cancelado']);
+        $this->actingAs($admin)->delete('/servicos/' . $service->id)->assertSessionHas('error');
+        $this->assertDatabaseHas('servicos', ['id' => $service->id, 'status' => 'Agendado']);
 
         $this->delete('/funcionarios/' . $employee->id)->assertSessionHas('success');
         $this->assertDatabaseHas('funcionarios', ['id' => $employee->id, 'ativo' => false]);
@@ -497,5 +499,147 @@ class SystemTest extends TestCase
         $this->assertDatabaseHas('documentos', ['id' => $companyNew->id]);
         $this->assertDatabaseHas('funcionario_documentos', ['id' => $employeeOld->id]);
         $this->assertDatabaseHas('funcionario_documentos', ['id' => $employeeNew->id]);
+    }
+
+    public function test_gate_registers_and_reports_occurrence_without_releasing_entry()
+    {
+        $gate = $this->user('Guarita');
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create(['empresa_id' => $company->id, 'nome' => 'Pessoa com Ocorrencia', 'cpf' => '55544433322', 'ativo' => true]);
+
+        $this->actingAs($gate)->withServerVariables(['REMOTE_ADDR' => '192.168.62.85'])
+            ->post('/guarita/funcionarios/' . $employee->id . '/ocorrencia', [
+                'categoria' => 'Material', 'observacao' => 'Material nao autorizado na portaria.',
+            ])->assertSessionHas('success');
+
+        $this->assertDatabaseHas('registros_acesso', [
+            'funcionario_id' => $employee->id, 'tipo_registro' => 'Ocorrencia',
+            'categoria' => 'Material', 'endereco_ip' => '192.168.62.85',
+            'entrada_em' => null,
+        ]);
+        $this->get('/guarita?q=55544433322')->assertOk()->assertSee('Material nao autorizado');
+        $this->get('/guarita/ocorrencias?categoria=Material')->assertOk()->assertSee('Pessoa com Ocorrencia');
+        $this->get('/guarita/ocorrencias/exportar?categoria=Material')
+            ->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertDatabaseHas('auditorias', ['modulo' => 'RegistroAcesso', 'registro_id' => RegistroAcesso::first()->id]);
+    }
+
+    public function test_service_cancellation_requires_reason_preserves_history_and_blocks_entry()
+    {
+        Carbon::setTestNow('2026-09-21 10:30:00');
+        $requester = $this->user('Solicitante');
+        $gate = $this->user('Guarita');
+        $company = Empresa::create($this->companyData());
+        $employee = Funcionario::create(['empresa_id' => $company->id, 'nome' => 'Terceiro Cancelado', 'cpf' => '10120230344', 'ativo' => true]);
+        $sector = Setor::create(['nome' => 'Cancelamento']);
+        $service = Servico::create(['empresa_id' => $company->id, 'solicitante_id' => $requester->id, 'setor_id' => $sector->id, 'descricao' => 'Servico que nao ocorrera', 'vai_almocar' => false, 'status' => 'Agendado', 'data_servico' => today(), 'hora_inicio' => '08:00', 'hora_fim' => '18:00']);
+
+        $this->actingAs($requester)->post('/servicos/' . $service->id . '/cancelar', [])->assertSessionHasErrors('motivo_cancelamento');
+        $this->post('/servicos/' . $service->id . '/cancelar', ['motivo_cancelamento' => 'Fornecedor informou indisponibilidade.'])->assertSessionHas('success');
+
+        $service->refresh();
+        $this->assertSame('Cancelado', $service->status);
+        $this->assertSame($requester->id, $service->cancelado_por_id);
+        $this->assertNotNull($service->cancelado_em);
+        $this->assertDatabaseHas('auditorias', ['modulo' => 'Servico', 'registro_id' => $service->id, 'acao' => 'Alterado']);
+        $this->get('/servicos/' . $service->id)->assertOk()->assertSee('Fornecedor informou indisponibilidade');
+        $this->get('/servicos/' . $service->id . '/edit')->assertStatus(422);
+
+        $this->actingAs($gate)->post('/guarita/funcionarios/' . $employee->id . '/entrada')->assertSessionHas('error');
+        $this->assertDatabaseHas('registros_acesso', ['funcionario_id' => $employee->id, 'decisao' => 'Bloqueado']);
+        $this->assertDatabaseHas('servicos', ['id' => $service->id]);
+        Carbon::setTestNow();
+    }
+
+    public function test_admin_can_inactivate_user_and_inactive_account_cannot_login_or_keep_session()
+    {
+        Carbon::setTestNow('2026-09-21 14:00:00');
+        $admin = $this->user('Administrador');
+        $target = $this->user('Solicitante');
+        $target->update(['name' => 'Conta Inativada', 'setor' => 'Compras', 'email' => 'inativa@example.test']);
+
+        $this->actingAs($admin)->put('/usuarios/' . $target->id, [
+            'name' => $target->name, 'setor' => $target->setor, 'username' => $target->username,
+            'email' => $target->email, 'permissao' => $target->permissao,
+            'ativo' => '0', 'motivo_inativacao' => 'Colaborador desligado da empresa.',
+        ])->assertSessionHasNoErrors();
+
+        $target->refresh();
+        $this->assertFalse($target->ativo);
+        $this->assertSame($admin->id, $target->inativado_por_id);
+        $this->assertNotNull($target->inativado_em);
+        $this->post('/logout');
+        $this->post('/login', ['username' => $target->username, 'password' => 'SenhaTeste123!'])
+            ->assertSessionHasErrors('username');
+        $this->assertGuest();
+
+        $this->actingAs($target)->get('/servicos')->assertRedirect('/login');
+        $this->assertGuest();
+        Carbon::setTestNow();
+    }
+
+    public function test_admin_cannot_inactivate_own_account()
+    {
+        $admin = $this->user('Administrador');
+        $this->actingAs($admin)->put('/usuarios/' . $admin->id, [
+            'name' => $admin->name, 'setor' => 'TI', 'username' => $admin->username,
+            'email' => 'admin@example.test', 'permissao' => 'Administrador',
+            'ativo' => '0', 'motivo_inativacao' => 'Tentativa de auto inativacao.',
+        ])->assertSessionHasErrors('ativo');
+        $this->assertTrue($admin->fresh()->ativo);
+    }
+
+    public function test_provisional_password_forces_change_and_user_can_change_it_safely()
+    {
+        Carbon::setTestNow('2026-09-21 15:00:00');
+        $user = $this->user('Solicitante');
+        $user->update(['trocar_senha' => true]);
+
+        $this->post('/login', ['username' => $user->username, 'password' => 'SenhaTeste123!'])
+            ->assertRedirect('/minha-conta');
+        $this->get('/servicos')->assertRedirect('/minha-conta');
+        $this->get('/minha-conta')->assertOk()->assertSee('Troca obrigatória');
+        $this->put('/minha-conta/senha', [
+            'senha_atual' => 'senha-incorreta', 'password' => 'NovaSenha456!',
+            'password_confirmation' => 'NovaSenha456!',
+        ])->assertSessionHasErrors('senha_atual');
+        $this->put('/minha-conta/senha', [
+            'senha_atual' => 'SenhaTeste123!', 'password' => 'NovaSenha456!',
+            'password_confirmation' => 'NovaSenha456!',
+        ])->assertSessionHas('success');
+
+        $user->refresh();
+        $this->assertFalse($user->trocar_senha);
+        $this->assertNotNull($user->senha_alterada_em);
+        $this->assertTrue(Hash::check('NovaSenha456!', $user->password));
+        $this->get('/servicos')->assertOk();
+        Carbon::setTestNow();
+    }
+
+    public function test_password_recovery_is_neutral_expiring_and_single_use()
+    {
+        Mail::fake();
+        Carbon::setTestNow('2026-09-21 16:00:00');
+        $user = $this->user('Solicitante');
+        $user->update(['email' => 'recuperar@example.test']);
+
+        $this->get('/esqueci-minha-senha')->assertOk();
+        $this->post('/esqueci-minha-senha', ['email' => $user->email])->assertSessionHas('status');
+        $this->post('/esqueci-minha-senha', ['email' => 'naoexiste@example.test'])->assertSessionHas('status');
+        $this->assertSame(1, RecuperacaoSenha::count());
+        $this->assertDatabaseHas('auditorias', ['modulo' => 'Autenticacao', 'acao' => 'Recuperação solicitada']);
+
+        $token = str_repeat('a', 64);
+        $reset = RecuperacaoSenha::create(['usuario_id' => $user->id, 'token_hash' => hash('sha256', $token), 'expira_em' => now()->addMinutes(30)]);
+        $this->get('/redefinir-senha/' . $token)->assertOk();
+        $this->post('/redefinir-senha', ['token' => $token, 'password' => 'SenhaRecuperada789!', 'password_confirmation' => 'SenhaRecuperada789!'])->assertRedirect('/login');
+        $this->assertNotNull($reset->fresh()->utilizado_em);
+        $this->assertTrue(Hash::check('SenhaRecuperada789!', $user->fresh()->password));
+        $this->post('/redefinir-senha', ['token' => $token, 'password' => 'OutraSenha789!', 'password_confirmation' => 'OutraSenha789!'])->assertSessionHasErrors('token');
+
+        $expired = str_repeat('b', 64);
+        RecuperacaoSenha::create(['usuario_id' => $user->id, 'token_hash' => hash('sha256', $expired), 'expira_em' => now()->subMinute()]);
+        $this->get('/redefinir-senha/' . $expired)->assertNotFound();
+        Carbon::setTestNow();
     }
 }

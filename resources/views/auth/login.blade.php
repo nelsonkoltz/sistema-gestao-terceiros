@@ -81,6 +81,8 @@
                     <button type="submit" class="login-button">Entrar no sistema</button>
                 </form>
 
+                <a class="forgot-password" href="{{ route('senha.solicitar') }}">Esqueci minha senha</a>
+
                 <p class="access-help">Problemas para acessar? Procure o administrador do sistema.</p>
             </div>
         </section>

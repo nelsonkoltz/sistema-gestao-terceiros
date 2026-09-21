@@ -49,6 +49,11 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
+        if ($user->trocar_senha) {
+            return redirect()->route('minha-conta.index')
+                ->with('warning', 'Troque a senha provisória para continuar.');
+        }
+
         return redirect()->route($this->rotaInicial($user));
     }
 

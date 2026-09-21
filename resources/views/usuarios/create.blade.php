@@ -104,6 +104,14 @@
                 </select>
             </div>
 
+            <div class="form-group full">
+                <label>Status da conta</label>
+                <select name="ativo" class="form-control" required>
+                    <option value="1" {{ old('ativo', '1') === '1' ? 'selected' : '' }}>Ativa</option>
+                    <option value="0" {{ old('ativo') === '0' ? 'selected' : '' }}>Inativa</option>
+                </select>
+            </div>
+
         </div>
 
         {{-- AÇÕES --}}
