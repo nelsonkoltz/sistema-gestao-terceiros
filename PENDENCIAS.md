@@ -142,7 +142,7 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 - [x] Permitir troca de senha pelo usuário.
 - [x] Implementar redefinição segura de senha.
 - [x] Exigir troca da senha provisória no primeiro acesso.
-- [ ] Definir tempo de sessão configurável (a política mínima de senha já foi implementada).
+- [x] Definir tempo de sessão configurável (a política mínima de senha já foi implementada).
 
 ## 6. Melhorias operacionais
 
@@ -171,10 +171,10 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ### Auditoria e segurança
 
-- [ ] Registrar login, logout e falhas de autenticação.
+- [x] Registrar login, logout e falhas de autenticação.
 - [ ] Registrar consultas e bloqueios da Guarita.
 - [ ] Registrar execuções manuais e automáticas dos jobs.
-- [ ] Filtrar auditoria por usuário, IP e período.
+- [x] Filtrar auditoria por usuário, IP e período.
 - [ ] Definir prazo de retenção da auditoria.
 - [ ] Revisar e atualizar Laravel e dependências.
 

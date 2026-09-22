@@ -150,6 +150,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('configuracoes/email/testar', [ConfiguracaoController::class, 'testarEmail'])->name('configuracoes.email.testar');
     Route::put('configuracoes/alertas-documentais', [ConfiguracaoController::class, 'updateAlertas'])->name('configuracoes.alertas');
     Route::put('configuracoes/validade-documentos', [ConfiguracaoController::class, 'updateValidade'])->name('configuracoes.validade');
+    Route::put('configuracoes/sessao', [ConfiguracaoController::class, 'updateSessao'])->name('configuracoes.sessao');
 
 });
 

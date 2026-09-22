@@ -8,7 +8,7 @@
   <label>Busca<input name="busca" value="{{ request('busca') }}" placeholder="Usuário, ID ou IP"></label>
   <label>Usuário<select name="usuario_id"><option value="">Todos</option>@foreach($usuarios as $usuario)<option value="{{ $usuario->id }}" {{ (string)request('usuario_id')===(string)$usuario->id?'selected':'' }}>{{ $usuario->name }}</option>@endforeach</select></label>
   <label>Módulo<select name="modulo"><option value="">Todos</option>@foreach($modulos as $modulo)<option value="{{ $modulo }}" {{ request('modulo')===$modulo?'selected':'' }}>{{ $modulo }}</option>@endforeach</select></label>
-  <label>Ação<select name="acao"><option value="">Todas</option>@foreach(['Criado','Alterado','Excluído'] as $acao)<option value="{{ $acao }}" {{ request('acao')===$acao?'selected':'' }}>{{ $acao }}</option>@endforeach</select></label>
+  <label>Ação<select name="acao"><option value="">Todas</option>@foreach(['Criado','Alterado','Excluído','Login realizado','Login recusado','Logout realizado','Sessão expirada'] as $acao)<option value="{{ $acao }}" {{ request('acao')===$acao?'selected':'' }}>{{ $acao }}</option>@endforeach</select></label>
   <label>De<input type="date" name="data_inicio" value="{{ request('data_inicio') }}"></label><label>Até<input type="date" name="data_fim" value="{{ request('data_fim') }}"></label>
   <div><button><i class="bi bi-search"></i> Filtrar</button><a href="{{ route('auditorias.index') }}">Limpar</a></div>
  </form></section>

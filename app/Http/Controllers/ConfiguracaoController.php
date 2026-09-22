@@ -36,7 +36,8 @@ class ConfiguracaoController extends Controller
             'quantidade' => Configuracao::valor('validade_documentos_quantidade', Configuracao::valor('validade_documentos_meses', 6)),
             'unidade' => Configuracao::valor('validade_documentos_unidade', 'meses'),
         ];
-        return view('configuracoes.index', compact('jobAtivo', 'email', 'alertas', 'validade'));
+        $sessaoMinutos = (int) Configuracao::valor('sessao_inatividade_minutos', 30);
+        return view('configuracoes.index', compact('jobAtivo', 'email', 'alertas', 'validade', 'sessaoMinutos'));
     }
 
     public function updateJob(Request $request)
@@ -146,4 +147,15 @@ class ConfiguracaoController extends Controller
         return back()->with('success', $mensagem);
     }
 
+    public function updateSessao(Request $request)
+    {
+        $data = $request->validate([
+            'minutos' => 'required|integer|in:15,30,60,120,240',
+        ]);
+        Configuracao::updateOrCreate(
+            ['chave' => 'sessao_inatividade_minutos'],
+            ['valor' => $data['minutos']]
+        );
+        return back()->with('success', 'Tempo de inatividade da sessão atualizado.');
+    }
 }

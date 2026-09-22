@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usuario;
+use App\Models\Auditoria;
 
 class LoginController extends Controller
 {
@@ -35,12 +36,14 @@ class LoginController extends Controller
         $user = Usuario::where('username', $request->username)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
+            $this->auditar($request, $user, 'Login recusado', 'Credenciais inválidas');
             return back()
                 ->withErrors(['username' => 'As credenciais fornecidas são inválidas.'])
                 ->onlyInput('username');
         }
 
         if (isset($user->ativo) && ! $user->ativo) {
+            $this->auditar($request, $user, 'Login recusado', 'Conta inativa');
             return back()
                 ->withErrors(['username' => 'Usuário inativo. Procure o administrador.'])
                 ->onlyInput('username');
@@ -48,6 +51,8 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
+        $request->session()->put('ultima_atividade_em', now()->timestamp);
+        $this->auditar($request, $user, 'Login realizado', 'Autenticação concluída');
 
         if ($user->trocar_senha) {
             return redirect()->route('minha-conta.index')
@@ -59,6 +64,7 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $this->auditar($request, $request->user(), 'Logout realizado', 'Sessão encerrada pelo usuário');
         Auth::logout();
 
         $request->session()->invalidate();
@@ -77,5 +83,22 @@ class LoginController extends Controller
             'Segurança do Trabalho' => 'funcionarios.index',
             default => 'home',
         };
+    }
+
+    private function auditar(Request $request, ?Usuario $usuario, string $acao, string $resultado): void
+    {
+        Auditoria::create([
+            'usuario_id' => optional($usuario)->id,
+            'modulo' => 'Autenticação',
+            'acao' => $acao,
+            'registro_tipo' => Usuario::class,
+            'registro_id' => optional($usuario)->id,
+            'dados_novos' => [
+                'usuario_informado' => (string) $request->input('username', optional($usuario)->username),
+                'resultado' => $resultado,
+            ],
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
     }
 }

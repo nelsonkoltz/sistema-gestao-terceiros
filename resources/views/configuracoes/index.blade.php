@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Configurações')
-@push('styles')<link rel="stylesheet" href="{{ asset('css/settings.css') }}?v={{ filemtime(public_path('css/settings.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-mail.css') }}?v={{ filemtime(public_path('css/settings-mail.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-validity.css') }}?v={{ filemtime(public_path('css/settings-validity.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-recalc.css') }}?v={{ filemtime(public_path('css/settings-recalc.css')) }}">@endpush
+@push('styles')<link rel="stylesheet" href="{{ asset('css/settings.css') }}?v={{ filemtime(public_path('css/settings.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-mail.css') }}?v={{ filemtime(public_path('css/settings-mail.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-validity.css') }}?v={{ filemtime(public_path('css/settings-validity.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-recalc.css') }}?v={{ filemtime(public_path('css/settings-recalc.css')) }}"><link rel="stylesheet" href="{{ asset('css/settings-session.css') }}?v={{ filemtime(public_path('css/settings-session.css')) }}">@endpush
 @section('content')
 <div class="settings-page">
  <header class="settings-header"><div><span class="eyebrow">Administração</span><h1>Configurações</h1><p>Controle as rotinas documentais e a integração de e-mail.</p></div></header>
@@ -49,6 +49,14 @@
    <label class="toggle recalculate"><input type="hidden" name="recalcular_existentes" value="0"><input type="checkbox" name="recalcular_existentes" value="1" checked><span>Recalcular documentos existentes</span></label>
    <div class="form-note"><i class="bi bi-info-circle"></i>Com a opção marcada, a validade será recalculada desde a data de cadastro de cada documento e os já vencidos serão bloqueados imediatamente.</div>
    <div class="settings-actions"><button class="button primary"><i class="bi bi-check-lg"></i> Salvar validade</button></div>
+  </form>
+ </section>
+ <section class="settings-card session-card">
+  <div class="card-heading"><h2><i class="bi bi-clock-history"></i> Segurança da sessão</h2><p>Encerre automaticamente acessos que permanecerem sem atividade.</p></div>
+  <form class="settings-form session-form" method="POST" action="{{ route('configuracoes.sessao') }}">@csrf @method('PUT')
+   <label>Tempo máximo de inatividade<select name="minutos" required>@foreach([15,30,60,120,240] as $minutos)<option value="{{ $minutos }}" {{ (int)old('minutos',$sessaoMinutos)===$minutos?'selected':'' }}>{{ $minutos < 60 ? $minutos.' minutos' : ($minutos/60).' hora'.($minutos>60?'s':'') }}</option>@endforeach</select></label>
+   <div class="form-note"><i class="bi bi-shield-check"></i>O tempo é renovado a cada navegação. Ao expirar, o usuário precisará entrar novamente.</div>
+   <div class="settings-actions"><button class="button primary"><i class="bi bi-check-lg"></i> Salvar sessão</button></div>
   </form>
  </section>
 </div>
