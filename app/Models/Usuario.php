@@ -38,4 +38,15 @@ class Usuario extends Authenticatable
     {
         return $this->belongsTo(self::class, 'inativado_por_id');
     }
+
+    public function filiais()
+    {
+        return $this->belongsToMany(Filial::class, 'filial_usuario')
+            ->withPivot('principal')->withTimestamps();
+    }
+
+    public function filialPrincipal()
+    {
+        return $this->filiais()->wherePivot('principal', true);
+    }
 }

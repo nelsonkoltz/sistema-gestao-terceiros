@@ -4,6 +4,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/edit-form.css') }}?v={{ filemtime(public_path('css/edit-form.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/user-branches.css') }}?v={{ filemtime(public_path('css/user-branches.css')) }}">
 @endpush
 
 @section('content')
@@ -119,6 +120,7 @@
                 <textarea name="motivo_inativacao" class="form-control" maxlength="1000" placeholder="Informe por que esta conta não deve mais acessar o sistema">{{ old('motivo_inativacao', $usuario->motivo_inativacao) }}</textarea>
             </div>
 
+            @include('usuarios._filiais')
         </div>
 
         {{-- AÇÕES --}}

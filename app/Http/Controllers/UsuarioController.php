@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
+use App\Models\Filial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,7 @@ class UsuarioController extends Controller
 {
     public function index(Request $request)
     {
-        $usuarios = Usuario::query()
+        $usuarios = Usuario::with('filiais')
             ->when($request->search, function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
@@ -28,7 +29,8 @@ class UsuarioController extends Controller
 
     public function create()
     {
-        return view('usuarios.create');
+        $filiais = Filial::where('ativa', true)->orderBy('nome')->get();
+        return view('usuarios.create', compact('filiais'));
     }
 
     public function store(Request $request)
@@ -41,9 +43,12 @@ class UsuarioController extends Controller
             'password'  => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
             'ativo'     => 'required|boolean',
+            'filiais' => 'nullable|array|min:1',
+            'filiais.*' => 'integer|exists:filiais,id',
+            'filial_principal_id' => 'nullable|integer|exists:filiais,id',
         ]);
 
-        Usuario::create([
+        $usuario = Usuario::create([
             'name'      => $request->name,
             'setor'     => $request->setor,
             'username'  => $request->username,
@@ -53,6 +58,7 @@ class UsuarioController extends Controller
             'permissao' => $request->permissao,
             'ativo'     => $request->boolean('ativo'),
         ]);
+        $this->sincronizarFiliais($request, $usuario);
 
         return redirect()
             ->route('usuarios.index')
@@ -61,13 +67,15 @@ class UsuarioController extends Controller
 
     public function show(Usuario $usuario)
     {
-        $usuario->load('inativadoPor');
+        $usuario->load(['inativadoPor', 'filiais']);
         return view('usuarios.show', compact('usuario'));
     }
 
     public function edit(Usuario $usuario)
     {
-        return view('usuarios.edit', compact('usuario'));
+        $usuario->load('filiais');
+        $filiais = Filial::where('ativa', true)->orWhereHas('usuarios', fn ($q) => $q->where('usuarios.id', $usuario->id))->orderBy('nome')->get();
+        return view('usuarios.edit', compact('usuario', 'filiais'));
     }
 
     public function update(Request $request, Usuario $usuario)
@@ -81,6 +89,9 @@ class UsuarioController extends Controller
             'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
             'ativo'     => 'required|boolean',
             'motivo_inativacao' => 'nullable|required_if:ativo,0|string|min:5|max:1000',
+            'filiais' => 'nullable|array|min:1',
+            'filiais.*' => 'integer|exists:filiais,id',
+            'filial_principal_id' => 'nullable|integer|exists:filiais,id',
         ]);
 
         $data = $request->only([
@@ -116,6 +127,7 @@ class UsuarioController extends Controller
         }
 
         $usuario->update($data);
+        $this->sincronizarFiliais($request, $usuario);
 
         return redirect()
             ->route('usuarios.index')
@@ -175,5 +187,25 @@ class UsuarioController extends Controller
         return redirect()
             ->route('usuarios.index')
             ->with('success', 'Usuário excluído com sucesso!');
+    }
+
+    private function sincronizarFiliais(Request $request, Usuario $usuario): void
+    {
+        if ($request->has('filiais')) {
+            $filialIds = collect($request->input('filiais', []))->map(fn ($id) => (int) $id)->unique()->values();
+        } elseif ($usuario->filiais()->exists()) {
+            return;
+        } else {
+            $filialIds = collect([Filial::where('ativa', true)->orderBy('id')->value('id')])->filter();
+        }
+
+        if ($filialIds->isEmpty()) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['filiais' => 'Selecione pelo menos uma filial.']);
+        }
+        $principal = (int) ($request->input('filial_principal_id') ?: $filialIds->first());
+        if (! $filialIds->contains($principal)) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['filial_principal_id' => 'A filial principal deve estar entre as filiais permitidas.']);
+        }
+        $usuario->filiais()->sync($filialIds->mapWithKeys(fn ($id) => [$id => ['principal' => $id === $principal]])->all());
     }
 }

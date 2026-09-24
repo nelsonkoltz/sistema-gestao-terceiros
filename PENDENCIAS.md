@@ -53,6 +53,15 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ## 4. Funcionalidades concluídas
 
+### Estrutura multi-filial
+
+- [x] Cadastro administrativo de filiais ativas ou inativas.
+- [x] Criação automática da Matriz para preservar os dados existentes.
+- [x] Vínculo de usuários com uma ou várias filiais e definição da filial principal.
+- [ ] Seleção da filial operacional no cabeçalho.
+- [ ] Separação de solicitações, portaria, ocorrências e relatórios por filial.
+- [ ] Painel consolidado de todas as filiais para o Administrador.
+
 ### Autenticação e usuários
 
 - [x] Login único e redirecionamento conforme o perfil.

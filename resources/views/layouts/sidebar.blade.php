@@ -45,6 +45,7 @@
         @if($currentUser->permissao === 'Administrador')
             <span class="menu-label">Administração</span>
             <a href="{{ route('usuarios.index') }}" class="{{ request()->is('usuarios*') ? 'active' : '' }}" @if(request()->is('usuarios*')) aria-current="page" @endif><i class="bi bi-people"></i><span>Usuários</span></a>
+            <a href="{{ route('filiais.index') }}" class="{{ request()->is('filiais*') ? 'active' : '' }}" @if(request()->is('filiais*')) aria-current="page" @endif><i class="bi bi-diagram-3"></i><span>Filiais</span></a>
             <a href="{{ route('configuracoes.index') }}" class="{{ request()->is('configuracoes*') ? 'active' : '' }}" @if(request()->is('configuracoes*')) aria-current="page" @endif><i class="bi bi-gear"></i><span>Configurações</span></a>
             <a href="{{ route('auditorias.index') }}" class="{{ request()->routeIs('auditorias.*') ? 'active' : '' }}" @if(request()->routeIs('auditorias.*')) aria-current="page" @endif><i class="bi bi-journal-check"></i><span>Auditoria</span></a>
         @endif

@@ -4,6 +4,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/usuarios/create.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/user-branches.css') }}?v={{ filemtime(public_path('css/user-branches.css')) }}">
 @endpush
 
 @section('content')
@@ -112,6 +113,7 @@
                 </select>
             </div>
 
+            @include('usuarios._filiais')
         </div>
 
         {{-- AÇÕES --}}

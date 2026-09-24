@@ -13,6 +13,7 @@ use App\Http\Controllers\GuaritaController;
 use App\Http\Controllers\AlertaDocumentoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\RecuperacaoSenhaController;
+use App\Http\Controllers\FilialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,6 +141,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureWritePermission::class])->
 Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::resource('usuarios', UsuarioController::class);
+    Route::resource('filiais', FilialController::class)->parameters(['filiais' => 'filial']);
     Route::get('auditorias', [AuditoriaController::class, 'index'])->name('auditorias.index');
     Route::get('auditorias/{auditoria}', [AuditoriaController::class, 'show'])->name('auditorias.show');
 
