@@ -14,11 +14,13 @@ class BranchManagementTest extends TestCase
 
     private function user(string $role = 'Administrador'): Usuario
     {
-        return Usuario::create([
+        $usuario = Usuario::create([
             'name' => 'Teste Filial', 'username' => 'filial-'.uniqid(),
             'email' => uniqid().'@example.test', 'setor' => 'TI',
             'password' => Hash::make('SenhaTeste123!'), 'permissao' => $role, 'ativo' => true,
         ]);
+        $usuario->filiais()->attach(Filial::where('codigo', 'MATRIZ')->value('id'), ['principal' => true]);
+        return $usuario;
     }
 
     public function test_migration_creates_matrix_branch(): void

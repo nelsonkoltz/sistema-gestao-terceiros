@@ -23,7 +23,7 @@
 
     @if($entradasAtrasadas || $documentosVencendo)
         <section class="operation-alerts">
-            @if($entradasAtrasadas)<a href="#presentes"><i class="bi bi-exclamation-triangle"></i><strong>{{ $entradasAtrasadas }}</strong> entrada(s) aberta(s) além do período previsto</a>@endif
+            @if($entradasAtrasadas)<a href="#presentes"><i class="bi bi-exclamation-triangle"></i><strong>{{ $entradasAtrasadas }}</strong> entrada(s) de dias anteriores sem saída</a>@endif
             @if($documentosVencendo)<div><i class="bi bi-file-earmark-excel"></i><strong>{{ $documentosVencendo }}</strong> documento(s) vencendo nos próximos 30 dias</div>@endif
         </section>
     @endif
@@ -33,7 +33,7 @@
             <div class="section-title"><h2>Serviços de hoje</h2><span>{{ $servicosHoje->count() }} ativo(s)</span></div>
             <div class="service-timeline">
                 @forelse($servicosHoje as $servico)
-                    <article><time>{{ $servico->hora_inicio ? substr($servico->hora_inicio,0,5) : '—' }}</time><div><strong>{{ $servico->descricao }}</strong><small>{{ $servico->empresa->nome ?? 'Empresa não informada' }} · {{ $servico->setor->nome ?? 'Setor não informado' }}</small></div><span class="service-state {{ Str::slug($servico->status) }}">{{ $servico->status }}</span></article>
+                    <article><div><strong>{{ $servico->descricao }}</strong><small>{{ $servico->empresa->nome ?? 'Empresa não informada' }} · {{ $servico->setor->nome ?? 'Setor não informado' }}</small></div><span class="service-state {{ Str::slug($servico->status) }}">{{ $servico->status }}</span></article>
                 @empty
                     <div class="day-empty"><i class="bi bi-calendar-check"></i>Nenhum serviço ativo para hoje.</div>
                 @endforelse
@@ -67,7 +67,6 @@
                                     <span><i class="bi bi-person-badge"></i>Solicitante: {{ optional($servico->solicitante)->name ?? 'Não informado' }}</span>
                                     <span><i class="bi bi-clipboard-check"></i>Solicitação #{{ $servico->id }}</span>
                                     <span><i class="bi bi-activity"></i>Status: <b>{{ $servico->status }}</b></span>
-                                    <span><i class="bi bi-clock"></i>@if($servico->hora_inicio && $servico->hora_fim){{ substr($servico->hora_inicio, 0, 5) }} às {{ substr($servico->hora_fim, 0, 5) }}@else Horário não informado @endif</span>
                                 </div>
                             @endif
                             @if(!$resultado['liberado'])<ul>@foreach($resultado['motivos'] as $motivo)<li>{{ $motivo }}</li>@endforeach</ul>@endif

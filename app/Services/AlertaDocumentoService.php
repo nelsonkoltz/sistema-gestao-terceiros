@@ -76,7 +76,7 @@ class AlertaDocumentoService
     public function destinatarios()
     {
         return Usuario::whereIn('permissao', ['Administrador', 'Segurança do Trabalho'])
-            ->whereNotNull('email')->where('email', '!=', '')->orderBy('name')->get();
+            ->where('ativo', true)->whereNotNull('email')->where('email', '!=', '')->orderBy('name')->get();
     }
 
     public function enviar(): int
@@ -111,11 +111,14 @@ class AlertaDocumentoService
             'mail.mailers.smtp.host' => Configuracao::valor('mail_host', 'smtp.office365.com'),
             'mail.mailers.smtp.port' => (int) Configuracao::valor('mail_porta', 587),
             'mail.mailers.smtp.encryption' => Configuracao::valor('mail_criptografia', 'tls'),
+            'mail.mailers.smtp.scheme' => Configuracao::valor('mail_criptografia', 'tls') === 'ssl' ? 'smtps' : 'smtp',
+            'mail.mailers.smtp.require_tls' => Configuracao::valor('mail_criptografia', 'tls') === 'tls',
             'mail.mailers.smtp.username' => Configuracao::valor('mail_usuario'),
             'mail.mailers.smtp.password' => $senha,
             'mail.from.address' => Configuracao::valor('mail_remetente_email'),
             'mail.from.name' => Configuracao::valor('mail_remetente_nome', 'TerceirosCR'),
         ]);
+        Mail::purge('smtp');
         return true;
     }
 
@@ -131,7 +134,7 @@ class AlertaDocumentoService
     private function situacao($validade, array $diasAlerta): ?string
     {
         if (!$validade) return 'Vencido';
-        if ($validade->lt(today())) return 'Vencido';
+        if ($validade->lte(today())) return 'Vencido';
         $dias = today()->diffInDays($validade, false);
         if ($dias <= $diasAlerta['critico']) return "Vence em até {$diasAlerta['critico']} dias";
         if ($dias <= $diasAlerta['atencao']) return "Vence em até {$diasAlerta['atencao']} dias";

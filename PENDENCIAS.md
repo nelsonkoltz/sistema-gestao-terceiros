@@ -1,6 +1,6 @@
 # Situação atual e pendências — TerceirosCR
 
-Atualizado em 18/09/2026.
+Atualizado em 29/09/2026. Detalhes da revisão técnica em [REVISAO.md](REVISAO.md).
 
 ## 1. Objetivo e fluxo vigente
 
@@ -58,9 +58,9 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 - [x] Cadastro administrativo de filiais ativas ou inativas.
 - [x] Criação automática da Matriz para preservar os dados existentes.
 - [x] Vínculo de usuários com uma ou várias filiais e definição da filial principal.
-- [ ] Seleção da filial operacional no cabeçalho.
-- [ ] Separação de solicitações, portaria, ocorrências e relatórios por filial.
-- [ ] Painel consolidado de todas as filiais para o Administrador.
+- [x] Seleção da filial operacional no cabeçalho.
+- [x] Separação de solicitações, portaria, ocorrências e relatórios por filial.
+- [x] Painel consolidado de todas as filiais para o Administrador.
 
 ### Autenticação e usuários
 
@@ -92,7 +92,7 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ### Solicitações
 
-- [x] Empresa, setor, solicitante, descrição, data e horários.
+- [x] Empresa, setor, solicitante, descrição e data do serviço, sem horários previstos.
 - [x] Informação sobre uso do refeitório.
 - [x] Status Agendado, Em Andamento e Finalizado sincronizado com a portaria.
 - [x] Autorização para qualquer funcionário regular da empresa.
@@ -157,6 +157,8 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ### Serviços
 
+- [ ] Adicionar horários previstos de entrada e saída e restrição por horário (projeto futuro).
+
 - [ ] Permitir serviços com data inicial e final.
 - [ ] Adicionar veículo e placa opcionais.
 - [ ] Adicionar observações específicas para a Guarita.
@@ -185,7 +187,7 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 - [ ] Registrar execuções manuais e automáticas dos jobs.
 - [x] Filtrar auditoria por usuário, IP e período.
 - [ ] Definir prazo de retenção da auditoria.
-- [ ] Revisar e atualizar Laravel e dependências.
+- [x] Revisar e atualizar Laravel e dependências.
 
 ## 7. Infraestrutura antes da produção
 
@@ -207,11 +209,11 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 - [x] Entrada e saída atualizam o serviço.
 - [x] Serviço permite qualquer funcionário regular da empresa.
 - [x] Empresa inativa bloqueia todos os funcionários.
-- [ ] Documento bloqueia exatamente na data limite.
-- [ ] Renovação preserva corretamente a versão anterior.
-- [ ] Limites de data e horário do serviço são respeitados.
-- [ ] Concorrência impede duas entradas simultâneas.
-- [ ] Falha no SMTP não interrompe a validade documental.
+- [x] Documento bloqueia exatamente na data limite.
+- [x] Renovação preserva corretamente a versão anterior.
+- [x] Acesso considera a data do serviço, sem restrição por horários previstos.
+- [x] Concorrência impede duas entradas simultâneas.
+- [x] Falha no SMTP não interrompe a validade documental.
 - [ ] Backup completo pode ser restaurado em ambiente limpo.
 
 ## 9. Projeto futuro
@@ -224,11 +226,4 @@ As permissões são aplicadas nas rotas do servidor, inclusive para URLs digitad
 
 ## 10. Próxima entrega recomendada
 
-Implementar em conjunto:
-
-1. status ativo/inativo da empresa;
-2. bloqueio de funcionários de empresa inativa;
-3. preservação de registros com histórico;
-4. registro das tentativas de entrada bloqueadas.
-
-Essa entrega impede acessos de empresas suspensas sem perder as evidências da decisão tomada pela portaria.
+Revisar os fluxos por filial e a atualização de segurança em homologação. A infraestrutura da seção 7 permanece pendente por decisão do responsável; esta revisão não altera o ambiente em uso.

@@ -35,34 +35,36 @@ class UsuarioController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'      => 'required|string|max:255',
-            'setor'     => 'required|string|max:255',
-            'username'  => 'required|string|max:100|unique:usuarios,username',
-            'email'     => 'required|email|max:255|unique:usuarios,email',
-            'password'  => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
-            'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
-            'ativo'     => 'required|boolean',
-            'filiais' => 'nullable|array|min:1',
-            'filiais.*' => 'integer|exists:filiais,id',
-            'filial_principal_id' => 'nullable|integer|exists:filiais,id',
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            $request->validate([
+                'name'      => 'required|string|max:255',
+                'setor'     => 'required|string|max:255',
+                'username'  => 'required|string|max:100|unique:usuarios,username',
+                'email'     => 'required|email|max:255|unique:usuarios,email',
+                'password'  => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
+                'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
+                'ativo'     => 'required|boolean',
+                'filiais' => 'nullable|array|min:1',
+                'filiais.*' => 'integer|exists:filiais,id',
+                'filial_principal_id' => 'nullable|integer|exists:filiais,id',
+            ]);
 
-        $usuario = Usuario::create([
-            'name'      => $request->name,
-            'setor'     => $request->setor,
-            'username'  => $request->username,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'trocar_senha' => true,
-            'permissao' => $request->permissao,
-            'ativo'     => $request->boolean('ativo'),
-        ]);
-        $this->sincronizarFiliais($request, $usuario);
+            $usuario = Usuario::create([
+                'name'      => $request->name,
+                'setor'     => $request->setor,
+                'username'  => $request->username,
+                'email'     => $request->email,
+                'password'  => Hash::make($request->password),
+                'trocar_senha' => true,
+                'permissao' => $request->permissao,
+                'ativo'     => $request->boolean('ativo'),
+            ]);
+            $this->sincronizarFiliais($request, $usuario);
 
-        return redirect()
-            ->route('usuarios.index')
-            ->with('success', 'Usuário cadastrado com sucesso!');
+            return redirect()
+                ->route('usuarios.index')
+                ->with('success', 'Usuário cadastrado com sucesso!');
+        });
     }
 
     public function show(Usuario $usuario)
@@ -80,58 +82,60 @@ class UsuarioController extends Controller
 
     public function update(Request $request, Usuario $usuario)
     {
-        $request->validate([
-            'name'      => 'required|string|max:255',
-            'setor'     => 'required|string|max:255',
-            'username'  => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
-            'email'     => 'required|email|max:255|unique:usuarios,email,' . $usuario->id,
-            'password'  => ['nullable', 'string', 'min:8', 'confirmed', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
-            'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
-            'ativo'     => 'required|boolean',
-            'motivo_inativacao' => 'nullable|required_if:ativo,0|string|min:5|max:1000',
-            'filiais' => 'nullable|array|min:1',
-            'filiais.*' => 'integer|exists:filiais,id',
-            'filial_principal_id' => 'nullable|integer|exists:filiais,id',
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $usuario) {
+            $request->validate([
+                'name'      => 'required|string|max:255',
+                'setor'     => 'required|string|max:255',
+                'username'  => 'required|string|max:100|unique:usuarios,username,' . $usuario->id,
+                'email'     => 'required|email|max:255|unique:usuarios,email,' . $usuario->id,
+                'password'  => ['nullable', 'string', 'min:8', 'confirmed', 'regex:/[A-Za-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
+                'permissao' => 'required|in:Administrador,Solicitante,Segurança do Trabalho,Guarita',
+                'ativo'     => 'required|boolean',
+                'motivo_inativacao' => 'nullable|required_if:ativo,0|string|min:5|max:1000',
+                'filiais' => 'nullable|array|min:1',
+                'filiais.*' => 'integer|exists:filiais,id',
+                'filial_principal_id' => 'nullable|integer|exists:filiais,id',
+            ]);
 
-        $data = $request->only([
-            'name',
-            'setor',
-            'username',
-            'email',
-            'permissao',
-            'ativo',
-        ]);
+            $data = $request->only([
+                'name',
+                'setor',
+                'username',
+                'email',
+                'permissao',
+                'ativo',
+            ]);
 
-        $data['ativo'] = $request->boolean('ativo');
-        if (Auth::id() === $usuario->id && !$data['ativo']) {
-            return back()->withErrors(['ativo' => 'Você não pode inativar a própria conta.'])->withInput();
-        }
-        if ($usuario->ativo && !$data['ativo']) {
-            $data['motivo_inativacao'] = trim((string) $request->motivo_inativacao);
-            $data['inativado_por_id'] = Auth::id();
-            $data['inativado_em'] = now();
-        } elseif (!$usuario->ativo && $data['ativo']) {
-            $data['motivo_inativacao'] = null;
-            $data['inativado_por_id'] = null;
-            $data['inativado_em'] = null;
-        } elseif (!$data['ativo']) {
-            $data['motivo_inativacao'] = trim((string) $request->motivo_inativacao);
-        }
+            $data['ativo'] = $request->boolean('ativo');
+            if (Auth::id() === $usuario->id && !$data['ativo']) {
+                return back()->withErrors(['ativo' => 'Você não pode inativar a própria conta.'])->withInput();
+            }
+            if ($usuario->ativo && !$data['ativo']) {
+                $data['motivo_inativacao'] = trim((string) $request->motivo_inativacao);
+                $data['inativado_por_id'] = Auth::id();
+                $data['inativado_em'] = now();
+            } elseif (!$usuario->ativo && $data['ativo']) {
+                $data['motivo_inativacao'] = null;
+                $data['inativado_por_id'] = null;
+                $data['inativado_em'] = null;
+            } elseif (!$data['ativo']) {
+                $data['motivo_inativacao'] = trim((string) $request->motivo_inativacao);
+            }
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-            $data['trocar_senha'] = Auth::id() !== $usuario->id;
-            $data['senha_alterada_em'] = Auth::id() === $usuario->id ? now() : null;
-            $data['remember_token'] = null;
-        }
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+                $data['trocar_senha'] = Auth::id() !== $usuario->id;
+                $data['senha_alterada_em'] = Auth::id() === $usuario->id ? now() : null;
+                $data['remember_token'] = null;
+            }
 
-        $usuario->update($data);
-        $this->sincronizarFiliais($request, $usuario);
+            $usuario->update($data);
+            $this->sincronizarFiliais($request, $usuario);
 
-        return redirect()
-            ->route('usuarios.index')
-            ->with('success', 'Usuário atualizado com sucesso!');
+            return redirect()
+                ->route('usuarios.index')
+                ->with('success', 'Usuário atualizado com sucesso!');
+        });
     }
 
     public function minhaConta()
@@ -178,7 +182,8 @@ class UsuarioController extends Controller
                 ->with('error', 'Você não pode excluir seu próprio usuário.');
         }
 
-        if (\App\Models\Servico::where('solicitante_id', $usuario->id)->exists()) {
+        if (\App\Models\Servico::withoutGlobalScope('filial')->where('solicitante_id', $usuario->id)->exists()
+            || \App\Models\RegistroAcesso::withoutGlobalScope('filial')->where('registrado_por', $usuario->id)->exists()) {
             return back()->with('error', 'Este usuário possui serviços vinculados e não pode ser excluído.');
         }
 

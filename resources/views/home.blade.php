@@ -15,7 +15,7 @@
 <div class="dashboard">
     <header class="dashboard-header">
         <div>
-            <span class="eyebrow">Visão geral</span>
+            <span class="eyebrow">{{ $consolidado ? 'Todas as filiais' : 'Filial operacional selecionada' }}</span>
             <h1>{{ $saudacao }}, {{ auth()->user()->name }}</h1>
             <p>Acompanhe as solicitações e acesse rapidamente as rotinas do TerceirosCR.</p>
         </div>
@@ -43,6 +43,19 @@
         </a>
     </section>
 
+    @if($consolidado)
+        <section class="panel" style="overflow-x:auto">
+            <table class="filiais-summary">
+                <caption>Operação por filial — empresas e documentos são compartilhados</caption>
+                <thead><tr><th>Filial</th><th>Situação</th><th>Serviços agendados</th><th>Pessoas presentes</th></tr></thead>
+                <tbody>
+                    @foreach($resumoFiliais as $resumo)
+                        <tr><td>{{ $resumo['nome'] }}</td><td>{{ $resumo['ativa'] ? 'Ativa' : 'Inativa' }}</td><td>{{ $resumo['agendados'] }}</td><td>{{ $resumo['presentes'] }}</td></tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </section>
+    @else
     <div class="dashboard-grid">
         <section class="panel upcoming-panel">
             <div class="panel-header">
@@ -77,5 +90,6 @@
             </nav>
         </aside>
     </div>
+    @endif
 </div>
 @endsection

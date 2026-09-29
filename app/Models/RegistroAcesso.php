@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegistroAcesso extends Model
 {
-    use Auditable;
+    use Auditable, \App\Models\Concerns\BelongsToFilial;
 
     protected $table = 'registros_acesso';
     protected $fillable = ['funcionario_id', 'servico_id', 'registrado_por', 'endereco_ip', 'decisao', 'tipo_registro', 'categoria', 'motivo', 'observacao', 'observacao_saida', 'entrada_em', 'saida_em'];

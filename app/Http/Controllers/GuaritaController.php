@@ -9,6 +9,7 @@ use App\Models\DocumentoFuncionario;
 use App\Models\RegistroAcesso;
 use App\Models\Servico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GuaritaController extends Controller
 {
@@ -59,7 +60,7 @@ class GuaritaController extends Controller
         $servicosHoje = Servico::with(['empresa', 'setor'])
             ->whereDate('data_servico', today())
             ->whereIn('status', ['Agendado', 'Em Andamento'])
-            ->orderBy('hora_inicio')
+            ->orderBy('id')
             ->limit(8)
             ->get();
 
@@ -70,11 +71,7 @@ class GuaritaController extends Controller
                 ->whereBetween('validade_ate', [today(), today()->addDays(30)])
                 ->count();
 
-        $entradasAtrasadas = $presentes->filter(function ($registro) {
-            if ($registro->entrada_em->lt(today())) return true;
-            return $registro->servico && $registro->servico->hora_fim
-                && now()->format('H:i:s') > $registro->servico->hora_fim;
-        })->count();
+        $entradasAtrasadas = $presentes->filter(fn ($registro) => $registro->entrada_em->lt(today()))->count();
 
         return view('guarita.index', compact(
             'busca', 'resultados', 'presentes', 'indicadores', 'statusServicos',
@@ -105,7 +102,7 @@ class GuaritaController extends Controller
             $arquivo = fopen('php://output', 'w');
             fputcsv($arquivo, ['Data', 'Funcionário', 'CPF', 'Empresa', 'Serviço', 'Setor', 'Entrada', 'Saída', 'Situação', 'Operador', 'Motivo'], ';');
             foreach ($registros as $registro) {
-                fputcsv($arquivo, [
+                fputcsv($arquivo, \App\Support\Csv::safeRow([
                     $registro->created_at->format('d/m/Y H:i'),
                     optional($registro->funcionario)->nome,
                     optional($registro->funcionario)->cpf,
@@ -117,7 +114,7 @@ class GuaritaController extends Controller
                     $this->situacaoRegistro($registro),
                     optional($registro->operador)->name,
                     $registro->motivo,
-                ], ';');
+                ]), ';');
             }
             fclose($arquivo);
         }, $nome, ['Content-Type' => 'text/csv; charset=UTF-8']);
@@ -125,68 +122,78 @@ class GuaritaController extends Controller
 
     public function entrada(Request $request, Funcionario $funcionario)
     {
-        $dados = $request->validate([
-            'categoria' => 'nullable|in:Documento fisico,Comportamento,Veiculo,Material,Seguranca,Outro',
-            'observacao' => 'nullable|string|max:1000',
-        ]);
-        $avaliacao = $this->avaliar($funcionario->load(['empresa.documentos', 'documentos']));
-        if (!$avaliacao['liberado']) {
+        return DB::transaction(function () use ($request, $funcionario) {
+            // Serialize all entries/exits for this person, including other branches.
+            $funcionario = Funcionario::whereKey($funcionario->id)->lockForUpdate()->firstOrFail();
+            $dados = $request->validate([
+                'categoria' => 'nullable|in:Documento fisico,Comportamento,Veiculo,Material,Seguranca,Outro',
+                'observacao' => 'nullable|string|max:1000',
+            ]);
+            $avaliacao = $this->avaliar($funcionario->load(['empresa.documentos', 'documentos']), true);
+            if (!$avaliacao['liberado']) {
+                RegistroAcesso::create([
+                    'funcionario_id' => $funcionario->id,
+                    'servico_id' => optional($avaliacao['servico'])->id,
+                    'registrado_por' => $request->user()->id,
+                    'endereco_ip' => $request->ip(),
+                    'decisao' => 'Bloqueado',
+                    'motivo' => implode(' ', $avaliacao['motivos']),
+                    'categoria' => $dados['categoria'] ?? null,
+                    'observacao' => $dados['observacao'] ?? null,
+                ]);
+                return back()->with('error', implode(' ', $avaliacao['motivos']));
+            }
+
+            if (RegistroAcesso::withoutGlobalScope('filial')->where('funcionario_id', $funcionario->id)->whereNull('saida_em')->whereNotNull('entrada_em')->exists()) {
+                return back()->with('error', 'Este funcionário já possui uma entrada aberta.');
+            }
+
             RegistroAcesso::create([
                 'funcionario_id' => $funcionario->id,
-                'servico_id' => optional($avaliacao['servico'])->id,
+                'servico_id' => $avaliacao['servico']->id,
                 'registrado_por' => $request->user()->id,
                 'endereco_ip' => $request->ip(),
-                'decisao' => 'Bloqueado',
-                'motivo' => implode(' ', $avaliacao['motivos']),
+                'decisao' => 'Liberado',
                 'categoria' => $dados['categoria'] ?? null,
                 'observacao' => $dados['observacao'] ?? null,
+                'entrada_em' => now(),
             ]);
-            return back()->with('error', implode(' ', $avaliacao['motivos']));
-        }
-
-        if (RegistroAcesso::where('funcionario_id', $funcionario->id)->whereNull('saida_em')->whereNotNull('entrada_em')->exists()) {
-            return back()->with('error', 'Este funcionário já possui uma entrada aberta.');
-        }
-
-        RegistroAcesso::create([
-            'funcionario_id' => $funcionario->id,
-            'servico_id' => $avaliacao['servico']->id,
-            'registrado_por' => $request->user()->id,
-            'endereco_ip' => $request->ip(),
-            'decisao' => 'Liberado',
-            'categoria' => $dados['categoria'] ?? null,
-            'observacao' => $dados['observacao'] ?? null,
-            'entrada_em' => now(),
-        ]);
-        $avaliacao['servico']->update([
-            'status' => 'Em Andamento',
-            'data_conclusao' => null,
-        ]);
-        return back()->with('success', 'Entrada registrada para ' . $funcionario->nome . '.');
+            $avaliacao['servico']->update([
+                'status' => 'Em Andamento',
+                'data_conclusao' => null,
+            ]);
+            return back()->with('success', 'Entrada registrada para ' . $funcionario->nome . '.');
+        }, 3);
     }
 
     public function saida(Request $request, RegistroAcesso $registro)
     {
-        abort_if($registro->saida_em || !$registro->entrada_em, 422, 'Registro de acesso já encerrado.');
-        $dados = $request->validate(['observacao_saida' => 'nullable|string|max:1000']);
-        $registro->update(['saida_em' => now(), 'observacao_saida' => $dados['observacao_saida'] ?? null]);
+        return DB::transaction(function () use ($request, $registro) {
+            Funcionario::whereKey($registro->funcionario_id)->lockForUpdate()->firstOrFail();
+            $servico = $registro->servico_id
+                ? Servico::whereKey($registro->servico_id)->lockForUpdate()->firstOrFail() : null;
+            $registro = RegistroAcesso::whereKey($registro->id)->lockForUpdate()->firstOrFail();
+            abort_if($registro->saida_em || !$registro->entrada_em, 422, 'Registro de acesso já encerrado.');
+            $dados = $request->validate(['observacao_saida' => 'nullable|string|max:1000']);
+            $registro->update(['saida_em' => now(), 'observacao_saida' => $dados['observacao_saida'] ?? null]);
 
-        if ($registro->servico_id) {
-            $temOutraEntradaAberta = RegistroAcesso::where('servico_id', $registro->servico_id)
-                ->where('id', '!=', $registro->id)
-                ->whereNotNull('entrada_em')
-                ->whereNull('saida_em')
-                ->exists();
+            if ($registro->servico_id) {
+                $temOutraEntradaAberta = RegistroAcesso::where('servico_id', $registro->servico_id)
+                    ->where('id', '!=', $registro->id)
+                    ->whereNotNull('entrada_em')
+                    ->whereNull('saida_em')
+                    ->exists();
 
-            if (!$temOutraEntradaAberta) {
-                $registro->servico()->update([
-                    'status' => 'Finalizado',
-                    'data_conclusao' => today()->toDateString(),
-                ]);
+                if (!$temOutraEntradaAberta && $servico->status !== 'Cancelado') {
+                    $servico->update([
+                        'status' => 'Finalizado',
+                        'data_conclusao' => today()->toDateString(),
+                    ]);
+                }
             }
-        }
 
-        return back()->with('success', 'Saída registrada para ' . $registro->funcionario->nome . '.');
+            return back()->with('success', 'Saída registrada para ' . $registro->funcionario->nome . '.');
+        }, 3);
     }
 
     public function registrarOcorrencia(Request $request, Funcionario $funcionario)
@@ -225,12 +232,12 @@ class GuaritaController extends Controller
             echo "\xEF\xBB\xBF";
             $arquivo = fopen('php://output', 'w');
             fputcsv($arquivo, ['Data', 'Tipo', 'Categoria', 'Funcionario', 'CPF', 'Empresa', 'Servico', 'Motivo', 'Observacao', 'Operador', 'IP'], ';');
-            foreach ($registros as $registro) fputcsv($arquivo, [
+            foreach ($registros as $registro) fputcsv($arquivo, \App\Support\Csv::safeRow([
                 $registro->created_at->format('d/m/Y H:i:s'), $registro->decisao === 'Bloqueado' ? 'Bloqueio' : 'Ocorrencia',
                 $registro->categoria, optional($registro->funcionario)->nome, optional($registro->funcionario)->cpf,
                 optional(optional($registro->funcionario)->empresa)->nome, optional($registro->servico)->descricao,
                 $registro->motivo, $registro->observacao, optional($registro->operador)->name, $registro->endereco_ip,
-            ], ';');
+            ]), ';');
             fclose($arquivo);
         }, 'ocorrencias-portaria-' . now()->format('Y-m-d-His') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
@@ -265,12 +272,13 @@ class GuaritaController extends Controller
         ]);
     }
 
-    private function avaliar(Funcionario $funcionario): array
+    private function avaliar(Funcionario $funcionario, bool $bloquear = false): array
     {
         $servicosHoje = Servico::with(['empresa.documentos', 'setor', 'solicitante'])
             ->where('empresa_id', $funcionario->empresa_id)
             ->whereDate('data_servico', today())
-            ->orderBy('hora_inicio')->get();
+            ->when($bloquear, fn ($query) => $query->lockForUpdate())
+            ->orderBy('id')->get();
 
         $servicos = $servicosHoje->whereIn('status', ['Agendado', 'Em Andamento']);
 
@@ -286,8 +294,6 @@ class GuaritaController extends Controller
         if (!$funcionario->documentacaoRegular()) $motivos[] = 'Funcionário com documentação irregular.';
         if ($servicosHoje->isEmpty()) $motivos[] = 'Nenhuma solicitação cadastrada para esta empresa hoje.';
         elseif ($servicos->isEmpty()) $motivos[] = 'A solicitação está finalizada ou cancelada.';
-        elseif ($servicos->every(fn ($servico) => $servico->hora_inicio && now()->format('H:i:s') < $servico->hora_inicio)) $motivos[] = 'Entrada antes do horário autorizado.';
-        else $motivos[] = 'Entrada fora do horário autorizado.';
 
         return [
             'funcionario' => $funcionario,

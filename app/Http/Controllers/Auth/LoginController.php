@@ -51,6 +51,8 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
+        $request->session()->put('password_hash_web', Auth::guard()->hashPasswordForCookie($user->getAuthPassword()));
+        $request->session()->forget('filial_ativa_id');
         $request->session()->put('ultima_atividade_em', now()->timestamp);
         $this->auditar($request, $user, 'Login realizado', 'Autenticação concluída');
 

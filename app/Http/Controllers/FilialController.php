@@ -8,6 +8,15 @@ use Illuminate\Validation\Rule;
 
 class FilialController extends Controller
 {
+    public function selecionar(Request $request)
+    {
+        $dados = $request->validate(['filial_id' => 'required|integer']);
+        $filiais = $request->attributes->get('filiais_disponiveis', collect());
+        abort_unless($filiais->contains('id', (int) $dados['filial_id']), 403);
+        $request->session()->put('filial_ativa_id', (int) $dados['filial_id']);
+        return redirect()->route('home');
+    }
+
     public function index(Request $request)
     {
         $filiais = Filial::withCount('usuarios')
@@ -44,14 +53,21 @@ class FilialController extends Controller
 
     public function update(Request $request, Filial $filial)
     {
-        $filial->update($this->validar($request, $filial));
+        $dados = $this->validar($request, $filial);
+        if (!$dados['ativa'] && \App\Models\RegistroAcesso::withoutGlobalScope('filial')->where('filial_id', $filial->id)
+            ->whereNotNull('entrada_em')->whereNull('saida_em')->exists()) {
+            return back()->withErrors(['ativa' => 'Registre as saídas pendentes antes de inativar a filial.'])->withInput();
+        }
+        $filial->update($dados);
         return redirect()->route('filiais.show', $filial)->with('success', 'Filial atualizada com sucesso.');
     }
 
     public function destroy(Filial $filial)
     {
-        if ($filial->usuarios()->exists()) {
-            return back()->with('error', 'A filial possui usuários vinculados. Inative-a em vez de excluir.');
+        if ($filial->usuarios()->exists()
+            || \App\Models\Servico::withoutGlobalScope('filial')->where('filial_id', $filial->id)->exists()
+            || \App\Models\RegistroAcesso::withoutGlobalScope('filial')->where('filial_id', $filial->id)->exists()) {
+            return back()->with('error', 'A filial possui usuários ou histórico vinculado. Inative-a em vez de excluir.');
         }
         $filial->delete();
         return redirect()->route('filiais.index')->with('success', 'Filial excluída.');

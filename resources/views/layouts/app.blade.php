@@ -17,6 +17,7 @@
     <link rel="icon" href="{{ asset('img/icone.ico') }}" type="image/x-icon">
 
     @stack('styles')
+    <link href="{{ asset('css/filial.css') }}?v={{ filemtime(public_path('css/filial.css')) }}" rel="stylesheet">
 </head>
 
 <body>
@@ -33,6 +34,7 @@
 
     {{-- CONTEÚDO PRINCIPAL --}}
     <main class="content">
+        @include('layouts.filial')
         @yield('content')
     </main>
 

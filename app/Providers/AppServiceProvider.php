@@ -17,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->app->make(\Illuminate\Contracts\Http\Kernel::class)->addToMiddlewarePriorityBefore(
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\ResolveFilial::class
+        );
         Validator::extend('cnpj', function($attribute, $value, $parameters, $validator) {
             return $this->validCNPJ($value);
         });

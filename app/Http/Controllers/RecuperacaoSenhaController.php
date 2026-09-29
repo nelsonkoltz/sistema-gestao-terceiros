@@ -23,12 +23,15 @@ class RecuperacaoSenhaController extends Controller
         $usuario = Usuario::where('email', $request->email)->where('ativo', true)->first();
         if (!$usuario) return back()->with('status', $mensagem);
 
-        RecuperacaoSenha::where('usuario_id', $usuario->id)->whereNull('utilizado_em')->update(['utilizado_em' => now()]);
         $token = Str::random(64);
-        RecuperacaoSenha::create([
-            'usuario_id' => $usuario->id, 'token_hash' => hash('sha256', $token),
-            'expira_em' => now()->addMinutes(30), 'ip_solicitacao' => $request->ip(),
-        ]);
+        DB::transaction(function () use ($usuario, $token, $request) {
+            Usuario::whereKey($usuario->id)->lockForUpdate()->firstOrFail();
+            RecuperacaoSenha::where('usuario_id', $usuario->id)->whereNull('utilizado_em')->update(['utilizado_em' => now()]);
+            RecuperacaoSenha::create([
+                'usuario_id' => $usuario->id, 'token_hash' => hash('sha256', $token),
+                'expira_em' => now()->addMinutes(30), 'ip_solicitacao' => $request->ip(),
+            ]);
+        });
 
         $podeEnviar = $emailService->configurarEmail() || app()->environment('testing');
         if ($podeEnviar) {
@@ -59,16 +62,21 @@ class RecuperacaoSenhaController extends Controller
         $registro = $this->registroValido($request->token);
         if (!$registro) return back()->withErrors(['token' => 'Este link é inválido, expirou ou já foi utilizado.']);
 
-        DB::transaction(function () use ($registro, $request) {
-            $registro->usuario->update([
+        return DB::transaction(function () use ($registro, $request) {
+            $usuario = Usuario::whereKey($registro->usuario_id)->lockForUpdate()->firstOrFail();
+            $registro = RecuperacaoSenha::whereKey($registro->id)->lockForUpdate()->firstOrFail();
+            if (!$usuario->ativo || $registro->utilizado_em || $registro->expira_em->lte(now())) {
+                return back()->withErrors(['token' => 'Este link é inválido, expirou ou já foi utilizado.']);
+            }
+            $usuario->update([
                 'password' => Hash::make($request->password), 'trocar_senha' => false,
                 'senha_alterada_em' => now(),
             ]);
-            $registro->usuario->forceFill(['remember_token' => Str::random(60)])->save();
-            $registro->update(['utilizado_em' => now()]);
-        });
-        $this->auditar($registro->usuario, 'Senha redefinida', $request, ['metodo' => 'link de recuperação']);
-        return redirect()->route('login')->with('status', 'Senha redefinida com sucesso. Você já pode entrar.');
+            $usuario->forceFill(['remember_token' => Str::random(60)])->save();
+            RecuperacaoSenha::where('usuario_id', $usuario->id)->whereNull('utilizado_em')->update(['utilizado_em' => now()]);
+            $this->auditar($usuario, 'Senha redefinida', $request, ['metodo' => 'link de recuperação']);
+            return redirect()->route('login')->with('status', 'Senha redefinida com sucesso. Você já pode entrar.');
+        }, 3);
     }
 
     private function registroValido(string $token): ?RecuperacaoSenha

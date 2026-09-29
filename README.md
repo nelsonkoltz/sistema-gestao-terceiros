@@ -1,5 +1,7 @@
 # Sistema de Gestão de Terceiros (TerceiroCR)
 
+Revisão de segurança e operação por filial: [REVISAO.md](REVISAO.md). O projeto utiliza Laravel 12 e PHP 8.2; os estilos são mantidos diretamente em `public/css`, sem etapa npm.
+
 Sistema web corporativo desenvolvido para gerenciar empresas terceirizadas, funcionários vinculados e solicitações de serviço dentro de um ambiente empresarial.
 
 O sistema é utilizado em ambiente real na empresa onde atuo.

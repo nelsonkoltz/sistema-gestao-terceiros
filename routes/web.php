@@ -30,26 +30,20 @@ use App\Http\Controllers\FilialController;
 */
 
 // Login (somente visitante)
-Route::get('login', [LoginController::class, 'showLoginForm'])
-    ->middleware('guest')
-    ->name('login');
+Route::get('login', [LoginController::class, 'showLoginForm'])->middleware('guest')->name('login');
 
 // Processa login
-Route::post('login', [LoginController::class, 'login'])
-    ->middleware('throttle:5,1')
-    ->name('login.post');
+Route::post('login', [LoginController::class, 'login'])->middleware('throttle:5,1')->name('login.post');
 
 Route::middleware('guest')->group(function () {
-    Route::get('esqueci-minha-senha', [RecuperacaoSenhaController::class, 'solicitar'])->name('senha.solicitar');
-    Route::post('esqueci-minha-senha', [RecuperacaoSenhaController::class, 'enviar'])->middleware('throttle:3,10')->name('senha.enviar');
-    Route::get('redefinir-senha/{token}', [RecuperacaoSenhaController::class, 'redefinir'])->name('senha.redefinir');
-    Route::post('redefinir-senha', [RecuperacaoSenhaController::class, 'atualizar'])->middleware('throttle:5,10')->name('senha.atualizar');
+    Route::get ('esqueci-minha-senha',     [RecuperacaoSenhaController::class, 'solicitar'])->name('senha.solicitar');
+    Route::post('esqueci-minha-senha',     [RecuperacaoSenhaController::class, 'enviar'])   ->middleware('throttle:3,10')->name('senha.enviar');
+    Route::get ('redefinir-senha/{token}', [RecuperacaoSenhaController::class, 'redefinir'])->name('senha.redefinir');
+    Route::post('redefinir-senha',         [RecuperacaoSenhaController::class, 'atualizar'])->middleware('throttle:5,10')->name('senha.atualizar');
 });
 
 // Logout
-Route::post('logout', [LoginController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
+Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 /*
 |--------------------------------------------------------------------------
@@ -58,12 +52,12 @@ Route::post('logout', [LoginController::class, 'logout'])
 */
 
 Route::middleware('auth')
-    ->get('/', [HomeController::class, 'index'])
-    ->name('home');
+    ->get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware('auth')->group(function () {
-    Route::get('minha-conta', [UsuarioController::class, 'minhaConta'])->name('minha-conta.index');
-    Route::put('minha-conta/senha', [UsuarioController::class, 'alterarMinhaSenha'])->name('minha-conta.senha');
+    Route::post('filial-ativa',      [FilialController::class, 'selecionar'])        ->name('filial.selecionar');
+    Route::get ('minha-conta',       [UsuarioController::class, 'minhaConta'])       ->name('minha-conta.index');
+    Route::put ('minha-conta/senha', [UsuarioController::class, 'alterarMinhaSenha'])->name('minha-conta.senha');
 });
 
 /*
@@ -81,9 +75,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureWritePermission::class])->
     */
 
     // Busca para autocomplete
-    Route::get('empresas/search', [EmpresaController::class, 'search'])
-        ->middleware('role:Administrador,Segurança do Trabalho')
-        ->name('empresas.search');
+    Route::get('empresas/search', [EmpresaController::class, 'search'])->middleware('role:Administrador,Segurança do Trabalho')->name('empresas.search');
 
     // CRUD completo
     Route::resource('empresas', EmpresaController::class)->middleware('role:Administrador,Segurança do Trabalho');

@@ -205,8 +205,8 @@ class EmpresaController extends Controller
        ===================================== */
     public function destroy(Empresa $empresa)
     {
-        $possuiHistorico = $empresa->servicos()->exists()
-            || RegistroAcesso::whereHas('funcionario', fn ($query) => $query->where('empresa_id', $empresa->id))->exists();
+        $possuiHistorico = $empresa->servicos()->withoutGlobalScope('filial')->exists()
+            || RegistroAcesso::withoutGlobalScope('filial')->whereHas('funcionario', fn ($query) => $query->where('empresa_id', $empresa->id))->exists();
 
         if ($possuiHistorico) {
             if ($empresa->ativo) {

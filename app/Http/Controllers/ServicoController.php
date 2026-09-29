@@ -8,6 +8,7 @@ use App\Models\Setor;
 use App\Http\Requests\ServicoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ServicoController extends Controller
 {
@@ -147,20 +148,22 @@ class ServicoController extends Controller
      */
     public function update(ServicoRequest $request, $id)
     {
-        $servico = Servico::findOrFail($id);
-        $this->garantirAcesso($servico);
-        abort_if($servico->status === 'Cancelado', 422, 'Uma solicitacao cancelada nao pode ser alterada.');
-        $data = $request->validated();
+        return DB::transaction(function () use ($request, $id) {
+            $servico = Servico::whereKey($id)->lockForUpdate()->firstOrFail();
+            $this->garantirAcesso($servico);
+            abort_if($servico->status === 'Cancelado', 422, 'Uma solicitacao cancelada nao pode ser alterada.');
+            $data = $request->validated();
 
-        if (Auth::user()->permissao === 'Solicitante') {
-            $data['status'] = $servico->status;
-        }
+            if (Auth::user()->permissao === 'Solicitante') {
+                $data['status'] = $servico->status;
+            }
 
-        $servico->update($data);
+            $servico->update($data);
 
-        return redirect()
-            ->route('servicos.index')
-            ->with('success', 'Serviço atualizado com sucesso!');
+            return redirect()
+                ->route('servicos.index')
+                ->with('success', 'Serviço atualizado com sucesso!');
+        }, 3);
     }
 
     /**
@@ -170,43 +173,48 @@ class ServicoController extends Controller
      */
     public function destroy($id)
     {
-        $servico = Servico::findOrFail($id);
-        $this->garantirAcesso($servico);
+        return DB::transaction(function () use ($id) {
+            $servico = Servico::whereKey($id)->lockForUpdate()->firstOrFail();
+            $this->garantirAcesso($servico);
 
-        if ($servico->registrosAcesso()->exists()) {
-            return redirect()->route('servicos.index')
-                ->with('error', 'Esta solicitação possui histórico e não pode ser excluída. Use a ação Cancelar e informe o motivo.');
-        }
+            if ($servico->registrosAcesso()->exists()) {
+                return redirect()->route('servicos.index')
+                    ->with('error', 'Esta solicitação possui histórico e não pode ser excluída. Use a ação Cancelar e informe o motivo.');
+            }
 
-        $servico->delete();
+            $servico->delete();
 
-        return redirect()
-            ->route('servicos.index')
-            ->with('success', 'Serviço excluído com sucesso!');
+            return redirect()
+                ->route('servicos.index')
+                ->with('success', 'Serviço excluído com sucesso!');
+        }, 3);
     }
 
     public function cancelar(Request $request, Servico $servico)
     {
-        $this->garantirAcesso($servico);
-        $dados = $request->validate([
-            'motivo_cancelamento' => 'required|string|min:5|max:1000',
-        ], [
-            'motivo_cancelamento.required' => 'Informe o motivo do cancelamento.',
-            'motivo_cancelamento.min' => 'O motivo deve ter pelo menos 5 caracteres.',
-        ]);
+        return DB::transaction(function () use ($request, $servico) {
+            $servico = Servico::whereKey($servico->id)->lockForUpdate()->firstOrFail();
+            $this->garantirAcesso($servico);
+            $dados = $request->validate([
+                'motivo_cancelamento' => 'required|string|min:5|max:1000',
+            ], [
+                'motivo_cancelamento.required' => 'Informe o motivo do cancelamento.',
+                'motivo_cancelamento.min' => 'O motivo deve ter pelo menos 5 caracteres.',
+            ]);
 
-        if ($servico->status === 'Cancelado') return back()->with('error', 'Esta solicitacao ja esta cancelada.');
-        if ($servico->status === 'Finalizado') return back()->with('error', 'Uma solicitacao finalizada nao pode ser cancelada.');
+            if ($servico->status === 'Cancelado') return back()->with('error', 'Esta solicitacao ja esta cancelada.');
+            if ($servico->status === 'Finalizado') return back()->with('error', 'Uma solicitacao finalizada nao pode ser cancelada.');
 
-        $servico->update([
-            'status' => 'Cancelado',
-            'motivo_cancelamento' => trim($dados['motivo_cancelamento']),
-            'cancelado_por_id' => $request->user()->id,
-            'cancelado_em' => now(),
-        ]);
+            $servico->update([
+                'status' => 'Cancelado',
+                'motivo_cancelamento' => trim($dados['motivo_cancelamento']),
+                'cancelado_por_id' => $request->user()->id,
+                'cancelado_em' => now(),
+            ]);
 
-        return redirect()->route('servicos.show', $servico)
-            ->with('success', 'Solicitacao cancelada. Novas entradas foram bloqueadas.');
+            return redirect()->route('servicos.show', $servico)
+                ->with('success', 'Solicitacao cancelada. Novas entradas foram bloqueadas.');
+        }, 3);
     }
 
     private function garantirAcesso(Servico $servico): void

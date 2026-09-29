@@ -194,7 +194,7 @@ class FuncionarioController extends Controller
     // =============================
     public function destroy(Funcionario $funcionario)
     {
-        if ($funcionario->registrosAcesso()->exists()) {
+        if ($funcionario->registrosAcesso()->withoutGlobalScope('filial')->exists()) {
             $funcionario->update(['ativo' => false]);
 
             return redirect()->route('funcionarios.index')

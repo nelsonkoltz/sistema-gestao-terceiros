@@ -8,7 +8,7 @@ use App\Models\Concerns\Auditable;
 
 class Servico extends Model
 {
-    use HasFactory, Auditable;
+    use HasFactory, Auditable, \App\Models\Concerns\BelongsToFilial;
 
     /**
      * Nome da tabela
@@ -107,8 +107,6 @@ class Servico extends Model
         if (!in_array($this->status, ['Agendado', 'Em Andamento'], true)) $motivos[] = 'Solicitação não está ativa.';
         if (!$this->data_servico?->isSameDay(today())) $motivos[] = 'Solicitação fora da data autorizada.';
 
-        if ($this->hora_inicio && now()->format('H:i:s') < $this->hora_inicio) $motivos[] = 'Entrada antes do horário autorizado.';
-        if ($this->hora_fim && now()->format('H:i:s') > $this->hora_fim) $motivos[] = 'Entrada após o horário autorizado.';
         if (!$this->empresa->ativo) $motivos[] = 'Empresa inativa: ' . ($this->empresa->motivo_inativacao ?: 'acesso suspenso pela Segurança do Trabalho') . '.';
         if (!$this->empresa->documentacaoRegular()) $motivos[] = 'Empresa com documentação irregular.';
         if (!$funcionario->ativo) $motivos[] = 'Funcionário inativo.';

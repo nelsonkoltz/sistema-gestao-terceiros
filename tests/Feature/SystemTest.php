@@ -26,10 +26,12 @@ class SystemTest extends TestCase
 
     private function user($role = 'Administrador')
     {
-        return Usuario::create([
+        $usuario = Usuario::create([
             'name' => 'Teste', 'username' => 'teste-' . uniqid(),
             'password' => Hash::make('SenhaTeste123!'), 'permissao' => $role, 'ativo' => true,
         ]);
+        $usuario->filiais()->attach(\App\Models\Filial::where('codigo', 'MATRIZ')->value('id'), ['principal' => true]);
+        return $usuario;
     }
 
     private function companyData()
@@ -111,12 +113,14 @@ class SystemTest extends TestCase
         $sector = Setor::create(['nome' => 'Administrativo']);
         $data = ['empresa_id' => $company->id, 'setor_id' => $sector->id,
             'descricao' => 'Manutenção', 'vai_almocar' => '0', 'status' => 'Agendado',
-            'data_servico' => today()->toDateString(), 'hora_inicio' => '08:00', 'hora_fim' => '18:00'];
-        $this->get('/servicos/create')->assertOk();
+            'data_servico' => today()->toDateString()];
+        $this->get('/servicos/create')->assertOk()->assertDontSee('name="hora_inicio"', false)->assertDontSee('name="hora_fim"', false);
         $this->post('/servicos', $data)->assertSessionHasNoErrors();
         $service = Servico::firstOrFail();
+        $this->assertNull($service->hora_inicio);
+        $this->assertNull($service->hora_fim);
         $this->get('/servicos/' . $service->id)->assertOk();
-        $this->get('/servicos/' . $service->id . '/edit')->assertOk();
+        $this->get('/servicos/' . $service->id . '/edit')->assertOk()->assertDontSee('name="hora_inicio"', false)->assertDontSee('name="hora_fim"', false);
         $data['status'] = 'Finalizado';
         $data['data_conclusao'] = today()->subDay()->toDateString();
         $this->put('/servicos/' . $service->id, $data)->assertSessionHasErrors('data_conclusao');

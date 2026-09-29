@@ -17,7 +17,13 @@ class EnviarAlertasDocumentos extends Command
             $this->info('Job de documentos desativado.');
             return self::SUCCESS;
         }
-        $total = $service->enviar();
+        try {
+            $total = $service->enviar();
+        } catch (\Throwable $e) {
+            report($e);
+            $this->error('Falha ao enviar os alertas. A verificação de validade permanece independente do SMTP.');
+            return self::FAILURE;
+        }
         $this->info("Alertas enviados para {$total} destinatário(s).");
         return self::SUCCESS;
     }
